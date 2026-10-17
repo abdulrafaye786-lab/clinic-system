@@ -53,9 +53,13 @@ async function login(req, res) {
 
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '30d' });
 
-    // Audit log
-    await query('INSERT INTO audit_logs (user_name, action, entity, details) VALUES (?, ?, ?, ?)',
-      [user.full_name, 'LOGIN', 'users', `User logged in from IP ${req.ip}`]);
+    // Audit log (non-blocking for resilient login)
+    try {
+      await query('INSERT INTO audit_logs (user_name, action, entity, details) VALUES (?, ?, ?, ?)',
+        [user.full_name, 'LOGIN', 'users', `User logged in from IP ${req.ip}`]);
+    } catch (auditErr) {
+      console.warn('[LOGIN AUDIT WARN]', auditErr.message);
+    }
 
     return res.json({
       success: true,
@@ -64,15 +68,18 @@ async function login(req, res) {
       user: tokenPayload,
       clinic: {
         name: clinic.clinic_name || 'Dream Garden PolyClinic',
-        tagline: clinic.tagline,
-        phone: clinic.phone,
-        address: clinic.address,
+        tagline: clinic.tagline || 'Excellence in Healthcare',
+        phone: clinic.phone || '+92 300 1234567',
+        address: clinic.address || 'Dream Garden, Lahore',
         currency: clinic.currency_symbol || 'Rs.'
       }
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ success: false, message: 'Internal server error during authentication.' });
+    const msg = (process.env.SUPABASE_ACCESS_TOKEN && process.env.SUPABASE_PROJECT_REF)
+      ? 'Internal server error during authentication.'
+      : 'Database environment variables are missing on Vercel. Please set SUPABASE_PROJECT_REF and SUPABASE_ACCESS_TOKEN in Vercel Settings.';
+    return res.status(500).json({ success: false, message: msg });
   }
 }
 
