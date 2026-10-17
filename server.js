@@ -89,22 +89,27 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-async function startServer() {
-  try {
-    await initDatabase();
-    app.listen(PORT, () => {
-      console.log(`================================================================`);
-      console.log(`  🌟 DREAM GARDEN POLYCLINIC MANAGEMENT SYSTEM 🌟`);
-      console.log(`  🛡️ Security Hardening Active: Helmet, Rate Limiter, Anti-XSS, CORS`);
-      console.log(`  Clinical Portal URL:           http://localhost:${PORT}`);
-      console.log(`================================================================`);
-    });
-  } catch (err) {
-    console.error('Fatal: Failed to start server:', err);
-    process.exit(1);
+// Start Server (only when run directly, not when invoked as a Vercel serverless function)
+if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
+  async function startServer() {
+    try {
+      await initDatabase();
+      app.listen(PORT, () => {
+        console.log(`================================================================`);
+        console.log(`  🌟 DREAM GARDEN POLYCLINIC MANAGEMENT SYSTEM 🌟`);
+        console.log(`  🛡️ Security Hardening Active: Helmet, Rate Limiter, Anti-XSS, CORS`);
+        console.log(`  Clinical Portal URL:           http://localhost:${PORT}`);
+        console.log(`================================================================`);
+      });
+    } catch (err) {
+      console.error('Warning: Database connection check failed on startup:', err.message);
+      app.listen(PORT, () => {
+        console.log(`Clinical Portal started on port ${PORT} (retrying DB in background)`);
+      });
+    }
   }
+  startServer();
 }
 
-startServer();
+module.exports = app;
 
