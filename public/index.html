@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dream Garden PolyClinic - Management System</title>
+  
+  <!-- Healthcare Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png?v=5">
+  <link rel="apple-touch-icon" href="/favicon.png?v=5">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS with cache-busting -->
+  <link rel="stylesheet" href="css/styles.css?v=52.0-emerald-sanctuary">
+</head>
+<body>
+
+  <!-- Fullscreen Login View (Shown when not authenticated) -->
+  <div id="login-screen" class="login-screen-wrapper" style="display: none;">
+    
+    <!-- Background glowing ambient circles & grid -->
+    <div class="login-ambient-orb-1"></div>
+    <div class="login-ambient-orb-2"></div>
+    <div class="login-ambient-grid"></div>
+
+    <div class="login-card-container">
+      
+      <!-- Left Panel: Hospital Brand & Capabilities Showcase -->
+      <div class="login-branding-panel">
+        <div>
+          <div class="login-brand-header">
+            <div class="login-brand-badge">
+              <img src="/logo.jpg?v=5" alt="Clinic Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+            </div>
+            <h1 class="login-brand-title">Dream Garden<br>PolyClinic</h1>
+            <p class="login-brand-subtitle">Clinical Operating System & Patient OPD Portal <span style="font-size: 0.7rem; background: rgba(255, 255, 255, 0.15); color: #a7f3d0; padding: 2px 7px; border-radius: 9999px; margin-left: 6px; font-weight: 600;">v1.0</span></p>
+          </div>
+
+          <div class="login-features-list">
+            <div class="login-feature-item">
+              <div class="login-feature-icon"><i class="fa-solid fa-clipboard-user"></i></div>
+              <div><strong>Live OPD Queue</strong> • Fast Token Management</div>
+            </div>
+            <div class="login-feature-item">
+              <div class="login-feature-icon"><i class="fa-solid fa-file-waveform"></i></div>
+              <div><strong>Digital EMR</strong> • Doctor Prescriptions & Vitals</div>
+            </div>
+            <div class="login-feature-item">
+              <div class="login-feature-icon"><i class="fa-solid fa-pills"></i></div>
+              <div><strong>Pharmacy & Dispensary</strong> • Real-time Medicine Stock & POS</div>
+            </div>
+            <div class="login-feature-item">
+              <div class="login-feature-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div><strong>Billing & Analytics</strong> • Thermal Receipts & Reports</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-security-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>256-Bit SSL Encrypted • Role-Based Healthcare Security</span>
+        </div>
+      </div>
+
+      <!-- Right Panel: Authentication & Role Quick-Selector -->
+      <div class="login-form-panel">
+        <h2 class="login-form-title">Portal Sign In</h2>
+        <p class="login-form-subtitle">Enter your clinical credentials to access your dashboard</p>
+
+        <form id="login-form" onsubmit="app.handleLogin(event)">
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label class="form-label" style="font-weight: 700; font-size: 0.78rem; color: #062319; margin-bottom: 0.3rem;">Username</label>
+            <div class="login-input-group" style="margin-bottom: 0;">
+              <input type="text" id="login-username" class="login-input-control" placeholder="Enter username (e.g. admin)" required autofocus>
+              <i class="fa-solid fa-user-doctor login-input-icon"></i>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+              <label class="form-label" style="font-weight: 700; font-size: 0.78rem; color: #062319; margin-bottom: 0;">Password</label>
+            </div>
+            <div class="login-input-group" style="margin-bottom: 0;">
+              <input type="password" id="login-password" class="login-input-control" placeholder="Enter password" required>
+              <i class="fa-solid fa-lock login-input-icon"></i>
+              <button type="button" class="login-password-toggle" onclick="app.togglePasswordVisibility('login-password', this)" title="Toggle password visibility">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="login-btn" class="login-submit-btn">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal
+          </button>
+        </form>
+
+        <div class="login-footer-meta">
+          <i class="fa-solid fa-shield-halved" style="font-size: 0.7rem; color: #059669;"></i> Authorized Healthcare Personnel Only • v5.0
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main Portal Application Container -->
+  <div id="app-container" style="display: none;">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <img src="/logo.jpg?v=5" alt="Clinic Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+        </div>
+        <div>
+          <div class="brand-title">Dream Garden</div>
+          <div class="brand-subtitle"><span class="pulse-dot green" style="width: 6px; height: 6px;"></span> PolyClinic Portal <span style="font-size: 0.65rem; background: rgba(5, 150, 105, 0.2); color: #34d399; padding: 1px 6px; border-radius: 9999px; margin-left: 4px; font-weight: 700; border: 1px solid rgba(5, 150, 105, 0.35);">v1.0</span></div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Clinical Workflow</div>
+        <a class="nav-item" data-view="dashboard" onclick="app.navigate('dashboard')">
+          <i class="fa-solid fa-gauge-high"></i> <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-view="doctors" onclick="app.navigate('doctors')">
+          <i class="fa-solid fa-user-doctor"></i> <span>Doctors & Rosters</span>
+        </a>
+        <a class="nav-item" data-view="appointments" onclick="app.navigate('appointments')">
+          <i class="fa-solid fa-calendar-check"></i> <span>Appointments Queue</span>
+          <span class="nav-badge" id="sidebar-queue-badge">0</span>
+        </a>
+        <a class="nav-item" data-view="vitals-bills" onclick="app.navigate('vitals-bills')">
+          <i class="fa-solid fa-heart-pulse"></i> <span>All Vitals & Bills</span>
+        </a>
+        <a class="nav-item" data-view="patient-history" onclick="app.navigate('patient-history')">
+          <i class="fa-solid fa-id-card-clip"></i> <span>Patient 360 & Medical Records</span>
+        </a>
+        <a class="nav-item" data-view="billing" onclick="app.navigate('billing')">
+          <i class="fa-solid fa-cash-register"></i> <span>Billing & POS</span>
+        </a>
+
+        <!-- Administration Section (Admin only) -->
+        <div class="nav-section-title admin-only-item">Administration</div>
+        <a class="nav-item admin-only-item" data-view="settings" data-role="admin" onclick="app.navigate('settings')">
+          <i class="fa-solid fa-sliders"></i> <span>Clinic Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-badge">
+          <div class="user-avatar" id="sidebar-user-avatar">AD</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Administrator</div>
+            <div class="user-role" id="sidebar-user-role">Super Admin</div>
+          </div>
+          <button onclick="app.logout()" class="sidebar-logout-btn" title="Sign Out from System" aria-label="Sign Out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <!-- Ambient Background Glow Particles -->
+      <div class="ambient-glow-1"></div>
+      <div class="ambient-glow-2"></div>
+
+      <!-- Top Sticky Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <!-- Left Sidebar Collapse / Expand Toggle Button -->
+          <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" onclick="app.toggleSidebar()" title="Toggle Left Sidebar (Collapse/Expand)" aria-label="Toggle Navigation Sidebar">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+
+          <div class="page-title-group">
+            <h1 id="page-title">Dashboard Overview</h1>
+            <p id="page-subtitle">Real-time clinical metrics & OPD activity</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Light / Dark Mode Toggle Button -->
+          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" onclick="app.toggleTheme()" title="Switch between Light & Dark Mode">
+            <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color: var(--caramel);"></i>
+            <span id="theme-toggle-text">Dark Mode</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Content Outlet -->
+      <main class="page-content" id="main-view">
+        <!-- Rendered dynamically by components -->
+      </main>
+    </div>
+  </div>
+
+  <!-- Global Modal Container -->
+  <div class="modal-overlay" id="global-modal">
+    <div class="modal-dialog" id="global-modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title"><i class="fa-solid fa-circle-info"></i> Modal Title</h3>
+        <button class="modal-close" onclick="app.closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamic Modal Content -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <!-- Dynamic Modal Buttons -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notifications -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Printable Hidden Container for Receipts, Prescriptions & Reports -->
+  <div id="printable-container" class="printable-area"></div>
+
+  <!-- Core JavaScript Modules (Cache Busted v53.0) -->
+  <script src="js/app.js?v=53.0"></script>
+  <script src="js/components/dashboard.js?v=53.0"></script>
+  <script src="js/components/patients.js?v=53.0"></script>
+  <script src="js/components/appointments.js?v=53.0"></script>
+  <script src="js/components/vitals-bills.js?v=53.0"></script>
+  <script src="js/components/patient-history.js?v=53.0"></script>
+  <script src="js/components/consultation.js?v=53.0"></script>
+  <script src="js/components/pharmacy.js?v=54.0"></script>
+  <script src="js/components/billing.js?v=54.0"></script>
+  <script src="js/components/doctors.js?v=54.0"></script>
+  <script src="js/components/reports.js?v=54.0"></script>
+  <script src="js/components/settings.js?v=54.0"></script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="clinicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064e3b" />
+    </linearGradient>
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Modern Rounded Emerald Background Tile -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#clinicGrad)" filter="url(#subtleShadow)"/>
+
+  <!-- Subtle Inner Border -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="none" stroke="#34d399" stroke-width="1.5" stroke-opacity="0.4"/>
+
+  <!-- Caduceus / Stethoscope Medical Emblem in Bright Crisp White -->
+  <g transform="translate(32, 32)">
+    <!-- Central Staff / Wand -->
+    <line x1="0" y1="-18" x2="0" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Top Spherical Finial -->
+    <circle cx="0" cy="-19" r="3.2" fill="#34d399" stroke="#ffffff" stroke-width="1.5"/>
+
+    <!-- Left Wing -->
+    <path d="M -2,-13 C -10,-21 -22,-14 -18,-5 C -15,-1 -7,-5 -2,-8" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Right Wing -->
+    <path d="M 2,-13 C 10,-21 22,-14 18,-5 C 15,-1 7,-5 2,-8" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Intertwined Serpent Curves -->
+    <!-- First Serpent Loop -->
+    <path d="M -11,-4 C -6,-10 6,-10 11,-4 C 15,2 3,6 0,8 C -3,10 -15,14 -11,20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- Second Serpent Counter-Loop -->
+    <path d="M 11,-4 C 6,-10 -6,-10 -11,-4 C -15,2 -3,6 0,8 C 3,10 15,14 11,20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+
+    <!-- Small Healthcare Plus Badge at Base -->
+    <circle cx="0" cy="9" r="4.5" fill="#047857" stroke="#34d399" stroke-width="1"/>
+    <path d="M 0,6.5 L 0,11.5 M -2.5,9 L 2.5,9" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>
