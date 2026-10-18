@@ -220,19 +220,19 @@ const doctorsComponent = {
         </div>
       `;
     } else {
-      // LIST VIEW TABLE (Ultra-Compact Single Row, No Scrolling Clutter)
+      // LIST VIEW TABLE (100% Viewport Width, Zero Horizontal Scroll)
       outlet.innerHTML = `
-        <div class="table-responsive" style="border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); overflow-x: auto;">
-          <table class="table table-hover" style="font-size: 0.77rem; margin-bottom: 0; width: 100%; border-collapse: collapse; white-space: nowrap;">
+        <div class="table-responsive" style="border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); width: 100%; overflow: hidden;">
+          <table class="table table-hover" style="font-size: 0.77rem; margin-bottom: 0; width: 100%; border-collapse: collapse; table-layout: fixed;">
             <thead>
               <tr style="background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); height: 36px;">
-                <th style="padding: 0.4rem 0.65rem; min-width: 170px;">Consultant Doctor</th>
-                <th style="padding: 0.4rem 0.65rem; width: 140px;">Specialty / Dept</th>
-                <th style="padding: 0.4rem 0.65rem; width: 95px;">Fee</th>
-                <th style="padding: 0.4rem 0.65rem; width: 120px;">Share (Doc/Clinic)</th>
-                <th style="padding: 0.4rem 0.65rem; min-width: 200px;">Duty Days & Hours</th>
-                <th style="padding: 0.4rem 0.65rem; width: 95px; text-align: center;">Status</th>
-                <th style="padding: 0.4rem 0.65rem; text-align: right; min-width: 170px;">Actions</th>
+                <th style="padding: 0.4rem 0.55rem; width: 22%;">Consultant Doctor</th>
+                <th style="padding: 0.4rem 0.55rem; width: 18%;">Specialty & Dept</th>
+                <th style="padding: 0.4rem 0.55rem; width: 11%;">Fee</th>
+                <th style="padding: 0.4rem 0.55rem; width: 13%;">Share</th>
+                <th style="padding: 0.4rem 0.55rem; width: 18%;">Duty Schedule</th>
+                <th style="padding: 0.4rem 0.55rem; width: 8%; text-align: center;">Status</th>
+                <th style="padding: 0.4rem 0.55rem; width: 10%; text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -248,50 +248,50 @@ const doctorsComponent = {
                 // Compact one-line schedule summary
                 let scheduleSummary = '';
                 if (schedules.length > 0) {
-                  scheduleSummary = schedules.map(s => `${s.day_of_week.slice(0,3)} (${s.start_time}-${s.end_time})`).join(', ');
+                  scheduleSummary = schedules.map(s => `${s.day_of_week.slice(0,3)} ${s.start_time.slice(0,5)}-${s.end_time.slice(0,5)}`).join(', ');
                 } else {
-                  scheduleSummary = `${d.available_days || 'Daily'}: ${d.start_time || ''} - ${d.end_time || ''}`;
+                  scheduleSummary = `${(d.available_days || 'Daily').slice(0,10)}: ${d.start_time || ''}`;
                 }
 
                 return `
                   <tr style="border-bottom: 1px solid var(--border-color); height: 38px;">
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
-                      <div style="display: flex; align-items: center; gap: 0.45rem;">
-                        <div style="width: 26px; height: 26px; font-size: 0.72rem; font-weight: 800; background: ${grad}; color: white; display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0;">${initials}</div>
-                        <div>
-                          <strong style="color: var(--text-main); font-size: 0.82rem;">${d.name}</strong>
-                          ${d.qualification ? `<span style="font-size: 0.68rem; color: var(--text-muted); margin-left: 0.3rem;">(${d.qualification})</span>` : ''}
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;">
+                        <div style="width: 24px; height: 24px; font-size: 0.7rem; font-weight: 800; background: ${grad}; color: white; display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0;">${initials}</div>
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          <strong style="color: var(--text-main); font-size: 0.81rem;" title="${d.name}">${d.name}</strong>
+                          ${d.qualification ? `<span style="font-size: 0.67rem; color: var(--text-muted); margin-left: 0.2rem;">(${d.qualification})</span>` : ''}
                         </div>
                       </div>
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
-                      <span class="specialty-pill" style="font-size: 0.69rem; padding: 0.1rem 0.4rem; white-space: nowrap;">${d.specialty}</span>
-                      <small style="color: var(--text-muted); margin-left: 0.25rem; font-size: 0.68rem;">${d.department_name || ''}</small>
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      <span class="specialty-pill" style="font-size: 0.68rem; padding: 0.1rem 0.35rem; white-space: nowrap;">${d.specialty}</span>
+                      <small style="color: var(--text-muted); margin-left: 0.2rem; font-size: 0.67rem;">${d.department_name || ''}</small>
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
-                      <strong style="color: var(--caramel); font-size: 0.82rem; font-family: monospace;">${app.clinic.currency} ${fee.toLocaleString()}</strong>
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; white-space: nowrap;">
+                      <strong style="color: var(--caramel); font-size: 0.81rem; font-family: monospace;">${app.clinic.currency} ${fee.toLocaleString()}</strong>
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle; font-size: 0.73rem;">
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; font-size: 0.72rem; white-space: nowrap;">
                       <span style="font-weight: 700; color: var(--cyber-green-dark);">${docShare}%</span> / <span style="color: var(--text-muted);">${clinicShare}%</span>
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle; font-size: 0.72rem; color: var(--text-body); max-width: 250px; overflow: hidden; text-overflow: ellipsis;" title="${scheduleSummary}">
-                      <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 0.68rem; margin-right: 0.25rem;"></i>${scheduleSummary}
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; font-size: 0.71rem; color: var(--text-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${scheduleSummary}">
+                      <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 0.67rem; margin-right: 0.2rem;"></i>${scheduleSummary}
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle; text-align: center;">
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; text-align: center; white-space: nowrap;">
                       ${this.renderDoctorDutyBadge(d)}
                     </td>
-                    <td style="padding: 0.35rem 0.65rem; vertical-align: middle; text-align: right;">
-                      <div style="display: inline-flex; gap: 0.25rem; align-items: center;">
-                        <button onclick="app.openBookAppointmentModal(null, ${d.id})" class="btn btn-primary btn-sm" title="Book Appointment" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; height: 24px; line-height: 1;">
-                          <i class="fa-solid fa-calendar-plus"></i> Book
+                    <td style="padding: 0.35rem 0.55rem; vertical-align: middle; text-align: right; white-space: nowrap;">
+                      <div style="display: inline-flex; gap: 0.2rem; align-items: center; justify-content: flex-end;">
+                        <button onclick="app.openBookAppointmentModal(null, ${d.id})" class="btn btn-primary btn-sm" title="Book Appointment" style="padding: 0.12rem 0.4rem; font-size: 0.68rem; height: 23px; line-height: 1;">
+                          <i class="fa-solid fa-calendar-plus"></i>
                         </button>
-                        <button onclick="doctorsComponent.openAddRosterModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Add Roster Slot" style="padding: 0.15rem 0.4rem; font-size: 0.7rem; height: 24px; line-height: 1; color: var(--secondary); border-color: rgba(13, 148, 136, 0.4);">
-                          <i class="fa-regular fa-clock"></i> + Roster
+                        <button onclick="doctorsComponent.openAddRosterModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Add Roster Shift" style="padding: 0.12rem 0.35rem; font-size: 0.68rem; height: 23px; line-height: 1; color: var(--secondary); border-color: rgba(13, 148, 136, 0.4);">
+                          <i class="fa-regular fa-clock"></i>
                         </button>
-                        <button onclick="doctorsComponent.openEditDoctorModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Edit Doctor Profile" style="padding: 0.15rem 0.4rem; font-size: 0.7rem; height: 24px; line-height: 1;">
-                          <i class="fa-solid fa-pen-to-square"></i> Edit
+                        <button onclick="doctorsComponent.openEditDoctorModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Edit Doctor Profile" style="padding: 0.12rem 0.35rem; font-size: 0.68rem; height: 23px; line-height: 1;">
+                          <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button onclick="doctorsComponent.deleteDoctor(${d.id}, '${safeName}')" class="btn btn-outline btn-sm admin-only-btn" title="Delete Doctor" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; height: 24px; line-height: 1; color: var(--wine-red); border-color: rgba(136, 19, 55, 0.3);">
+                        <button onclick="doctorsComponent.deleteDoctor(${d.id}, '${safeName}')" class="btn btn-outline btn-sm admin-only-btn" title="Delete Doctor" style="padding: 0.12rem 0.3rem; font-size: 0.68rem; height: 23px; line-height: 1; color: var(--wine-red); border-color: rgba(136, 19, 55, 0.3);">
                           <i class="fa-solid fa-trash-can"></i>
                         </button>
                       </div>

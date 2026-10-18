@@ -1007,14 +1007,14 @@ const app = {
 
           <!-- Existing Patient Search & Selected Badge -->
           <div id="book-existing-pat-box">
-            <div style="position: relative;">
-              <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 11px; color: #00c853; font-size: 0.85rem;"></i>
-              <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.2rem; font-size: 0.85rem; height: 36px; font-weight: 600; border-radius: 8px;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)">
-              ${patient ? `<button type="button" onclick="app.clearBookPatientSelection()" style="position: absolute; right: 10px; top: 8px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.85rem;" title="Clear patient">&times;</button>` : ''}
+            <div style="position: relative; display: flex; align-items: center;">
+              <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; color: var(--primary); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
+              <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.4rem !important; font-size: 0.84rem; height: 38px !important; font-weight: 600; border-radius: 8px; width: 100%;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)">
+              ${patient ? `<button type="button" onclick="app.clearBookPatientSelection()" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; line-height: 1;" title="Clear patient">&times;</button>` : ''}
             </div>
             
             <!-- Patient Search Dropdown List (Overlay style, clean) -->
-            <div id="book-patient-search-list" class="patient-search-results-box" style="margin-top: 0.35rem; max-height: 140px; display: none; border-radius: 8px; border: 1.5px solid #00c853; box-shadow: 0 6px 18px rgba(0,0,0,0.08);">
+            <div id="book-patient-search-list" class="patient-search-results-box" style="margin-top: 0.35rem; max-height: 140px; display: none; border-radius: 8px; border: 1.5px solid var(--primary); box-shadow: 0 6px 18px rgba(0,0,0,0.08);">
               ${this.renderBookPatientRowsHtml(this.bookPatients)}
             </div>
 
