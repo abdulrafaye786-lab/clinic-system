@@ -207,8 +207,25 @@ const app = {
 
       const data = await response.json();
       
+      const method = (options.method || 'GET').toUpperCase();
+
+      // On mutation requests (POST, PUT, DELETE, PATCH), invalidate related client cache so UI updates instantly
+      if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && data && data.success) {
+        if (this._apiCache) {
+          // Identify root resource (e.g. '/patients', '/appointments', '/doctors')
+          const baseResource = endpoint.split('/')[1] ? `/${endpoint.split('/')[1]}` : '';
+          if (baseResource) {
+            this.clearClientCache(baseResource);
+          } else {
+            this.clearClientCache();
+          }
+          // Also clear summary and stats caches
+          this.clearClientCache('/dashboard');
+        }
+      }
+
       // Cache successful GET requests for instant repeat views
-      if ((!options.method || options.method === 'GET') && data && data.success) {
+      if (method === 'GET' && data && data.success) {
         if (!this._apiCache) this._apiCache = new Map();
         this._apiCache.set(endpoint, {
           data,
@@ -492,8 +509,8 @@ const app = {
         vitalsBillsComponent.render(mainView);
         break;
       case 'patient-history':
-        pageTitle.textContent = 'Patient 360 & Medical Records';
-        pageSubtitle.textContent = 'Complete patient directory, medical timeline, past vitals, invoices, OPD visits & registration';
+        pageTitle.textContent = 'Patient Records';
+        pageSubtitle.textContent = 'Patient directory, medical history, past vitals, appointments, invoices & quick registration';
         patientHistoryComponent.render(mainView);
         break;
       case 'billing':
@@ -2467,107 +2484,186 @@ const app = {
   // Quick Action Modal: Register New Patient (Compact, High-Density Zero-Scroll Form)
   openNewPatientModal(returnToToken = false) {
     const bodyHtml = `
-      <form id="new-patient-form">
-        <!-- Row 1: Core Demographics (Name, Gender, Blood) -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><span class="required">*</span> Full Name</label>
-            <input type="text" id="np-name" class="form-control" placeholder="e.g. Muhammad Asif" required>
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><span class="required">*</span> Gender</label>
-            <select id="np-gender" class="form-control" required>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Blood Group</label>
-            <select id="np-blood" class="form-control">
-              <option value="Unknown">Unknown</option>
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
-            </select>
-          </div>
-        </div>
+      <form id="new-patient-form" onsubmit="event.preventDefault(); app.submitNewPatient(${returnToToken});">
+        <style>
+          .np-form-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 0.85rem;
+            margin-bottom: 0.75rem;
+            border: 1.5px solid var(--border-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+          }
+          .np-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            margin-bottom: 0.65rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px dashed var(--border-color);
+          }
+          .np-field-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+          }
+          .np-input {
+            height: 34px;
+            font-size: 0.82rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-color);
+            padding: 0.35rem 0.65rem;
+            background: var(--bg-card);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+          }
+          .np-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+          }
+        </style>
 
-        <!-- Row 2: Contact, Date of Birth & Identification -->
-        <div style="display: grid; grid-template-columns: 1.2fr 1.4fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><span class="required">*</span> Phone Number</label>
-            <input type="tel" id="np-phone" class="form-control" placeholder="0300-1234567" required>
+        <!-- Section 1: Primary Identity & Demographics -->
+        <div class="np-form-card">
+          <div class="np-section-header">
+            <i class="fa-solid fa-user-tag"></i> 1. Basic Demographics & Contact
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-              <label class="form-label" style="margin-bottom: 0;"><span class="required">*</span> Date of Birth</label>
-              <div id="np-age-display"></div>
+          
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.6rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-user" style="color: var(--primary);"></i> Full Name <span class="required" style="color: var(--danger);">*</span></label>
+              <input type="text" id="np-name" class="form-control np-input" placeholder="e.g. Asim Khan" required autofocus>
             </div>
-            <input type="date" id="np-dob" class="form-control" style="height: 32px; font-size: 0.85rem;" onchange="app.calcAgeFromDob('np-dob', 'np-age-display')" oninput="app.calcAgeFromDob('np-dob', 'np-age-display')" required>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-venus-mars" style="color: #8b5cf6;"></i> Gender <span class="required" style="color: var(--danger);">*</span></label>
+              <select id="np-gender" class="form-control np-input" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-droplet" style="color: #ef4444;"></i> Blood Group</label>
+              <select id="np-blood" class="form-control np-input">
+                <option value="Unknown">Unknown</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">CNIC / ID No</label>
-            <input type="text" id="np-cnic" class="form-control" placeholder="35202-xxxxxxx-x">
+
+          <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 0.8fr 1.2fr; gap: 0.65rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-phone" style="color: #10b981;"></i> Phone Number <span class="required" style="color: var(--danger);">*</span></label>
+              <input type="tel" id="np-phone" class="form-control np-input" placeholder="03xx-xxxxxxx" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <label class="np-field-label" style="margin-bottom: 0;"><i class="fa-solid fa-cake-candles" style="color: #f59e0b;"></i> Date of Birth</label>
+                <div id="np-age-display"></div>
+              </div>
+              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-hashtag" style="color: var(--primary);"></i> Age (Yrs)</label>
+              <input type="number" id="np-age-input" class="form-control np-input" placeholder="e.g. 28" min="0" max="130" oninput="app.handleAgeChange('np-age-input', 'np-dob', 'np-age-display')">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-id-card" style="color: #6366f1;"></i> CNIC / Identity</label>
+              <input type="text" id="np-cnic" class="form-control np-input" placeholder="35202-xxxxxxx-x">
+            </div>
           </div>
         </div>
 
-        <!-- Row 3: Residence & Marital Status -->
-        <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Residential Address</label>
-            <input type="text" id="np-address" class="form-control" placeholder="House #, Street, City / Area">
+        <!-- Section 2: Address & Socio-demographics -->
+        <div class="np-form-card">
+          <div class="np-section-header">
+            <i class="fa-solid fa-location-dot"></i> 2. Address & Family Information
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Marital Status</label>
-            <select id="np-marital" class="form-control">
-              <option value="Single">Single</option>
-              <option value="Married">Married</option>
-              <option value="Divorced">Divorced</option>
-              <option value="Widowed">Widowed</option>
-            </select>
+          <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 0.65rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-house" style="color: #0284c7;"></i> Residential Address</label>
+              <input type="text" id="np-address" class="form-control np-input" placeholder="House #, Street, Block, Area / City">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-ring" style="color: #ec4899;"></i> Marital Status</label>
+              <select id="np-marital" class="form-control np-input">
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <!-- Row 4: Clinical History & Alerts -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> Known Allergies</label>
-            <input type="text" id="np-allergies" class="form-control" placeholder="e.g. Penicillin, NSAIDs, Dust (or NKDA)">
+        <!-- Section 3: Clinical Alerts & Medical Notes -->
+        <div class="np-form-card" style="margin-bottom: 0;">
+          <div class="np-section-header">
+            <i class="fa-solid fa-shield-virus"></i> 3. Clinical Alerts & Pre-existing Conditions
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><i class="fa-solid fa-heart-pulse" style="color: var(--primary);"></i> Chronic Conditions</label>
-            <input type="text" id="np-chronic" class="form-control" placeholder="e.g. Diabetes, Hypertension, Asthma">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> Known Allergies</label>
+              <input type="text" id="np-allergies" class="form-control np-input" placeholder="e.g. Penicillin, NSAIDs, Dust, Pollen (or None)">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-heart-pulse" style="color: #0d9488;"></i> Chronic Illnesses</label>
+              <input type="text" id="np-chronic" class="form-control np-input" placeholder="e.g. Hypertension, Diabetes, Asthma">
+            </div>
           </div>
         </div>
       </form>
     `;
 
     const footerHtml = `
-      <button class="btn btn-outline" onclick="${returnToToken ? 'app.openNewAppointmentModal()' : 'app.closeModal()'}">Cancel</button>
-      <button class="btn btn-primary" onclick="app.submitNewPatient(${returnToToken})"><i class="fa-solid fa-save"></i> Register Patient</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <button type="button" class="btn btn-outline" onclick="${returnToToken ? 'app.openNewAppointmentModal()' : 'app.closeModal()'}">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-submit-new-patient" onclick="app.submitNewPatient(${returnToToken})" style="padding: 0.45rem 1.35rem; font-weight: 700;">
+          <i class="fa-solid fa-user-plus"></i> Register Patient
+        </button>
+      </div>
     `;
 
-    this.openModal('<i class="fa-solid fa-user-plus"></i> Patient Registration (Dream Garden PolyClinic)', bodyHtml, footerHtml, 'modal-lg');
+    this.openModal('<i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Register New Patient', bodyHtml, footerHtml, 'modal-lg');
   },
 
   async submitNewPatient(returnToToken = false) {
-    const full_name = document.getElementById('np-name').value.trim();
-    const gender = document.getElementById('np-gender').value;
-    const phone = document.getElementById('np-phone').value.trim();
-    const dob = document.getElementById('np-dob').value;
-    const age = this.calcAgeFromDob('np-dob', 'np-age-display') || 0;
-    const blood_group = document.getElementById('np-blood').value;
-    const cnic = document.getElementById('np-cnic').value.trim();
-    const marital_status = document.getElementById('np-marital').value;
-    const address = document.getElementById('np-address').value.trim();
-    const allergies = document.getElementById('np-allergies').value.trim();
-    const chronic_conditions = document.getElementById('np-chronic').value.trim();
+    if (this._isSubmittingPatient) {
+      console.warn('Patient registration is already in progress, ignoring duplicate submit call.');
+      return;
+    }
+
+    const submitBtn = document.getElementById('btn-submit-new-patient');
+    const full_name = (document.getElementById('np-name')?.value || '').trim();
+    const gender = document.getElementById('np-gender')?.value || 'Male';
+    const phone = (document.getElementById('np-phone')?.value || '').trim();
+    const dob = document.getElementById('np-dob')?.value || null;
+    const ageInput = parseInt(document.getElementById('np-age-input')?.value || '', 10);
+    const calculatedAge = this.calcAgeFromDob('np-dob', 'np-age-display');
+    const age = !isNaN(ageInput) && ageInput >= 0 ? ageInput : (calculatedAge || 0);
+
+    const blood_group = document.getElementById('np-blood')?.value || 'Unknown';
+    const cnic = (document.getElementById('np-cnic')?.value || '').trim();
+    const marital_status = document.getElementById('np-marital')?.value || 'Single';
+    const address = (document.getElementById('np-address')?.value || '').trim();
+    const allergies = (document.getElementById('np-allergies')?.value || '').trim();
+    const chronic_conditions = (document.getElementById('np-chronic')?.value || '').trim();
 
     this.clearAllHighlights(document.getElementById('new-patient-form'));
 
@@ -2576,12 +2672,8 @@ const app = {
       this.highlightField('np-name', 'Full name is required');
       hasError = true;
     }
-    if (!phone || phone.length < 10) {
+    if (!phone || phone.replace(/\D/g, '').length < 10) {
       this.highlightField('np-phone', 'Please enter a valid phone number (min 10 digits)');
-      hasError = true;
-    }
-    if (!dob) {
-      this.highlightField('np-dob', 'Please select Date of Birth');
       hasError = true;
     }
 
@@ -2590,33 +2682,53 @@ const app = {
       return;
     }
 
-    const res = await this.api('/patients', {
-      method: 'POST',
-      body: JSON.stringify({
-        full_name,
-        gender,
-        phone,
-        dob,
-        age,
-        blood_group,
-        cnic,
-        marital_status,
-        address,
-        allergies,
-        chronic_conditions
-      })
-    });
+    // Set lock flag and button loading state to completely eliminate duplicate double-clicks
+    this._isSubmittingPatient = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+    }
 
-    if (res.success) {
-      this.toast(`Patient registered successfully! MRN: ${res.mrn}`, 'success');
-      if (returnToToken) {
-        this.openNewAppointmentModal();
+    try {
+      const res = await this.api('/patients', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name,
+          gender,
+          phone,
+          dob,
+          age,
+          blood_group,
+          cnic,
+          marital_status,
+          address,
+          allergies,
+          chronic_conditions
+        })
+      });
+
+      if (res.success) {
+        this.toast(`Patient registered successfully! MRN: #${res.mrn}`, 'success');
+        if (returnToToken) {
+          this.openNewAppointmentModal();
+        } else {
+          this.closeModal();
+          this.refreshActiveView();
+          if (typeof patientHistoryComponent !== 'undefined' && patientHistoryComponent.loadPatientsList) {
+            patientHistoryComponent.loadPatientsList();
+          }
+        }
       } else {
-        this.closeModal();
-        this.refreshActiveView();
+        this.toast(res.message || 'Failed to register patient', 'error');
       }
-    } else {
-      this.toast(res.message || 'Failed to register patient', 'error');
+    } catch (err) {
+      this.toast(err.message || 'Error occurred while registering patient', 'error');
+    } finally {
+      this._isSubmittingPatient = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Register Patient';
+      }
     }
   },
 
@@ -3512,11 +3624,16 @@ const app = {
       `;
 
       const footerHtml = `
-        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <button class="btn btn-outline" onclick="app.closeModal()">Close Dossier</button>
-          <button class="btn btn-primary" onclick="app.openBookAppointmentModal(${patientId})">
-            <i class="fa-solid fa-calendar-plus"></i> Book New Appointment for this Patient
-          </button>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-outline" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="if(confirm('Are you sure you want to permanently delete patient &quot;${(p.full_name || 'Patient').replace(/'/g, &quot;\\'&quot;)}&quot; and all medical/billing records from the database?')) { app.api('/patients/${patientId}', { method: 'DELETE' }).then(res => { if(res.success) { app.toast('Patient deleted successfully!', 'success'); app.closeModal(); if (typeof patientsComponent !== 'undefined' && patientsComponent.load) patientsComponent.load(); if (typeof patientHistoryComponent !== 'undefined' && patientHistoryComponent.loadPatientsList) patientHistoryComponent.loadPatientsList(); app.refreshActiveView(); } else { app.toast(res.message || 'Delete failed', 'error'); } }); }" title="Delete Patient Record">
+              <i class="fa-solid fa-trash-can"></i> Delete Patient Record
+            </button>
+            <button class="btn btn-primary" onclick="app.openBookAppointmentModal(${patientId})">
+              <i class="fa-solid fa-calendar-plus"></i> Book New Appointment
+            </button>
+          </div>
         </div>
       `;
 

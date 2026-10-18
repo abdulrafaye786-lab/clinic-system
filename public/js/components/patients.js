@@ -712,14 +712,20 @@ const patientsComponent = {
   },
 
   async deletePatient(patientId, patientName) {
-    if (!confirm(`Are you sure you want to delete patient "${patientName}"? This will permanently remove the patient profile and all associated vitals and appointments from the database.`)) {
+    if (!confirm(`Are you sure you want to delete patient "${patientName}"? This will permanently remove the patient profile and all associated vitals, appointments, and medical history from the database.`)) {
       return;
     }
     const res = await app.api(`/patients/${patientId}`, { method: 'DELETE' });
     if (res.success) {
-      app.toast(`Patient "${patientName}" was deleted successfully from database!`, 'success');
+      app.toast(`Patient "${patientName}" deleted successfully from Supabase database!`, 'success');
       app.closeModal();
+      if (app.clearClientCache) {
+        app.clearClientCache('/patients');
+      }
       this.load();
+      if (typeof patientHistoryComponent !== 'undefined' && patientHistoryComponent.loadPatientsList) {
+        patientHistoryComponent.loadPatientsList();
+      }
       app.refreshActiveView();
     } else {
       app.toast(res.message || 'Failed to delete patient', 'error');

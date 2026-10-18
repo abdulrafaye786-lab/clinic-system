@@ -17,9 +17,15 @@ const setCtrl = require('../controllers/settingsController');
 // Apply global input sanitization across all API endpoints
 router.use(sanitizeInputs);
 
-// Edge CDN Cache-Control helper for high-speed read requests
-const edgeCache = (seconds = 15) => (req, res, next) => {
-  res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${seconds}, stale-while-revalidate=${seconds * 3}`);
+// Cache-Control helper for high-speed read requests (Private for authenticated data, public for open endpoints)
+const edgeCache = (seconds = 15, isPublic = false) => (req, res, next) => {
+  if (isPublic) {
+    res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${seconds}, stale-while-revalidate=${seconds * 3}`);
+  } else {
+    // Private client cache prevents multi-user CDN collision and auth header mismatch errors on Vercel
+    res.setHeader('Cache-Control', `private, no-cache, no-store, must-revalidate`);
+    res.setHeader('Pragma', 'no-cache');
+  }
   next();
 };
 
@@ -97,7 +103,7 @@ router.get('/reports/opd', authenticateToken, repCtrl.getOpdDemographics);
 
 // --- 11. CLINIC SETTINGS ---
 router.get('/settings', authenticateToken, setCtrl.getSettings);
-router.get('/public/settings', setCtrl.getSettings);
+router.get('/public/settings', edgeCache(60, true), setCtrl.getSettings);
 router.put('/settings', authenticateToken, requireRole('admin'), setCtrl.updateSettings);
 
 module.exports = router;

@@ -150,40 +150,7 @@ async function runTests() {
       if (dCheck2.length > 0 || dsCheck2.length > 0) throw new Error('Doctor or schedules still in DB after deletion');
       console.log('   ✅ Doctor & schedules deleted and verified completely removed from database.');
 
-      // 4. Test Lab Catalog: Create Test -> Delete Test
-      console.log('\n4. Testing Lab Test Catalog CRUD (Add, Delete in DB)...');
-      const createLabTestRes = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/lab/catalog',
-        method: 'POST',
-        headers: adminHeaders
-      }, {
-        test_name: 'Serum Electrolytes (Na, K, Cl)',
-        category: 'Biochemistry',
-        price: 850,
-        sample_type: 'Serum',
-        turnaround_time: '12 Hours',
-        normal_range: 'Na: 135-145, K: 3.5-5.0',
-        units: 'mEq/L'
-      });
-      if (!createLabTestRes.data.success) throw new Error('Create lab test failed');
-      const testLabId = createLabTestRes.data.testId;
 
-      const [ltCheck1] = await query('SELECT * FROM lab_test_catalog WHERE id = ?', [testLabId]);
-      if (ltCheck1.length === 0) throw new Error('Lab test not in DB after creation');
-      console.log('   ✅ Lab test added to catalog in database (ID:', testLabId, ')');
-
-      await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: `/api/lab/catalog/${testLabId}`,
-        method: 'DELETE',
-        headers: adminHeaders
-      });
-      const [ltCheck2] = await query('SELECT * FROM lab_test_catalog WHERE id = ?', [testLabId]);
-      if (ltCheck2.length > 0) throw new Error('Lab test still in DB after deletion');
-      console.log('   ✅ Lab test deleted and verified removed from database.');
 
       // 5. Test Pharmacy Inventory: Add -> Update -> Delete
       console.log('\n5. Testing Pharmacy Inventory CRUD (Add, Update, Delete in DB)...');

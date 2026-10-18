@@ -352,7 +352,7 @@ const patientHistoryComponent = {
           <div class="p360-toolbar-left" style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; flex: 1;">
             <div class="p360-title-badge" style="display: flex; align-items: center; gap: 0.45rem; font-weight: 800; font-size: 0.95rem; color: var(--text-main); white-space: nowrap;">
               <i class="fa-solid fa-id-card-clip" style="color: var(--primary);"></i>
-              <span>Patient Directory</span>
+              <span>Patient Records</span>
               <span class="badge badge-teal" id="p360-total-badge" style="font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.45rem;">0 Patients</span>
             </div>
 
@@ -545,72 +545,84 @@ const patientHistoryComponent = {
       return;
     }
 
-    // List Table View
+    // List Table View (Ultra-Compact Single Row, High Efficiency)
     if (this.viewMode === 'list') {
       container.className = 'table-responsive';
       container.style.display = 'block';
       container.style.gridTemplateColumns = 'none';
       container.style.background = 'var(--bg-card)';
       container.style.border = '1px solid var(--border-color)';
-      container.style.borderRadius = '12px';
-      container.style.padding = '0.5rem';
+      container.style.borderRadius = '10px';
+      container.style.padding = '0';
+      container.style.overflowX = 'auto';
 
       container.innerHTML = `
-        <table class="table" style="font-size: 0.8rem; margin-bottom: 0;">
+        <table class="table table-hover" style="font-size: 0.78rem; margin-bottom: 0; width: 100%; border-collapse: collapse; white-space: nowrap;">
           <thead>
-            <tr>
-              <th style="padding: 0.55rem 0.75rem;">Patient (MRN & Name)</th>
-              <th style="padding: 0.55rem 0.75rem;">Demographics</th>
-              <th style="padding: 0.55rem 0.75rem;">Blood</th>
-              <th style="padding: 0.55rem 0.75rem;">Phone & Address</th>
-              <th style="padding: 0.55rem 0.75rem;">Visits</th>
-              <th style="padding: 0.55rem 0.75rem; text-align: right;">Quick Actions</th>
+            <tr style="background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color);">
+              <th style="padding: 0.45rem 0.65rem; width: 85px;">MRN</th>
+              <th style="padding: 0.45rem 0.65rem; min-width: 170px;">Patient Name</th>
+              <th style="padding: 0.45rem 0.65rem; width: 110px;">Gender & Age</th>
+              <th style="padding: 0.45rem 0.65rem; width: 80px;">Blood</th>
+              <th style="padding: 0.45rem 0.65rem; width: 120px;">Phone</th>
+              <th style="padding: 0.45rem 0.65rem; min-width: 180px;">Address / Area</th>
+              <th style="padding: 0.45rem 0.65rem; width: 75px; text-align: center;">Visits</th>
+              <th style="padding: 0.45rem 0.65rem; text-align: right; min-width: 190px;">Quick Actions</th>
             </tr>
           </thead>
           <tbody>
             ${filtered.map((p, idx) => {
               const isFemale = p.gender === 'Female';
               const rawMrn = (p.mrn || '').toString().replace(/MRN-?/gi, '');
-              const formattedMrn = rawMrn ? `MRN: #${rawMrn}` : `MRN: #${p.id}`;
+              const formattedMrn = rawMrn ? `#${rawMrn}` : `#${p.id}`;
               const visits = parseInt(p.total_visits || 0, 10);
+              const safeName = (p.full_name || 'Patient').replace(/'/g, "\\'");
               return `
-                <tr>
-                  <td style="padding: 0.5rem 0.75rem;">
-                    <div style="font-weight: 800; color: var(--text-main); font-size: 0.88rem;">${p.full_name}</div>
-                    <span class="p360-mrn-badge" style="font-size: 0.7rem; font-family: monospace;">${formattedMrn}</span>
+                <tr style="border-bottom: 1px solid var(--border-color); height: 38px; line-height: 1.2;">
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
+                    <span style="font-family: monospace; font-weight: 800; color: var(--primary); background: rgba(37,99,235,0.08); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.74rem;">${formattedMrn}</span>
                   </td>
-                  <td style="padding: 0.5rem 0.75rem;">
-                    <span class="badge ${isFemale ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">
-                      <i class="fa-solid ${isFemale ? 'fa-venus' : 'fa-mars'}"></i> ${p.gender || 'N/A'}, ${p.age || 'N/A'}Y
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle; font-weight: 700; color: var(--text-main);">
+                    <span style="cursor: pointer;" onclick="app.openPatientHistoryModal(${p.id})" title="Click to view full 360 EHR">${p.full_name}</span>
+                    ${p.cnic ? `<span style="font-weight: 400; font-size: 0.68rem; color: var(--text-muted); margin-left: 0.35rem; font-family: monospace;">(${p.cnic})</span>` : ''}
+                  </td>
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
+                    <span class="badge ${isFemale ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.69rem; padding: 0.12rem 0.4rem; font-weight: 600;">
+                      <i class="fa-solid ${isFemale ? 'fa-venus' : 'fa-mars'}"></i> ${p.gender || '-'}, ${p.age ? p.age + 'Y' : '-'}
                     </span>
                   </td>
-                  <td style="padding: 0.5rem 0.75rem;">
-                    <span class="badge ${p.blood_group && p.blood_group !== 'Unknown' ? 'badge-rose' : 'badge-teal'}" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle;">
+                    <span class="badge ${p.blood_group && p.blood_group !== 'Unknown' ? 'badge-rose' : 'badge-gray'}" style="font-size: 0.69rem; padding: 0.12rem 0.38rem; font-weight: 700;">
                       ${p.blood_group || 'N/A'}
                     </span>
                   </td>
-                  <td style="padding: 0.5rem 0.75rem;">
-                    <div><i class="fa-solid fa-phone" style="color: var(--primary); font-size: 0.72rem;"></i> <strong>${p.phone || 'N/A'}</strong></div>
-                    <small style="color: var(--text-muted);">${p.address || 'Dream Garden PolyClinic'}</small>
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle; font-weight: 600; color: var(--text-body);">
+                    <i class="fa-solid fa-phone" style="font-size: 0.68rem; color: var(--text-muted); margin-right: 0.2rem;"></i>${p.phone || '-'}
                   </td>
-                  <td style="padding: 0.5rem 0.75rem;">
-                    <span class="badge badge-teal" style="font-weight: 700; font-size: 0.72rem;">
-                      <i class="fa-solid fa-calendar-check"></i> ${visits} Visit${visits === 1 ? '' : 's'}
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle; color: var(--text-muted); font-size: 0.74rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${p.address || ''}">
+                    ${p.address || '-'}
+                  </td>
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle; text-align: center;">
+                    <span class="badge ${visits > 0 ? 'badge-teal' : 'badge-gray'}" style="font-size: 0.69rem; padding: 0.12rem 0.4rem; font-weight: 700;">
+                      ${visits}
                     </span>
                   </td>
-                  <td style="padding: 0.5rem 0.75rem; text-align: right;">
-                    <div style="display: inline-flex; gap: 0.3rem;">
-                      <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="p360-btn p360-btn-edit" title="Edit Patient" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">
+                  <td style="padding: 0.35rem 0.65rem; vertical-align: middle; text-align: right;">
+                    <div style="display: inline-flex; gap: 0.25rem; align-items: center;">
+                      <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="btn btn-outline btn-sm" title="Edit Patient Info" style="padding: 0.15rem 0.4rem; font-size: 0.7rem; height: 24px; line-height: 1;">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
                       </button>
-                      <button onclick="patientHistoryComponent.openQuickViewModal(${p.id})" class="p360-btn p360-btn-view" title="Quick Summary" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">
+                      <button onclick="patientHistoryComponent.openQuickViewModal(${p.id})" class="btn btn-outline btn-sm" title="Quick Overview" style="padding: 0.15rem 0.4rem; font-size: 0.7rem; height: 24px; line-height: 1;">
                         <i class="fa-solid fa-eye"></i> View
                       </button>
-                      <button onclick="app.openPatientHistoryModal(${p.id})" class="p360-btn p360-btn-history" title="360° History" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">
+                      <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="Full Medical History" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; height: 24px; line-height: 1;">
                         <i class="fa-solid fa-clock-rotate-left"></i> History
                       </button>
-                      <button onclick="app.openBookAppointmentModal(${p.id})" class="p360-btn p360-btn-book" title="Book Appointment" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">
-                        <i class="fa-solid fa-calendar-plus"></i> + Book
+                      <button onclick="app.openBookAppointmentModal(${p.id})" class="btn btn-success btn-sm" title="Book Doctor Consultation" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; height: 24px; line-height: 1;">
+                        <i class="fa-solid fa-calendar-plus"></i> Book
+                      </button>
+                      <button onclick="patientsComponent.deletePatient(${p.id}, '${safeName}')" class="btn btn-outline btn-sm" title="Delete Patient Record" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; height: 24px; line-height: 1; color: var(--wine-red); border-color: rgba(136, 19, 55, 0.35);">
+                        <i class="fa-solid fa-trash-can"></i>
                       </button>
                     </div>
                   </td>
@@ -701,7 +713,7 @@ const patientHistoryComponent = {
             </div>
           </div>
 
-          <!-- Card Actions: Edit, View, History, and Book -->
+          <!-- Card Actions: Edit, View, History, Book, and Delete -->
           <div class="p360-card-actions">
             <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="p360-btn p360-btn-edit" title="Edit Demographics & Info">
               <i class="fa-solid fa-pen-to-square"></i> Edit
@@ -714,6 +726,9 @@ const patientHistoryComponent = {
             </button>
             <button onclick="app.openBookAppointmentModal(${p.id})" class="p360-btn p360-btn-book" title="Book Doctor Consultation">
               <i class="fa-solid fa-calendar-plus"></i>
+            </button>
+            <button onclick="patientsComponent.deletePatient(${p.id}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" class="p360-btn" title="Delete Patient Record" style="color: var(--wine-red); border: 1px solid rgba(136, 19, 55, 0.35); background: transparent;">
+              <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
 
@@ -849,15 +864,18 @@ const patientHistoryComponent = {
       const footerHtml = `
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <button class="btn btn-outline btn-sm" onclick="app.closeModal()">Close</button>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-outline btn-sm" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="patientsComponent.deletePatient(${p.id}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" title="Delete Patient Record">
+              <i class="fa-solid fa-trash-can"></i> Delete
+            </button>
             <button class="btn btn-outline btn-sm" onclick="app.closeModal(); patientsComponent.openEditPatientModal(${p.id})">
-              <i class="fa-solid fa-pen-to-square"></i> Edit Patient Info
+              <i class="fa-solid fa-pen-to-square"></i> Edit
             </button>
             <button class="btn btn-primary btn-sm" onclick="app.closeModal(); app.openPatientHistoryModal(${p.id})">
-              <i class="fa-solid fa-clock-rotate-left"></i> Full 360° Medical History
+              <i class="fa-solid fa-clock-rotate-left"></i> Full 360° History
             </button>
             <button class="btn btn-success btn-sm" onclick="app.closeModal(); app.openBookAppointmentModal(${p.id})">
-              <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+              <i class="fa-solid fa-calendar-plus"></i> Book
             </button>
           </div>
         </div>

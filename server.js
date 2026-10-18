@@ -73,6 +73,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Explicit JSON 404 Handler for undefined API endpoints (prevents serving index.html on missing API calls)
+app.use('/api', (req, res) => {
+  return res.status(404).json({
+    success: false,
+    message: `API endpoint '${req.originalUrl}' not found.`
+  });
+});
+
 // Single Page Application Fallback
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
