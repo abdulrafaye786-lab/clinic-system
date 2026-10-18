@@ -1018,22 +1018,17 @@ const app = {
               ${this.renderBookPatientRowsHtml(this.bookPatients)}
             </div>
 
-            <div id="book-pat-preview" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 0.5rem 0.75rem; border-radius: 8px; display: ${patient ? 'block' : 'none'}; margin-top: 0.5rem;">
+            <div id="book-pat-preview" style="background: rgba(5, 181, 85, 0.08); border: 1.5px solid rgba(5, 181, 85, 0.35); padding: 0.4rem 0.65rem; border-radius: 8px; display: ${patient ? 'flex' : 'none'}; justify-content: space-between; align-items: center; margin-top: 0.4rem;">
               ${patient ? `
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-                  <div>
-                    <div style="font-weight: 800; font-size: 0.88rem; color: #007a33; display: flex; align-items: center; gap: 0.35rem;">
-                      <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> ${patient.full_name}
-                      <span class="badge ${patient.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">${patient.gender}, ${patient.age}Y</span>
-                    </div>
-                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">
-                      MRN: <strong style="color: #00c853; font-family: monospace;">${patient.mrn}</strong> • Phone: <strong>${patient.phone}</strong> • Blood: <strong>${patient.blood_group || 'Unknown'}</strong>
-                    </div>
-                  </div>
-                  <button type="button" onclick="app.openPatientHistoryModal(${patient.id})" class="btn btn-outline-primary btn-sm" style="padding: 0.18rem 0.5rem; font-size: 0.72rem; height: 26px;" title="View Patient 360 EHR History">
-                    <i class="fa-solid fa-folder-open"></i> 360° History
-                  </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                  <span style="font-weight: 800; font-size: 0.85rem; color: #007a33; display: flex; align-items: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> ${patient.full_name}
+                  </span>
+                  <span style="font-family: monospace; font-weight: 700; font-size: 0.72rem; color: var(--primary); background: var(--bg-card); padding: 0.1rem 0.35rem; border-radius: 4px; border: 1px solid var(--border-color);">MRN: #${patient.mrn}</span>
+                  <span class="badge ${patient.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">${patient.gender || '-'}, ${patient.age || '-'}Y</span>
+                  <span style="font-size: 0.74rem; color: var(--text-muted);"><i class="fa-solid fa-phone" style="font-size: 0.68rem; margin-right: 2px;"></i>${patient.phone || '-'}</span>
                 </div>
+                <button type="button" onclick="app.clearBookPatientSelection()" class="btn btn-outline btn-xs" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" title="Change / Clear Patient">Change</button>
               ` : ''}
             </div>
           </div>
@@ -1448,23 +1443,19 @@ const app = {
 
     const preview = document.getElementById('book-pat-preview');
     if (preview) {
-      preview.style.display = 'block';
+      preview.style.display = 'flex';
+      preview.style.justifyContent = 'space-between';
+      preview.style.alignItems = 'center';
       preview.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-          <div>
-            <div style="font-weight: 800; font-size: 1.05rem; color: #007a33;">
-              <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> Selected: ${pat.full_name}
-            </div>
-            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">
-              MRN: <strong style="color: #00c853; font-family: monospace;">${pat.mrn}</strong> • ${pat.gender}, ${pat.age} Yrs • Phone: <strong>${pat.phone}</strong> • Blood: <strong>${pat.blood_group || 'Unknown'}</strong>
-            </div>
-          </div>
-          <div>
-            <button type="button" onclick="app.openPatientHistoryModal(${pat.id})" class="btn btn-outline-primary btn-sm" title="View Medical & Financial History">
-              <i class="fa-solid fa-folder-open"></i> Full History
-            </button>
-          </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span style="font-weight: 800; font-size: 0.85rem; color: #007a33; display: flex; align-items: center; gap: 0.3rem;">
+            <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> ${pat.full_name}
+          </span>
+          <span style="font-family: monospace; font-weight: 700; font-size: 0.72rem; color: var(--primary); background: var(--bg-card); padding: 0.1rem 0.35rem; border-radius: 4px; border: 1px solid var(--border-color);">MRN: #${pat.mrn}</span>
+          <span class="badge ${pat.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">${pat.gender || '-'}, ${pat.age || '-'}Y</span>
+          <span style="font-size: 0.74rem; color: var(--text-muted);"><i class="fa-solid fa-phone" style="font-size: 0.68rem; margin-right: 2px;"></i>${pat.phone || '-'}</span>
         </div>
+        <button type="button" onclick="app.clearBookPatientSelection()" class="btn btn-outline btn-xs" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" title="Change / Clear Patient">Change</button>
       `;
     }
   },

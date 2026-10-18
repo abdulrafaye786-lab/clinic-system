@@ -713,7 +713,7 @@ const patientHistoryComponent = {
             </div>
           </div>
 
-          <!-- Card Actions: Edit, View, History, Book, and Delete -->
+          <!-- Card Actions: Edit, View, History, Book -->
           <div class="p360-card-actions">
             <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="p360-btn p360-btn-edit" title="Edit Demographics & Info">
               <i class="fa-solid fa-pen-to-square"></i> Edit
@@ -721,14 +721,11 @@ const patientHistoryComponent = {
             <button onclick="patientHistoryComponent.openQuickViewModal(${p.id})" class="p360-btn p360-btn-view" title="Quick View Summary">
               <i class="fa-solid fa-eye"></i> View
             </button>
-            <button onclick="app.openPatientHistoryModal(${p.id})" class="p360-btn p360-btn-history" title="Full 360° Medical History">
+            <button onclick="app.openPatientHistoryModal(${p.id})" class="p360-btn p360-btn-history" title="Full Medical History">
               <i class="fa-solid fa-clock-rotate-left"></i> History
             </button>
             <button onclick="app.openBookAppointmentModal(${p.id})" class="p360-btn p360-btn-book" title="Book Doctor Consultation">
-              <i class="fa-solid fa-calendar-plus"></i>
-            </button>
-            <button onclick="patientsComponent.deletePatient(${p.id}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" class="p360-btn" title="Delete Patient Record" style="color: var(--wine-red); border: 1px solid rgba(136, 19, 55, 0.35); background: transparent;">
-              <i class="fa-solid fa-trash-can"></i>
+              <i class="fa-solid fa-calendar-plus"></i> Book
             </button>
           </div>
 
@@ -865,14 +862,11 @@ const patientHistoryComponent = {
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <button class="btn btn-outline btn-sm" onclick="app.closeModal()">Close</button>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-            <button class="btn btn-outline btn-sm" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="patientsComponent.deletePatient(${p.id}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" title="Delete Patient Record">
-              <i class="fa-solid fa-trash-can"></i> Delete
+            <button class="btn btn-primary btn-sm" onclick="app.closeModal(); patientsComponent.openEditPatientModal(${p.id})">
+              <i class="fa-solid fa-pen-to-square"></i> Edit Patient Info
             </button>
-            <button class="btn btn-outline btn-sm" onclick="app.closeModal(); patientsComponent.openEditPatientModal(${p.id})">
-              <i class="fa-solid fa-pen-to-square"></i> Edit
-            </button>
-            <button class="btn btn-primary btn-sm" onclick="app.closeModal(); app.openPatientHistoryModal(${p.id})">
-              <i class="fa-solid fa-clock-rotate-left"></i> Full 360° History
+            <button class="btn btn-outline btn-sm" onclick="app.closeModal(); app.openPatientHistoryModal(${p.id})">
+              <i class="fa-solid fa-clock-rotate-left"></i> Full History
             </button>
             <button class="btn btn-success btn-sm" onclick="app.closeModal(); app.openBookAppointmentModal(${p.id})">
               <i class="fa-solid fa-calendar-plus"></i> Book

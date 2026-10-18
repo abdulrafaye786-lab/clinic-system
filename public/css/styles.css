@@ -3360,3 +3360,51 @@ body.compact-mode .page-title-group p {
   gap: 0.85rem;
 }
 
+/* ==========================================================================
+   GLOBAL COMPACT & ZERO-SCROLL ENHANCEMENTS
+   ========================================================================== */
+.table td, .table th {
+  padding: 0.35rem 0.65rem !important;
+}
+
+.table-hover tbody tr:hover {
+  background: rgba(37, 99, 235, 0.04) !important;
+}
+
+.modal-dialog {
+  max-height: 92vh !important;
+}
+
+.modal-body {
+  padding: 0.65rem 1rem !important;
+}
+
+.modal-header {
+  padding: 0.55rem 1rem !important;
+}
+
+.modal-footer {
+  padding: 0.45rem 1rem !important;
+}
+
+.form-group {
+  margin-bottom: 0.45rem !important;
+}
+
+.form-label {
+  margin-bottom: 0.2rem !important;
+  font-size: 0.76rem !important;
+}
+
+.form-control {
+  height: 32px !important;
+  padding: 0.28rem 0.6rem !important;
+  font-size: 0.8rem !important;
+}
+
+textarea.form-control {
+  height: auto !important;
+  min-height: 48px !important;
+}
+
+
