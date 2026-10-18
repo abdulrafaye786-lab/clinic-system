@@ -17,6 +17,12 @@ const setCtrl = require('../controllers/settingsController');
 // Apply global input sanitization across all API endpoints
 router.use(sanitizeInputs);
 
+// Edge CDN Cache-Control helper for high-speed read requests
+const edgeCache = (seconds = 15) => (req, res, next) => {
+  res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${seconds}, stale-while-revalidate=${seconds * 3}`);
+  next();
+};
+
 // --- 1. AUTHENTICATION & USERS ---
 router.post('/auth/login', loginLimiter, authCtrl.login);
 router.get('/auth/me', authenticateToken, authCtrl.getMe);
@@ -26,32 +32,32 @@ router.put('/auth/users/:id', authenticateToken, requireRole('admin'), authCtrl.
 router.delete('/auth/users/:id', authenticateToken, requireRole('admin'), authCtrl.deleteUser);
 
 // --- 2. DASHBOARD ---
-router.get('/dashboard/summary', authenticateToken, dashCtrl.getDashboardSummary);
+router.get('/dashboard/summary', authenticateToken, edgeCache(10), dashCtrl.getDashboardSummary);
 
 // --- 3. PATIENTS & VITALS ---
-router.get('/patients', authenticateToken, patientCtrl.getPatients);
+router.get('/patients', authenticateToken, edgeCache(10), patientCtrl.getPatients);
 router.get('/patients/:id', authenticateToken, patientCtrl.getPatientById);
 router.post('/patients', authenticateToken, patientCtrl.createPatient);
 router.put('/patients/:id', authenticateToken, patientCtrl.updatePatient);
 router.delete('/patients/:id', authenticateToken, patientCtrl.deletePatient);
 router.post('/patients/:id/vitals', authenticateToken, patientCtrl.addVitals);
 router.put('/vitals/:id', authenticateToken, patientCtrl.updateVitals);
-router.get('/vitals/all', authenticateToken, patientCtrl.getAllVitals);
+router.get('/vitals/all', authenticateToken, edgeCache(10), patientCtrl.getAllVitals);
 
 // --- 4. DOCTORS & DEPARTMENTS ---
-router.get('/doctors', authenticateToken, doctorCtrl.getDoctors);
+router.get('/doctors', authenticateToken, edgeCache(20), doctorCtrl.getDoctors);
 router.get('/doctors/:id', authenticateToken, doctorCtrl.getDoctorById);
 router.post('/doctors', authenticateToken, requireRole('admin'), doctorCtrl.createDoctor);
 router.put('/doctors/:id', authenticateToken, requireRole('admin'), doctorCtrl.updateDoctor);
 router.delete('/doctors/:id', authenticateToken, requireRole('admin'), doctorCtrl.deleteDoctor);
 router.post('/doctors/:id/schedules', authenticateToken, requireRole('admin'), doctorCtrl.addDoctorSchedule);
 router.delete('/doctors/schedules/:scheduleId', authenticateToken, requireRole('admin'), doctorCtrl.deleteDoctorSchedule);
-router.get('/departments', authenticateToken, doctorCtrl.getDepartments);
+router.get('/departments', authenticateToken, edgeCache(60), doctorCtrl.getDepartments);
 
 // --- 5. APPOINTMENTS & OPD QUEUE ---
-router.get('/appointments', authenticateToken, apptCtrl.getAppointments);
-router.get('/appointments/queue/today', authenticateToken, apptCtrl.getTodayQueue);
-router.get('/appointments/queue/count', authenticateToken, apptCtrl.getTodayQueueCount);
+router.get('/appointments', authenticateToken, edgeCache(5), apptCtrl.getAppointments);
+router.get('/appointments/queue/today', authenticateToken, edgeCache(5), apptCtrl.getTodayQueue);
+router.get('/appointments/queue/count', authenticateToken, edgeCache(5), apptCtrl.getTodayQueueCount);
 router.get('/appointments/:id', authenticateToken, apptCtrl.getAppointmentById);
 router.post('/appointments', authenticateToken, apptCtrl.createAppointment);
 router.put('/appointments/:id', authenticateToken, apptCtrl.updateAppointment);

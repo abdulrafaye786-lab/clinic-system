@@ -167,29 +167,8 @@ const app = {
     return years;
   },
 
-  // In-memory client-side cache for instantaneous view switching & 0ms navigation
-  _clientCache: new Map(),
-
-  // API Fetch Wrapper with intelligent SWR caching for ultra-fast navigation
+  // API Fetch Wrapper
   async api(endpoint, options = {}) {
-    const isGet = !options.method || options.method.toUpperCase() === 'GET';
-    const cacheKey = endpoint;
-    const now = Date.now();
-
-    // If GET request and data is in cache, return immediately (0ms instant UI rendering)
-    if (isGet && !options.skipCache) {
-      const cached = this._clientCache.get(cacheKey);
-      if (cached && (now - cached.time < 30000)) { // 30s fresh window
-        // Trigger background silent revalidation if older than 5s
-        if (now - cached.time > 5000) {
-          setTimeout(() => {
-            this.api(endpoint, { ...options, skipCache: true }).catch(() => {});
-          }, 10);
-        }
-        return cached.data;
-      }
-    }
-
     const headers = {
       'Content-Type': 'application/json',
       ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {}),
@@ -227,23 +206,57 @@ const app = {
       }
 
       const data = await response.json();
-
-      // On write actions (POST, PUT, DELETE), clear client cache to guarantee fresh state
-      if (!isGet) {
-        this._clientCache.clear();
-      } else if (data && data.success) {
-        this._clientCache.set(cacheKey, { time: now, data });
+      
+      // Cache successful GET requests for instant repeat views
+      if ((!options.method || options.method === 'GET') && data && data.success) {
+        if (!this._apiCache) this._apiCache = new Map();
+        this._apiCache.set(endpoint, {
+          data,
+          timestamp: Date.now()
+        });
       }
 
       return data;
     } catch (err) {
       console.error(`API Error on ${endpoint}:`, err);
-      // Fallback to cached data on network glitch if available
-      if (isGet && this._clientCache.has(cacheKey)) {
-        return this._clientCache.get(cacheKey).data;
-      }
       this.toast(err.message || 'Network error or server unreachable', 'error');
       return { success: false, message: err.message };
+    }
+  },
+
+  // Stale-While-Revalidate API helper for 0ms instantaneous UI rendering
+  async swrApi(endpoint, onFreshData = null, ttlMs = 45000) {
+    if (!this._apiCache) this._apiCache = new Map();
+    const cached = this._apiCache.get(endpoint);
+
+    // If fresh cache exists, return immediately (0ms)
+    if (cached && (Date.now() - cached.timestamp < ttlMs)) {
+      // Trigger background revalidation quietly without blocking
+      setTimeout(() => {
+        this.api(endpoint).then(fresh => {
+          if (fresh && fresh.success && onFreshData) {
+            onFreshData(fresh);
+          }
+        }).catch(() => {});
+      }, 50);
+      return cached.data;
+    }
+
+    // Otherwise fetch directly
+    const res = await this.api(endpoint);
+    return res;
+  },
+
+  clearClientCache(endpointPrefix = null) {
+    if (!this._apiCache) return;
+    if (!endpointPrefix) {
+      this._apiCache.clear();
+      return;
+    }
+    for (const key of this._apiCache.keys()) {
+      if (key.includes(endpointPrefix)) {
+        this._apiCache.delete(key);
+      }
     }
   },
 

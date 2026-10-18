@@ -75,14 +75,13 @@ const doctorsComponent = {
   },
 
   async load() {
-    const res = await app.api('/doctors');
-    if (!res.success) return;
+    const renderDoctors = (res) => {
+      if (!res || !res.success) return;
+      const outlet = document.getElementById('doctors-display-outlet');
+      if (!outlet) return;
 
-    const outlet = document.getElementById('doctors-display-outlet');
-    if (!outlet) return;
-
-    let doctors = res.data || [];
-    this.doctorsData = doctors;
+      let doctors = res.data || [];
+      this.doctorsData = doctors;
 
     if (this.searchQuery) {
       doctors = doctors.filter(d => 
@@ -313,7 +312,16 @@ const doctorsComponent = {
     if (window.app && typeof window.app.applyRolePermissions === 'function') {
       window.app.applyRolePermissions();
     }
-  },
+  };
+
+  const res = await app.swrApi('/doctors', (fresh) => {
+    renderDoctors(fresh);
+  }, 25000);
+
+  if (res && res.success) {
+    renderDoctors(res);
+  }
+},
 
   // Download Doctor Rosters as CSV Export
   downloadRoster() {

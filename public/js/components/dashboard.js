@@ -471,53 +471,62 @@ const dashboardComponent = {
   },
 
   async load() {
-    const res = await app.api(`/dashboard/summary?date=${this.selectedDate}`);
-    if (!res.success) return;
+    const handleData = (res) => {
+      if (!res || !res.success || !res.data) return;
+      const data = res.data;
+      const currency = app.clinic.currency || 'PKR';
 
-    const data = res.data;
-    const currency = app.clinic.currency || 'PKR';
+      // 1. Fill KPI Cards
+      const appts = data.appointments || {};
+      const todayEl = document.getElementById('kpi-today-appts');
+      if (todayEl) todayEl.textContent = appts.total_today || 0;
 
-    // 1. Fill KPI Cards
-    const appts = data.appointments || {};
-    const todayEl = document.getElementById('kpi-today-appts');
-    if (todayEl) todayEl.textContent = appts.total_today || 0;
+      const waitEl = document.getElementById('kpi-waiting-appts');
+      if (waitEl) {
+        waitEl.innerHTML = `
+          <span style="color: var(--caramel); font-weight: 700;">${appts.waiting_count || 0} Waiting</span> • 
+          <span style="color: var(--cyber-green); font-weight: 700;">${appts.completed_count || 0} Done</span>
+        `;
+      }
 
-    const waitEl = document.getElementById('kpi-waiting-appts');
-    if (waitEl) {
-      waitEl.innerHTML = `
-        <span style="color: var(--caramel); font-weight: 700;">${appts.waiting_count || 0} Waiting</span> • 
-        <span style="color: var(--cyber-green); font-weight: 700;">${appts.completed_count || 0} Done</span>
-      `;
+      const rev = data.revenue || {};
+      const revEl = document.getElementById('kpi-today-revenue');
+      if (revEl) revEl.textContent = `${currency} ${parseFloat(rev.total_collected || 0).toLocaleString()}`;
+
+      const recEl = document.getElementById('kpi-receivable');
+      if (recEl) recEl.textContent = `Billed: ${currency} ${parseFloat(rev.total_billed || 0).toLocaleString()}`;
+
+      const pat = data.patients || {};
+      const patEl = document.getElementById('kpi-total-patients');
+      if (patEl) patEl.textContent = pat.total_patients || 0;
+
+      const newPatEl = document.getElementById('kpi-new-patients');
+      if (newPatEl) newPatEl.textContent = `+${pat.new_this_week || 0} new this week`;
+
+      const doc = data.doctors || {};
+      const docEl = document.getElementById('kpi-active-doctors');
+      if (docEl) docEl.textContent = `${doc.active_doctors || 0} Doctors`;
+
+      const deptEl = document.getElementById('kpi-dept-info');
+      if (deptEl) deptEl.textContent = `${doc.active_doctors || 0} Active Rosters`;
+
+      // 2. Store appointments data & render table
+      this.appointmentsData = data.appointmentsList || data.liveQueue || [];
+      this.renderAppointmentsTable();
+
+      // 3. Render Charts
+      this.cachedChartData = data;
+      this.renderAllCharts(data);
+    };
+
+    // Use SWR: Instant render from memory cache + silent background refresh
+    const res = await app.swrApi(`/dashboard/summary?date=${this.selectedDate}`, (fresh) => {
+      handleData(fresh);
+    }, 15000);
+
+    if (res && res.success) {
+      handleData(res);
     }
-
-    const rev = data.revenue || {};
-    const revEl = document.getElementById('kpi-today-revenue');
-    if (revEl) revEl.textContent = `${currency} ${parseFloat(rev.total_collected || 0).toLocaleString()}`;
-
-    const recEl = document.getElementById('kpi-receivable');
-    if (recEl) recEl.textContent = `Billed: ${currency} ${parseFloat(rev.total_billed || 0).toLocaleString()}`;
-
-    const pat = data.patients || {};
-    const patEl = document.getElementById('kpi-total-patients');
-    if (patEl) patEl.textContent = pat.total_patients || 0;
-
-    const newPatEl = document.getElementById('kpi-new-patients');
-    if (newPatEl) newPatEl.textContent = `+${pat.new_this_week || 0} new this week`;
-
-    const doc = data.doctors || {};
-    const docEl = document.getElementById('kpi-active-doctors');
-    if (docEl) docEl.textContent = `${doc.active_doctors || 0} Doctors`;
-
-    const deptEl = document.getElementById('kpi-dept-info');
-    if (deptEl) deptEl.textContent = `${doc.active_doctors || 0} Active Rosters`;
-
-    // 2. Store appointments data & render table
-    this.appointmentsData = data.appointmentsList || data.liveQueue || [];
-    this.renderAppointmentsTable();
-
-    // 3. Render Charts
-    this.cachedChartData = data;
-    this.renderAllCharts(data);
   },
 
   renderAppointmentsTable() {

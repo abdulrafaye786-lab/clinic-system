@@ -56,91 +56,102 @@ const patientsComponent = {
   },
 
   async load() {
-    const res = await app.api(`/patients?search=${encodeURIComponent(this.currentSearch)}`);
-    if (!res.success) return;
+    const handlePatientsRes = (res) => {
+      if (!res || !res.success) return;
+      const tbody = document.getElementById('patients-table-body');
+      if (!tbody) return;
 
-    const tbody = document.getElementById('patients-table-body');
-    if (!tbody) return;
+      const patients = res.data || [];
+      this.patientsList = patients;
 
-    const patients = res.data || [];
+      const totalPill = document.getElementById('stat-total-patients-pill');
+      if (totalPill) totalPill.textContent = `${patients.length} Patient${patients.length === 1 ? '' : 's'}`;
 
-    const totalPill = document.getElementById('stat-total-patients-pill');
-    if (totalPill) totalPill.textContent = `${patients.length} Patient${patients.length === 1 ? '' : 's'}`;
+      if (patients.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3.5rem; color: #94a3b8;">
+              <i class="fa-regular fa-user" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
+              No patient records found matching "${this.currentSearch}".
+            </td>
+          </tr>
+        `;
+        return;
+      }
 
-    if (patients.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align: center; padding: 3.5rem; color: #94a3b8;">
-            <i class="fa-regular fa-user" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
-            No patient records found matching "${this.currentSearch}".
-          </td>
-        </tr>
-      `;
-      return;
-    }
+      const avatarGradients = [
+        'avatar-teal', 'avatar-blue', 'avatar-purple', 'avatar-indigo', 'avatar-rose', 'avatar-amber', 'avatar-emerald'
+      ];
 
-    const avatarGradients = [
-      'avatar-teal', 'avatar-blue', 'avatar-purple', 'avatar-indigo', 'avatar-rose', 'avatar-amber', 'avatar-emerald'
-    ];
+      tbody.innerHTML = patients.map((p, idx) => {
+        const avatarClass = p.gender === 'Female' ? 'avatar-rose' : (avatarGradients[idx % avatarGradients.length]);
+        const initials = (p.full_name || 'PT').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        const totalVisitsCount = parseInt(p.total_visits || 0, 10);
 
-    tbody.innerHTML = patients.map((p, idx) => {
-      const avatarClass = p.gender === 'Female' ? 'avatar-rose' : (avatarGradients[idx % avatarGradients.length]);
-      const initials = (p.full_name || 'PT').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-      const totalVisitsCount = parseInt(p.total_visits || 0, 10);
-
-      return `
-        <tr>
-          <td class="cell-nowrap">
-            <span style="font-family: monospace; font-weight: 800; color: var(--cyber-green); background: var(--cyber-green-light); padding: 0.3rem 0.65rem; border-radius: 6px; border: 1px solid rgba(5, 181, 85, 0.25); font-size: 0.85rem; white-space: nowrap;">
-              ${p.mrn}
-            </span>
-          </td>
-          <td class="patient-details-cell">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <div class="avatar-bubble ${avatarClass}" style="flex-shrink: 0; cursor: pointer;" onclick="app.openPatientHistoryModal(${p.id})" title="View 360 EHR Record">${initials}</div>
-              <div>
-                <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; white-space: nowrap; cursor: pointer;" onclick="app.openPatientHistoryModal(${p.id})" title="View 360 EHR Record">${p.full_name}</div>
-                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap;">
-                  <span class="badge ${p.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${p.gender}</span>
-                  <span style="font-weight: 600; color: var(--text-body); margin-left: 3px;">${p.age} Yrs</span>
-                  ${p.address ? `• <span style="color: var(--text-muted);">${p.address}</span>` : ''}
+        return `
+          <tr>
+            <td class="cell-nowrap">
+              <span style="font-family: monospace; font-weight: 800; color: var(--cyber-green); background: var(--cyber-green-light); padding: 0.3rem 0.65rem; border-radius: 6px; border: 1px solid rgba(5, 181, 85, 0.25); font-size: 0.85rem; white-space: nowrap;">
+                ${p.mrn}
+              </span>
+            </td>
+            <td class="patient-details-cell">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="avatar-bubble ${avatarClass}" style="flex-shrink: 0; cursor: pointer;" onclick="app.openPatientHistoryModal(${p.id})" title="View 360 EHR Record">${initials}</div>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; white-space: nowrap; cursor: pointer;" onclick="app.openPatientHistoryModal(${p.id})" title="View 360 EHR Record">${p.full_name}</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap;">
+                    <span class="badge ${p.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${p.gender}</span>
+                    <span style="font-weight: 600; color: var(--text-body); margin-left: 3px;">${p.age} Yrs</span>
+                    ${p.address ? `• <span style="color: var(--text-muted);">${p.address}</span>` : ''}
+                  </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td class="cell-nowrap">
-            <div style="font-weight: 700; color: var(--cyber-green-dark); white-space: nowrap;"><i class="fa-solid fa-phone" style="font-size: 0.75rem; margin-right: 3px;"></i>${p.phone}</div>
-          </td>
-          <td class="cell-nowrap">
-            <span class="badge ${p.blood_group && p.blood_group !== 'Unknown' ? 'badge-rose' : 'badge-gray'}" style="font-weight: 800; white-space: nowrap;">
-              <i class="fa-solid fa-droplet" style="color: #f43f5e;"></i> ${p.blood_group || 'Unknown'}
-            </span>
-          </td>
-          <td class="cell-nowrap">
-            <span class="badge ${totalVisitsCount > 0 ? 'badge-teal' : 'badge-gray'}" style="font-weight: 700; white-space: nowrap;">
-              ${totalVisitsCount} Visit${totalVisitsCount === 1 ? '' : 's'}
-            </span>
-          </td>
-          <td style="text-align: right; white-space: nowrap;">
-            <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
-              <button onclick="app.openBookAppointmentModal(${p.id})" class="btn btn-outline-primary btn-sm" title="Book Appointment for this Patient">
-                <i class="fa-solid fa-calendar-plus"></i> Book
-              </button>
-              <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="View 360 EHR Record" style="box-shadow: var(--green-glow);">
-                <i class="fa-solid fa-folder-open"></i> 360 EHR
-              </button>
-              <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="btn-edit-action" title="Re-edit Patient Information">
-                <i class="fa-solid fa-pen-to-square"></i> Re-edit
-              </button>
-              <button onclick="patientsComponent.deletePatient(${p.id}, '${p.full_name.replace(/'/g, "\\'")}')" class="btn btn-outline btn-sm" title="Delete Patient Record" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.3);">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
+            </td>
+            <td class="cell-nowrap">
+              <div style="font-weight: 700; color: var(--cyber-green-dark); white-space: nowrap;"><i class="fa-solid fa-phone" style="font-size: 0.75rem; margin-right: 3px;"></i>${p.phone}</div>
+            </td>
+            <td class="cell-nowrap">
+              <span class="badge ${p.blood_group && p.blood_group !== 'Unknown' ? 'badge-rose' : 'badge-gray'}" style="font-weight: 800; white-space: nowrap;">
+                <i class="fa-solid fa-droplet" style="color: #f43f5e;"></i> ${p.blood_group || 'Unknown'}
+              </span>
+            </td>
+            <td class="cell-nowrap">
+              <span class="badge ${totalVisitsCount > 0 ? 'badge-teal' : 'badge-gray'}" style="font-weight: 700; white-space: nowrap;">
+                ${totalVisitsCount} Visit${totalVisitsCount === 1 ? '' : 's'}
+              </span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
+                <button onclick="app.openBookAppointmentModal(${p.id})" class="btn btn-outline-primary btn-sm" title="Book Appointment for this Patient">
+                  <i class="fa-solid fa-calendar-plus"></i> Book
+                </button>
+                <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="View 360 EHR Record" style="box-shadow: var(--green-glow);">
+                  <i class="fa-solid fa-folder-open"></i> 360 EHR
+                </button>
+                <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="btn-edit-action" title="Re-edit Patient Information">
+                  <i class="fa-solid fa-pen-to-square"></i> Re-edit
+                </button>
+                <button onclick="patientsComponent.deletePatient(${p.id}, '${p.full_name.replace(/'/g, "\\'")}')" class="btn btn-outline btn-sm" title="Delete Patient Record" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.3);">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    const endpoint = `/patients?search=${encodeURIComponent(this.currentSearch)}`;
+    const res = await app.swrApi(endpoint, (fresh) => {
+      handlePatientsRes(fresh);
+    }, 20000);
+
+    if (res && res.success) {
+      handlePatientsRes(res);
+    }
   },
+
 
 
   async viewPatientDossier(patientId) {

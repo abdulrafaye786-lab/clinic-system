@@ -109,38 +109,48 @@ function executeSqlOnSupabase(sql, retries = 2) {
   });
 }
 
-// Smart high-performance memory cache for read queries (0ms latency for repeated reads)
+// High-Speed In-Memory Serverless Query Cache
 const queryCache = new Map();
-const CACHE_TTL_MS = 15000; // 15 seconds TTL for high responsiveness and freshness
+const CACHE_TTL_MS = 25000; // 25s TTL for high freshness + 0ms repeat queries
 
-function getCacheKey(transformedSql) {
-  return transformedSql.trim();
-}
-
-function invalidateCache() {
-  queryCache.clear();
+function invalidateCache(tablePrefix = null) {
+  if (!tablePrefix) {
+    queryCache.clear();
+    return;
+  }
+  const prefixLower = tablePrefix.toLowerCase();
+  for (const key of queryCache.keys()) {
+    if (key.toLowerCase().includes(prefixLower)) {
+      queryCache.delete(key);
+    }
+  }
 }
 
 async function query(sql, params) {
   let transformed = formatSql(sql, params);
+  const isSelect = /^\s*SELECT\b/i.test(transformed);
   const isInsert = /^\s*INSERT\b/i.test(transformed);
   const isUpdate = /^\s*UPDATE\b/i.test(transformed);
   const isDelete = /^\s*DELETE\b/i.test(transformed);
-  const isSelect = /^\s*SELECT\b/i.test(transformed);
   const isMultiStatement = transformed.trim().endsWith(';') && (transformed.match(/;/g) || []).length > 1;
 
-  // If write operation, invalidate read cache immediately so data stays 100% fresh
+  // On write mutation, invalidate relevant in-memory caches
   if (isInsert || isUpdate || isDelete) {
-    invalidateCache();
-  } else if (isSelect) {
-    const key = getCacheKey(transformed);
-    const cached = queryCache.get(key);
-    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
-      // Deep clone cached rows to prevent mutation side-effects
-      const cachedRows = JSON.parse(JSON.stringify(cached.rows));
-      cachedRows.insertId = 0;
-      cachedRows.affectedRows = cachedRows.length;
-      return [cachedRows, { insertId: 0, affectedRows: cachedRows.length }];
+    queryCache.clear(); // Clear cache to guarantee 100% data freshness
+  }
+
+  // Check cache for SELECT queries
+  const cacheKey = isSelect ? transformed.trim() : null;
+  if (cacheKey && queryCache.has(cacheKey)) {
+    const cached = queryCache.get(cacheKey);
+    if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      // Return cloned rows to prevent mutation
+      const rows = JSON.parse(JSON.stringify(cached.rows));
+      rows.insertId = cached.meta.insertId;
+      rows.affectedRows = cached.meta.affectedRows;
+      return [rows, cached.meta];
+    } else {
+      queryCache.delete(cacheKey);
     }
   }
 
@@ -162,18 +172,23 @@ async function query(sql, params) {
   rows.insertId = insertId;
   rows.affectedRows = affectedRows;
 
-  // Cache SELECT results for immediate 0ms future reads
-  if (isSelect) {
-    queryCache.set(getCacheKey(transformed), {
-      timestamp: Date.now(),
-      rows: JSON.parse(JSON.stringify(rows))
-    });
-  }
-
   const meta = {
     insertId,
     affectedRows
   };
+
+  // Cache SELECT results (keep cache size capped at 300 queries)
+  if (cacheKey && !isMultiStatement) {
+    if (queryCache.size > 300) {
+      const oldestKey = queryCache.keys().next().value;
+      queryCache.delete(oldestKey);
+    }
+    queryCache.set(cacheKey, {
+      rows: JSON.parse(JSON.stringify(rows)),
+      meta,
+      timestamp: Date.now()
+    });
+  }
 
   return [rows, meta];
 }
@@ -199,5 +214,6 @@ async function initDatabase() {
 module.exports = {
   getPool,
   query,
+  invalidateCache,
   initDatabase
 };
