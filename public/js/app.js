@@ -3627,7 +3627,7 @@ const app = {
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <button class="btn btn-outline" onclick="app.closeModal()">Close Dossier</button>
           <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <button class="btn btn-outline" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="if(confirm('Are you sure you want to permanently delete patient &quot;${(p.full_name || 'Patient').replace(/'/g, &quot;\\'&quot;)}&quot; and all medical/billing records from the database?')) { app.api('/patients/${patientId}', { method: 'DELETE' }).then(res => { if(res.success) { app.toast('Patient deleted successfully!', 'success'); app.closeModal(); if (typeof patientsComponent !== 'undefined' && patientsComponent.load) patientsComponent.load(); if (typeof patientHistoryComponent !== 'undefined' && patientHistoryComponent.loadPatientsList) patientHistoryComponent.loadPatientsList(); app.refreshActiveView(); } else { app.toast(res.message || 'Delete failed', 'error'); } }); }" title="Delete Patient Record">
+            <button class="btn btn-outline" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="app.deletePatientFromModal(${patientId}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" title="Delete Patient Record">
               <i class="fa-solid fa-trash-can"></i> Delete Patient Record
             </button>
             <button class="btn btn-primary" onclick="app.openBookAppointmentModal(${patientId})">
@@ -3713,6 +3713,26 @@ const app = {
       this.refreshActiveView();
     } else {
       this.toast(res.message || 'Failed to delete consultation', 'error');
+    }
+  },
+
+  async deletePatientFromModal(patientId, patientName) {
+    if (!confirm(`Are you sure you want to permanently delete patient "${patientName}" and all associated medical, billing, and appointment records from the database?`)) {
+      return;
+    }
+    const res = await this.api(`/patients/${patientId}`, { method: 'DELETE' });
+    if (res.success) {
+      this.toast(`Patient "${patientName}" deleted successfully!`, 'success');
+      this.closeModal();
+      if (typeof patientsComponent !== 'undefined' && patientsComponent.load) {
+        patientsComponent.load();
+      }
+      if (typeof patientHistoryComponent !== 'undefined' && patientHistoryComponent.loadPatientsList) {
+        patientHistoryComponent.loadPatientsList();
+      }
+      this.refreshActiveView();
+    } else {
+      this.toast(res.message || 'Failed to delete patient', 'error');
     }
   }
 };
