@@ -109,12 +109,40 @@ function executeSqlOnSupabase(sql, retries = 2) {
   });
 }
 
+// Smart high-performance memory cache for read queries (0ms latency for repeated reads)
+const queryCache = new Map();
+const CACHE_TTL_MS = 15000; // 15 seconds TTL for high responsiveness and freshness
+
+function getCacheKey(transformedSql) {
+  return transformedSql.trim();
+}
+
+function invalidateCache() {
+  queryCache.clear();
+}
+
 async function query(sql, params) {
   let transformed = formatSql(sql, params);
   const isInsert = /^\s*INSERT\b/i.test(transformed);
   const isUpdate = /^\s*UPDATE\b/i.test(transformed);
   const isDelete = /^\s*DELETE\b/i.test(transformed);
+  const isSelect = /^\s*SELECT\b/i.test(transformed);
   const isMultiStatement = transformed.trim().endsWith(';') && (transformed.match(/;/g) || []).length > 1;
+
+  // If write operation, invalidate read cache immediately so data stays 100% fresh
+  if (isInsert || isUpdate || isDelete) {
+    invalidateCache();
+  } else if (isSelect) {
+    const key = getCacheKey(transformed);
+    const cached = queryCache.get(key);
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+      // Deep clone cached rows to prevent mutation side-effects
+      const cachedRows = JSON.parse(JSON.stringify(cached.rows));
+      cachedRows.insertId = 0;
+      cachedRows.affectedRows = cachedRows.length;
+      return [cachedRows, { insertId: 0, affectedRows: cachedRows.length }];
+    }
+  }
 
   if ((isInsert || isUpdate || isDelete) && !isMultiStatement && !/\bRETURNING\b/i.test(transformed)) {
     // Only append if it doesn't end with a semicolon
@@ -133,6 +161,14 @@ async function query(sql, params) {
   // Ensure full mysql2 compatibility: attach insertId and affectedRows to rows object
   rows.insertId = insertId;
   rows.affectedRows = affectedRows;
+
+  // Cache SELECT results for immediate 0ms future reads
+  if (isSelect) {
+    queryCache.set(getCacheKey(transformed), {
+      timestamp: Date.now(),
+      rows: JSON.parse(JSON.stringify(rows))
+    });
+  }
 
   const meta = {
     insertId,

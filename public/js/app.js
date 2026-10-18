@@ -167,8 +167,29 @@ const app = {
     return years;
   },
 
-  // API Fetch Wrapper
+  // In-memory client-side cache for instantaneous view switching & 0ms navigation
+  _clientCache: new Map(),
+
+  // API Fetch Wrapper with intelligent SWR caching for ultra-fast navigation
   async api(endpoint, options = {}) {
+    const isGet = !options.method || options.method.toUpperCase() === 'GET';
+    const cacheKey = endpoint;
+    const now = Date.now();
+
+    // If GET request and data is in cache, return immediately (0ms instant UI rendering)
+    if (isGet && !options.skipCache) {
+      const cached = this._clientCache.get(cacheKey);
+      if (cached && (now - cached.time < 30000)) { // 30s fresh window
+        // Trigger background silent revalidation if older than 5s
+        if (now - cached.time > 5000) {
+          setTimeout(() => {
+            this.api(endpoint, { ...options, skipCache: true }).catch(() => {});
+          }, 10);
+        }
+        return cached.data;
+      }
+    }
+
     const headers = {
       'Content-Type': 'application/json',
       ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {}),
@@ -206,9 +227,21 @@ const app = {
       }
 
       const data = await response.json();
+
+      // On write actions (POST, PUT, DELETE), clear client cache to guarantee fresh state
+      if (!isGet) {
+        this._clientCache.clear();
+      } else if (data && data.success) {
+        this._clientCache.set(cacheKey, { time: now, data });
+      }
+
       return data;
     } catch (err) {
       console.error(`API Error on ${endpoint}:`, err);
+      // Fallback to cached data on network glitch if available
+      if (isGet && this._clientCache.has(cacheKey)) {
+        return this._clientCache.get(cacheKey).data;
+      }
       this.toast(err.message || 'Network error or server unreachable', 'error');
       return { success: false, message: err.message };
     }

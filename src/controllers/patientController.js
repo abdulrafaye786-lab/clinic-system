@@ -4,10 +4,18 @@ async function getPatients(req, res) {
   try {
     const { search, limit = 50, offset = 0 } = req.query;
     let sql = `
-      SELECT p.*, 
-        (SELECT MAX(consultation_date) FROM consultations WHERE patient_id = p.id) as last_visit_date,
-        (SELECT COUNT(*) FROM appointments WHERE patient_id = p.id AND status != 'cancelled') as total_visits
+      SELECT p.*,
+        COALESCE(c.last_visit_date, NULL) as last_visit_date,
+        COALESCE(a.total_visits, 0) as total_visits
       FROM patients p
+      LEFT JOIN (
+        SELECT patient_id, MAX(consultation_date) as last_visit_date
+        FROM consultations GROUP BY patient_id
+      ) c ON c.patient_id = p.id
+      LEFT JOIN (
+        SELECT patient_id, COUNT(*) as total_visits
+        FROM appointments WHERE status != 'cancelled' GROUP BY patient_id
+      ) a ON a.patient_id = p.id
     `;
     const params = [];
 
