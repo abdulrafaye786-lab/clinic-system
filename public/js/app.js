@@ -193,11 +193,23 @@ const app = {
         return { success: false, message: data.message || 'Permission Denied' };
       }
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.warn(`Non-JSON response from ${endpoint}:`, text.slice(0, 150));
+        return {
+          success: false,
+          message: response.ok
+            ? 'Unexpected server response format.'
+            : `Server returned status ${response.status}. Please check backend logs.`
+        };
+      }
+
       const data = await response.json();
       return data;
     } catch (err) {
       console.error(`API Error on ${endpoint}:`, err);
-      this.toast('Network error or server unreachable', 'error');
+      this.toast(err.message || 'Network error or server unreachable', 'error');
       return { success: false, message: err.message };
     }
   },
