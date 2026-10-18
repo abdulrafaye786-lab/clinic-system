@@ -245,13 +245,15 @@ const app = {
   async swrApi(endpoint, onFreshData = null, ttlMs = 45000) {
     if (!this._apiCache) this._apiCache = new Map();
     const cached = this._apiCache.get(endpoint);
+    const viewAtRequest = this.currentView;
 
     // If fresh cache exists, return immediately (0ms)
     if (cached && (Date.now() - cached.timestamp < ttlMs)) {
       // Trigger background revalidation quietly without blocking
       setTimeout(() => {
         this.api(endpoint).then(fresh => {
-          if (fresh && fresh.success && onFreshData) {
+          // Guard: Only execute onFreshData callback if the user is STILL on the view that requested it
+          if (fresh && fresh.success && onFreshData && this.currentView === viewAtRequest) {
             onFreshData(fresh);
           }
         }).catch(() => {});
@@ -480,6 +482,13 @@ const app = {
     const pageTitle = document.getElementById('page-title');
     const pageSubtitle = document.getElementById('page-subtitle');
     const mainView = document.getElementById('main-view');
+
+    // Clean teardown: reset container style, class, and clear content to avoid view spillover
+    if (mainView) {
+      mainView.className = 'page-content';
+      mainView.removeAttribute('style');
+      mainView.innerHTML = '';
+    }
 
     // Render corresponding component
     switch (viewName) {

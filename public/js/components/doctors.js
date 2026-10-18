@@ -206,11 +206,8 @@ const doctorsComponent = {
                     <button onclick="doctorsComponent.openAddRosterModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Add Another Roster Slot" style="color: var(--secondary); border-color: rgba(13, 148, 136, 0.4); padding: 0.2rem 0.45rem; font-size: 0.74rem;">
                       <i class="fa-regular fa-clock"></i> + Roster
                     </button>
-                    <button onclick="doctorsComponent.openEditDoctorModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Re-edit Doctor Profile" style="padding: 0.2rem 0.45rem; font-size: 0.74rem;">
+                    <button onclick="doctorsComponent.openEditDoctorModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Edit Doctor Profile" style="padding: 0.2rem 0.45rem; font-size: 0.74rem;">
                       <i class="fa-solid fa-pen"></i> Edit
-                    </button>
-                    <button onclick="doctorsComponent.deleteDoctor(${d.id}, '${d.name.replace(/'/g, "\\'")}')" class="btn btn-outline btn-sm admin-only-btn" title="Delete Doctor from Database" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.3); padding: 0.2rem 0.45rem; font-size: 0.74rem;">
-                      <i class="fa-solid fa-trash-can"></i>
                     </button>
                   </div>
                 </div>
