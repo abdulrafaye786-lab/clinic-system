@@ -5,19 +5,27 @@
 
 const dashboardComponent = {
   charts: {},
-  selectedDate: (() => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  })(),
+  selectedDate: (typeof app !== 'undefined' && typeof app.getSelectedDate === 'function') 
+    ? app.getSelectedDate() 
+    : (localStorage.getItem('gclinic_selected_date') || (() => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })()),
   searchQuery: '',
   statusFilter: 'all',
   doctorFilter: 'all',
   appointmentsData: [],
   cachedChartData: null,
   async render(container) {
+    if (typeof app !== 'undefined' && typeof app.getSelectedDate === 'function') {
+      this.selectedDate = app.getSelectedDate();
+    } else {
+      const saved = localStorage.getItem('gclinic_selected_date');
+      if (saved) this.selectedDate = saved;
+    }
     container.className = 'page-content';
     container.style.overflowY = 'auto';
     container.style.overflowX = 'hidden';
@@ -439,9 +447,13 @@ const dashboardComponent = {
   },
 
   handleDateChange(newDate) {
+    if (!newDate) return;
     this.selectedDate = newDate;
-    if (typeof app !== 'undefined') {
-      app.globalSelectedDate = newDate;
+    if (typeof app !== 'undefined' && typeof app.setSelectedDate === 'function') {
+      app.setSelectedDate(newDate);
+    } else {
+      localStorage.setItem('gclinic_selected_date', newDate);
+      if (typeof app !== 'undefined') app.globalSelectedDate = newDate;
     }
     const picker = document.getElementById('dash-date-picker');
     if (picker) picker.value = newDate;

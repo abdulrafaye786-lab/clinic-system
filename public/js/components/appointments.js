@@ -3,19 +3,24 @@
 // ==========================================================================
 
 const appointmentsComponent = {
-  selectedDate: (typeof app !== 'undefined' && app.globalSelectedDate) ? app.globalSelectedDate : (() => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  })(),
+  selectedDate: (typeof app !== 'undefined' && typeof app.getSelectedDate === 'function') 
+    ? app.getSelectedDate() 
+    : (localStorage.getItem('gclinic_selected_date') || (() => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })()),
   selectedDoctor: '',
   selectedStatus: '',
 
   async render(container) {
-    if (typeof app !== 'undefined' && app.globalSelectedDate) {
-      this.selectedDate = app.globalSelectedDate;
+    if (typeof app !== 'undefined' && typeof app.getSelectedDate === 'function') {
+      this.selectedDate = app.getSelectedDate();
+    } else {
+      const saved = localStorage.getItem('gclinic_selected_date');
+      if (saved) this.selectedDate = saved;
     }
     const docRes = await app.api('/doctors');
     const doctors = docRes.data || [];
@@ -121,9 +126,13 @@ const appointmentsComponent = {
   },
 
   handleDateChange(date) {
+    if (!date) return;
     this.selectedDate = date;
-    if (typeof app !== 'undefined') {
-      app.globalSelectedDate = date;
+    if (typeof app !== 'undefined' && typeof app.setSelectedDate === 'function') {
+      app.setSelectedDate(date);
+    } else {
+      localStorage.setItem('gclinic_selected_date', date);
+      if (typeof app !== 'undefined') app.globalSelectedDate = date;
     }
     const input = document.getElementById('appt-date-picker-input');
     if (input) input.value = date;

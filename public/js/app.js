@@ -12,8 +12,36 @@ const app = {
     address: 'Plot # 14-B, Medical Avenue, Main Boulevard, Garden Town'
   },
   currentView: 'dashboard',
-  doctors: [],
-  pollTimer: null,
+  globalSelectedDate: null,
+
+  getLocalISODate(d = new Date()) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  getSelectedDate() {
+    const saved = localStorage.getItem('gclinic_selected_date');
+    if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved)) {
+      return saved;
+    }
+    const today = this.getLocalISODate();
+    localStorage.setItem('gclinic_selected_date', today);
+    return today;
+  },
+
+  setSelectedDate(dateStr) {
+    if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+    this.globalSelectedDate = dateStr;
+    localStorage.setItem('gclinic_selected_date', dateStr);
+    if (typeof appointmentsComponent !== 'undefined') {
+      appointmentsComponent.selectedDate = dateStr;
+    }
+    if (typeof dashboardComponent !== 'undefined') {
+      dashboardComponent.selectedDate = dateStr;
+    }
+  },
 
   init() {
     this.token = localStorage.getItem('dgp_token');
@@ -21,6 +49,9 @@ const app = {
     if (userJson) {
       try { this.user = JSON.parse(userJson); } catch (e) { this.user = null; }
     }
+
+    // Initialize Global Selected Date from LocalStorage
+    this.globalSelectedDate = this.getSelectedDate();
 
     // Initialize Theme (Light Mode Default)
     this.initTheme();
@@ -1321,6 +1352,7 @@ const app = {
 
   async handleBookDateChange(newDate) {
     this.bookState.date = newDate;
+    this.setSelectedDate(newDate);
 
     // Fetch appointments on this new date to compute slot booking counts
     const apptRes = await this.api(`/appointments?date=${newDate}`);
@@ -1621,12 +1653,7 @@ const app = {
       this.toast(`🎉 Appointment booked for ${this.bookState.patient.full_name} with ${this.bookState.doctor.name} at ${this.bookState.time}!`, 'success');
       this.closeModal();
 
-      if (typeof dashboardComponent !== 'undefined') {
-        dashboardComponent.selectedDate = dateVal;
-      }
-      if (typeof appointmentsComponent !== 'undefined') {
-        appointmentsComponent.selectedDate = dateVal;
-      }
+      this.setSelectedDate(dateVal);
 
       this.refreshActiveView();
     } else {
