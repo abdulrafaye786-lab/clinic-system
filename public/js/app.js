@@ -212,15 +212,14 @@ const app = {
       // On mutation requests (POST, PUT, DELETE, PATCH), invalidate related client cache so UI updates instantly
       if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && data && data.success) {
         if (this._apiCache) {
-          // Identify root resource (e.g. '/patients', '/appointments', '/doctors')
-          const baseResource = endpoint.split('/')[1] ? `/${endpoint.split('/')[1]}` : '';
+          // Identify root resource (e.g. '/patients', '/appointments', '/doctors', '/consultations', '/vitals')
+          const baseResource = endpoint.split('?')[0].split('/')[1] ? `/${endpoint.split('?')[0].split('/')[1]}` : '';
           if (baseResource) {
             this.clearClientCache(baseResource);
-          } else {
-            this.clearClientCache();
           }
-          // Also clear summary and stats caches
+          // Mutations also affect overall dashboard KPIs, revenue, and queue counters
           this.clearClientCache('/dashboard');
+          this.clearClientCache('/appointments');
         }
       }
 

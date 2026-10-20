@@ -3,13 +3,28 @@
 // ==========================================================================
 
 const appointmentsComponent = {
-  selectedDate: new Date().toISOString().slice(0, 10),
+  selectedDate: (typeof app !== 'undefined' && app.globalSelectedDate) ? app.globalSelectedDate : (() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })(),
   selectedDoctor: '',
   selectedStatus: '',
 
   async render(container) {
+    if (typeof app !== 'undefined' && app.globalSelectedDate) {
+      this.selectedDate = app.globalSelectedDate;
+    }
     const docRes = await app.api('/doctors');
     const doctors = docRes.data || [];
+
+    const todayStr = this.getLocalISODate(new Date());
+    const dTomorrow = new Date(); dTomorrow.setDate(dTomorrow.getDate() + 1);
+    const tomStr = this.getLocalISODate(dTomorrow);
+    const dYest = new Date(); dYest.setDate(dYest.getDate() - 1);
+    const yestStr = this.getLocalISODate(dYest);
 
     container.innerHTML = `
       <div class="card u-morphism-card">
@@ -30,13 +45,13 @@ const appointmentsComponent = {
               </div>
 
               <div class="btn-group" style="display: flex; gap: 2px;">
-                <button type="button" id="appt-btn-yesterday" class="btn btn-sm btn-outline" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('yesterday')">Yesterday</button>
-                <button type="button" id="appt-btn-today" class="btn btn-sm btn-outline" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('today')">Today</button>
-                <button type="button" id="appt-btn-tomorrow" class="btn btn-sm btn-outline" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('tomorrow')">Tomorrow</button>
+                <button type="button" id="appt-btn-yesterday" class="btn btn-sm ${this.selectedDate === yestStr ? 'btn-primary' : 'btn-outline'}" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('yesterday')">Yesterday</button>
+                <button type="button" id="appt-btn-today" class="btn btn-sm ${this.selectedDate === todayStr ? 'btn-primary' : 'btn-outline'}" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('today')">Today</button>
+                <button type="button" id="appt-btn-tomorrow" class="btn btn-sm ${this.selectedDate === tomStr ? 'btn-primary' : 'btn-outline'}" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; font-weight: 700; height: 26px;" onclick="appointmentsComponent.setDatePreset('tomorrow')">Tomorrow</button>
               </div>
 
               <span class="badge badge-gray" style="font-size: 0.74rem; padding: 0.25rem 0.5rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);">
-                <span id="appt-date-display-label">${new Date((this.selectedDate || new Date().toISOString().slice(0,10)) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span id="appt-date-display-label">${new Date((this.selectedDate || this.getLocalISODate()) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </span>
               
               <select id="appt-doc-filter" class="form-control" style="width: auto; padding: 0.2rem 0.5rem; font-weight: 600; font-size: 0.76rem; height: 28px;" onchange="appointmentsComponent.handleDocChange(this.value)">
@@ -87,6 +102,13 @@ const appointmentsComponent = {
     this.load();
   },
 
+  getLocalISODate(d = new Date()) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
   setDatePreset(preset) {
     const d = new Date();
     if (preset === 'tomorrow') {
@@ -94,10 +116,7 @@ const appointmentsComponent = {
     } else if (preset === 'yesterday') {
       d.setDate(d.getDate() - 1);
     }
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const newDate = `${year}-${month}-${day}`;
+    const newDate = this.getLocalISODate(d);
     this.handleDateChange(newDate);
   },
 
@@ -109,11 +128,11 @@ const appointmentsComponent = {
     const input = document.getElementById('appt-date-picker-input');
     if (input) input.value = date;
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = this.getLocalISODate(new Date());
     const dTomorrow = new Date(); dTomorrow.setDate(dTomorrow.getDate() + 1);
-    const tomStr = dTomorrow.toISOString().slice(0, 10);
+    const tomStr = this.getLocalISODate(dTomorrow);
     const dYest = new Date(); dYest.setDate(dYest.getDate() - 1);
-    const yestStr = dYest.toISOString().slice(0, 10);
+    const yestStr = this.getLocalISODate(dYest);
 
     const btnYest = document.getElementById('appt-btn-yesterday');
     const btnToday = document.getElementById('appt-btn-today');
@@ -382,9 +401,12 @@ const appointmentsComponent = {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
-    if (res.success) {
+    if (res && res.success) {
       app.toast(`Status updated to ${status.replace('_', ' ')}.`, 'info');
       this.load();
+      if (typeof dashboardComponent !== 'undefined' && dashboardComponent.load) dashboardComponent.load();
+    } else {
+      app.toast(res && res.message ? res.message : 'Failed to update appointment status.', 'error');
     }
   },
 
@@ -392,9 +414,12 @@ const appointmentsComponent = {
     const res = await app.api(`/appointments/${appointmentId}/checkin`, {
       method: 'POST'
     });
-    if (res.success) {
+    if (res && res.success) {
       app.toast('Patient checked in successfully.', 'success');
       this.load();
+      if (typeof dashboardComponent !== 'undefined' && dashboardComponent.load) dashboardComponent.load();
+    } else {
+      app.toast(res && res.message ? res.message : 'Failed to check in patient.', 'error');
     }
   },
 
@@ -403,9 +428,12 @@ const appointmentsComponent = {
       method: 'PUT',
       body: JSON.stringify({ status: 'checked_out' })
     });
-    if (res.success) {
+    if (res && res.success) {
       app.toast('Patient checked out successfully.', 'info');
       this.load();
+      if (typeof dashboardComponent !== 'undefined' && dashboardComponent.load) dashboardComponent.load();
+    } else {
+      app.toast(res && res.message ? res.message : 'Failed to check out patient.', 'error');
     }
   },
 
@@ -415,9 +443,12 @@ const appointmentsComponent = {
       method: 'PUT',
       body: JSON.stringify({ status: 'cancelled' })
     });
-    if (res.success) {
+    if (res && res.success) {
       app.toast('Appointment cancelled.', 'info');
       this.load();
+      if (typeof dashboardComponent !== 'undefined' && dashboardComponent.load) dashboardComponent.load();
+    } else {
+      app.toast(res && res.message ? res.message : 'Failed to cancel appointment.', 'error');
     }
   }
 };

@@ -426,11 +426,34 @@ const consultationComponent = {
       }
 
       // Reload queue and clear editor
+      this.activePatientId = null;
+      this.activeAppointmentId = null;
       this.reloadQueue();
-      this.render(document.getElementById('main-view'));
+      const outlet = document.getElementById('consultation-editor-outlet');
+      if (outlet) {
+        outlet.innerHTML = `
+          <div class="card">
+            <div class="card-body" style="text-align: center; padding: 4rem; color: #94a3b8;">
+              <i class="fa-solid fa-stethoscope" style="font-size: 3.5rem; color: var(--border-color); margin-bottom: 1rem;"></i>
+              <h3 style="color: var(--text-main); font-size: 1.25rem; font-weight: 700;">Select a Patient to Begin Consultation</h3>
+              <p style="font-size: 0.85rem; max-width: 450px; margin: 0.5rem auto 1.5rem auto;">
+                Choose a waiting patient from the queue on the left, or search a registered patient to record diagnosis and write an electronic prescription.
+              </p>
+              <button onclick="consultationComponent.openPatientSearchModal()" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass"></i> Search Registered Patient
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      app.refreshActiveView();
     } else {
       app.toast(res.message || 'Failed to save consultation', 'error');
     }
+  },
+
+  load() {
+    this.reloadQueue();
   },
 
   async printPrescription(consultationId) {
