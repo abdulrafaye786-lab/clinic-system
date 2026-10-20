@@ -459,7 +459,7 @@ async function checkInPatient(req, res) {
     });
   } catch (err) {
     console.error('checkInPatient error:', err);
-    return res.status(500).json({ success: false, message: 'Failed to check in patient.' });
+    return res.status(500).json({ success: false, message: err && err.message ? `Failed to check in patient: ${err.message}` : 'Failed to check in patient.' });
   }
 }
 
