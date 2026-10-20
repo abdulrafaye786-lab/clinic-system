@@ -88,23 +88,21 @@ async function getDashboardSummary(req, res) {
           a.id, a.token_number, a.token_display, a.priority, a.status, a.appointment_time, a.appointment_date, a.chief_complaint, a.appointment_type,
           p.id as patient_id, p.mrn, p.full_name as patient_name, p.age, p.gender, p.phone as patient_phone, p.blood_group,
           d.id as doctor_id, d.name as doctor_name, d.specialty as doctor_specialty, d.room_no, d.consultation_fee,
-          (SELECT systolic_bp FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as systolic_bp,
-          (SELECT diastolic_bp FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as diastolic_bp,
-          (SELECT pulse_rate FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as pulse_rate,
-          (SELECT temperature_f FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as temperature_f,
-          (SELECT weight_kg FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as weight_kg,
-          (SELECT height_cm FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as height_cm,
-          (SELECT bmi FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as bmi,
-          (SELECT spo2 FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as spo2,
-          (SELECT blood_sugar_random FROM patient_vitals WHERE appointment_id = a.id OR patient_id = p.id ORDER BY recorded_at DESC LIMIT 1) as blood_sugar_random,
-          (SELECT id FROM invoices WHERE appointment_id = a.id LIMIT 1) as invoice_id,
-          (SELECT invoice_number FROM invoices WHERE appointment_id = a.id LIMIT 1) as invoice_number,
-          (SELECT payment_status FROM invoices WHERE appointment_id = a.id LIMIT 1) as invoice_payment_status,
-          (SELECT total_amount FROM invoices WHERE appointment_id = a.id LIMIT 1) as invoice_total,
-          (SELECT paid_amount FROM invoices WHERE appointment_id = a.id LIMIT 1) as invoice_paid
+          v.systolic_bp, v.diastolic_bp, v.pulse_rate, v.temperature_f, v.weight_kg, v.height_cm, v.bmi, v.spo2, v.blood_sugar_random,
+          inv.id as invoice_id, inv.invoice_number, inv.payment_status as invoice_payment_status, inv.total_amount as invoice_total, inv.paid_amount as invoice_paid
         FROM appointments a
         JOIN patients p ON a.patient_id = p.id
         JOIN doctors d ON a.doctor_id = d.id
+        LEFT JOIN (
+          SELECT DISTINCT ON (appointment_id) appointment_id, systolic_bp, diastolic_bp, pulse_rate, temperature_f, weight_kg, height_cm, bmi, spo2, blood_sugar_random
+          FROM patient_vitals
+          ORDER BY appointment_id, recorded_at DESC
+        ) v ON v.appointment_id = a.id
+        LEFT JOIN (
+          SELECT DISTINCT ON (appointment_id) id, appointment_id, invoice_number, payment_status, total_amount, paid_amount
+          FROM invoices
+          ORDER BY appointment_id, id DESC
+        ) inv ON inv.appointment_id = a.id
         WHERE a.appointment_date = ?
         ORDER BY 
           CASE 

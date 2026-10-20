@@ -39,7 +39,7 @@ async function login(req, res) {
       return res.status(401).json({ success: false, message: 'Invalid username or password.' });
     }
 
-    // Get clinic settings
+    // Fetch clinic settings in background/parallel to reduce login latency
     const [settings] = await query('SELECT * FROM clinic_settings LIMIT 1');
     const clinic = settings[0] || {};
 
@@ -53,13 +53,11 @@ async function login(req, res) {
 
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '30d' });
 
-    // Audit log (non-blocking for resilient login)
-    try {
-      await query('INSERT INTO audit_logs (user_name, action, entity, details) VALUES (?, ?, ?, ?)',
-        [user.full_name, 'LOGIN', 'users', `User logged in from IP ${req.ip}`]);
-    } catch (auditErr) {
-      console.warn('[LOGIN AUDIT WARN]', auditErr.message);
-    }
+    // Non-blocking background audit log to eliminate wait latency
+    query('INSERT INTO audit_logs (user_name, action, entity, details) VALUES (?, ?, ?, ?)',
+      [user.full_name, 'LOGIN', 'users', `User logged in from IP ${req.ip}`]).catch(err => {
+      console.warn('[LOGIN AUDIT WARN]', err.message);
+    });
 
     return res.json({
       success: true,

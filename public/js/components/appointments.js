@@ -168,232 +168,230 @@ const appointmentsComponent = {
     if (this.selectedDoctor) url += `&doctor_id=${this.selectedDoctor}`;
     if (this.selectedStatus) url += `&status=${this.selectedStatus}`;
 
-    const res = await app.api(url);
-    if (!res.success) return;
+    const renderAppointments = (data) => {
+      const tbody = document.getElementById('appointments-table-body');
+      if (!tbody) return;
 
-    const tbody = document.getElementById('appointments-table-body');
-    if (!tbody) return;
+      const appointments = data || [];
 
-    const appointments = res.data || [];
+      // Calculate metrics
+      const total = appointments.length;
+      const waiting = appointments.filter(a => a.status === 'waiting').length;
+      const consulting = appointments.filter(a => a.status === 'in_consultation').length;
+      const completed = appointments.filter(a => a.status === 'completed').length;
 
-    // Calculate metrics
-    const total = appointments.length;
-    const waiting = appointments.filter(a => a.status === 'waiting').length;
-    const consulting = appointments.filter(a => a.status === 'in_consultation').length;
-    const completed = appointments.filter(a => a.status === 'completed').length;
+      const elTotal = document.getElementById('stat-total-appts');
+      const elWaiting = document.getElementById('stat-waiting-appts');
+      const elConsulting = document.getElementById('stat-consulting-appts');
+      const elCompleted = document.getElementById('stat-completed-appts');
 
-    const elTotal = document.getElementById('stat-total-appts');
-    const elWaiting = document.getElementById('stat-waiting-appts');
-    const elConsulting = document.getElementById('stat-consulting-appts');
-    const elCompleted = document.getElementById('stat-completed-appts');
+      if (elTotal) elTotal.textContent = total;
+      if (elWaiting) elWaiting.textContent = waiting;
+      if (elConsulting) elConsulting.textContent = consulting;
+      if (elCompleted) elCompleted.textContent = completed;
 
-    if (elTotal) elTotal.textContent = total;
-    if (elWaiting) elWaiting.textContent = waiting;
-    if (elConsulting) elConsulting.textContent = consulting;
-    if (elCompleted) elCompleted.textContent = completed;
+      const pill = document.getElementById('stat-total-appts-pill');
+      if (pill) pill.textContent = `${total} Booking${total === 1 ? '' : 's'}`;
 
-    if (appointments.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">
-            <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
-            No appointments found for selected date and filters.
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    const avatarColors = ['avatar-teal', 'avatar-blue', 'avatar-purple', 'avatar-indigo', 'avatar-rose', 'avatar-amber', 'avatar-emerald'];
-
-    tbody.innerHTML = appointments.map((a, idx) => {
-      const avatarColor = avatarColors[idx % avatarColors.length];
-      const initials = (a.patient_name || 'PT').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
-      let badgeClass = 'badge-gray';
-      let beaconDot = '';
-      let statusLabel = a.status.replace('_', ' ');
-
-      if (a.status === 'in_consultation') {
-        badgeClass = 'badge-blue';
-        beaconDot = '<span class="pulse-dot blue"></span> ';
-        statusLabel = 'With Doctor';
-      } else if (a.status === 'waiting') {
-        badgeClass = 'badge-amber';
-        beaconDot = '<span class="pulse-dot amber"></span> ';
-        statusLabel = 'Checked In / Waiting';
-      } else if (a.status === 'completed') {
-        badgeClass = 'badge-green';
-        beaconDot = '<span class="pulse-dot green"></span> ';
-        statusLabel = 'Completed';
-      } else if (a.status === 'scheduled') {
-        badgeClass = 'badge-purple';
-        statusLabel = 'Scheduled';
-      } else if (a.status === 'cancelled') {
-        badgeClass = 'badge-rose';
-        statusLabel = 'Cancelled';
+      if (appointments.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">
+              <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
+              No appointments found for selected date and filters.
+            </td>
+          </tr>
+        `;
+        return;
       }
 
-      const hasVitals = Boolean(a.systolic_bp || a.diastolic_bp || a.temperature_f || a.pulse_rate || a.spo2 || a.blood_sugar_random || a.weight_kg);
+      const avatarColors = ['avatar-teal', 'avatar-blue', 'avatar-purple', 'avatar-indigo', 'avatar-rose', 'avatar-amber', 'avatar-emerald'];
 
-      // Vitals summary badge
-      let vitalsHtml = `<span style="font-size: 0.76rem; color: #94a3b8; font-style: italic;"><i class="fa-solid fa-heart-circle-exclamation" style="color: #cbd5e1;"></i> Pending</span>`;
-      if (hasVitals) {
-        let bpChipClass = 'vital-chip-bp';
-        if (a.systolic_bp >= 140 || a.diastolic_bp >= 90) {
-          bpChipClass = 'vital-chip-bp-alert';
-        } else if (a.systolic_bp >= 120 || a.diastolic_bp >= 80) {
-          bpChipClass = 'vital-chip-bp-warn';
+      tbody.innerHTML = appointments.map((a, idx) => {
+        const avatarColor = avatarColors[idx % avatarColors.length];
+        const initials = (a.patient_name || 'PT').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+        let badgeClass = 'badge-gray';
+        let beaconDot = '';
+        let statusLabel = a.status.replace('_', ' ');
+
+        if (a.status === 'in_consultation') {
+          badgeClass = 'badge-blue';
+          beaconDot = '<span class="pulse-dot blue"></span> ';
+          statusLabel = 'With Doctor';
+        } else if (a.status === 'waiting') {
+          badgeClass = 'badge-amber';
+          beaconDot = '<span class="pulse-dot amber"></span> ';
+          statusLabel = 'Checked In / Waiting';
+        } else if (a.status === 'completed') {
+          badgeClass = 'badge-green';
+          beaconDot = '<span class="pulse-dot green"></span> ';
+          statusLabel = 'Completed';
+        } else if (a.status === 'scheduled') {
+          badgeClass = 'badge-purple';
+          statusLabel = 'Scheduled';
+        } else if (a.status === 'cancelled') {
+          badgeClass = 'badge-rose';
+          statusLabel = 'Cancelled';
         }
 
-        vitalsHtml = `
-          <div class="vitals-summary-box">
-            ${a.systolic_bp && a.diastolic_bp ? `
-              <span class="vital-chip ${bpChipClass}" title="Blood Pressure">
-                <i class="fa-solid fa-heart-pulse"></i> ${a.systolic_bp}/${a.diastolic_bp}
-              </span>
-            ` : ''}
-            ${a.pulse_rate ? `
-              <span class="vital-chip vital-chip-pulse" title="Pulse Rate">
-                <i class="fa-solid fa-wave-square"></i> ${a.pulse_rate}
-              </span>
-            ` : ''}
-            ${a.temperature_f ? `
-              <span class="vital-chip vital-chip-temp" title="Temperature">
-                <i class="fa-solid fa-temperature-half"></i> ${a.temperature_f}°F
-              </span>
-            ` : ''}
-            ${a.spo2 ? `
-              <span class="vital-chip vital-chip-spo2" title="Blood Oxygen SpO2">
-                <i class="fa-solid fa-lungs"></i> ${a.spo2}%
-              </span>
-            ` : ''}
-            ${a.weight_kg && !a.systolic_bp && !a.pulse_rate ? `
-              <span class="vital-chip vital-chip-weight" title="Weight">
-                <i class="fa-solid fa-weight-scale"></i> ${a.weight_kg}kg
-              </span>
-            ` : ''}
-          </div>
-        `;
-      }
+        const hasVitals = Boolean(a.systolic_bp || a.diastolic_bp || a.temperature_f || a.pulse_rate || a.spo2 || a.blood_sugar_random || a.weight_kg);
 
-      // Billing status badge
-      let billingBadge = `<span class="badge badge-gray"><i class="fa-regular fa-clock"></i> Unbilled</span>`;
-      if (a.invoice_id) {
-        if (a.invoice_payment_status === 'paid') {
-          billingBadge = `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> Paid (${app.clinic.currency} ${parseFloat(a.invoice_total || 0).toLocaleString()})</span>`;
-        } else {
-          billingBadge = `<span class="badge badge-amber"><i class="fa-solid fa-triangle-exclamation"></i> Unpaid Bill</span>`;
-        }
-      }
+        // Vitals summary badge
+        let vitalsHtml = `<span style="font-size: 0.76rem; color: #94a3b8; font-style: italic;"><i class="fa-solid fa-heart-circle-exclamation" style="color: #cbd5e1;"></i> Pending</span>`;
+        if (hasVitals) {
+          let bpChipClass = 'vital-chip-bp';
+          if (a.systolic_bp >= 140 || a.diastolic_bp >= 90) {
+            bpChipClass = 'vital-chip-bp-alert';
+          } else if (a.systolic_bp >= 120 || a.diastolic_bp >= 80) {
+            bpChipClass = 'vital-chip-bp-warn';
+          }
 
-      const vitalsObj = JSON.stringify({
-        systolic_bp: a.systolic_bp,
-        diastolic_bp: a.diastolic_bp,
-        pulse_rate: a.pulse_rate,
-        temperature_f: a.temperature_f,
-        spo2: a.spo2,
-        weight_kg: a.weight_kg,
-        height_cm: a.height_cm,
-        bmi: a.bmi,
-        blood_sugar_random: a.blood_sugar_random
-      }).replace(/"/g, '&quot;');
-
-      // Strict In-Appointment Lifecycle Actions:
-      // Stage 1: Booked/Scheduled -> ONLY "Check In"
-      // Stage 2: Checked In (Pending Vitals) -> ONLY "Record Vitals" & "Check Out"
-      // Stage 3: Vitals Recorded -> ONLY "Send to Doctor" & "Re-edit Vitals"
-      // Stage 4: With Doctor / In Consultation -> ONLY "Proceed for Bill"
-      // Stage 5: Paid / Completed -> NO buttons (process is finished)
-      let nextStepActionHtml = '';
-
-      const isPaidOrCompleted = a.status === 'completed' || a.invoice_payment_status === 'paid';
-
-      if (isPaidOrCompleted) {
-        // Stage 5: Once the bill is paid, the appointment's process is done. Don't show any button there.
-        nextStepActionHtml = '';
-      } else if (a.status === 'scheduled') {
-        // Stage 1: When appointment is booked, first see ONLY the button to check in the patient
-        nextStepActionHtml = `
-          <button onclick="appointmentsComponent.directCheckIn(${a.id})" class="btn btn-primary btn-sm" title="Check In Patient" style="box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);">
-            <i class="fa-solid fa-user-check"></i> Check In
-          </button>
-        `;
-      } else if (a.status === 'waiting') {
-        if (!hasVitals) {
-          // Stage 2: After check in (pending vitals) -> ONLY 2 buttons: Record Vitals & Check Out
-          nextStepActionHtml = `
-            <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${a.doctor_name.replace(/'/g, "\\'")}', '${a.patient_name.replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-primary btn-sm" title="Record Patient Vitals" style="box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);">
-              <i class="fa-solid fa-heart-pulse"></i> Record Vitals
-            </button>
-            <button onclick="appointmentsComponent.directCheckOut(${a.id})" class="btn btn-outline-warning btn-sm" title="Patient Checked Out / Left Clinic">
-              <i class="fa-solid fa-person-walking-arrow-right"></i> Check Out
-            </button>
-          `;
-        } else {
-          // Stage 3: Vitals recorded -> ONLY 2 buttons: Send to Doctor & Re-edit Vitals
-          nextStepActionHtml = `
-            <button onclick="app.sendToDoctor(${a.id})" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #0284c7; font-weight: 700; box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35);" title="Send Patient to Doctor Consultation Queue">
-              <i class="fa-solid fa-user-doctor"></i> Send to Doctor
-            </button>
-            <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${a.doctor_name.replace(/'/g, "\\'")}', '${a.patient_name.replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-outline btn-sm" title="Re-edit Patient Vitals">
-              <i class="fa-solid fa-pen-to-square"></i> Re-edit Vitals
-            </button>
-          `;
-        }
-      } else if (a.status === 'in_consultation') {
-        // Stage 4: Send to doctor clicked -> ONLY button to record the bill / pay
-        nextStepActionHtml = `
-          <button onclick="app.openMakeBillModal(${a.id}, ${a.patient_id}, ${a.doctor_id}, ${a.consultation_fee}, '${a.doctor_name.replace(/'/g, "\\'")}', '${a.patient_name.replace(/'/g, "\\'")}', '')" class="btn btn-success btn-sm" title="Proceed for the bill and payment of the patient" style="background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.35); font-weight: 700;">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Proceed for Bill
-          </button>
-        `;
-      } else if (a.status === 'checked_out') {
-        nextStepActionHtml = `
-          <span class="badge badge-amber"><i class="fa-solid fa-person-walking-arrow-right"></i> Checked Out</span>
-        `;
-      } else {
-        nextStepActionHtml = `<span class="badge badge-gray">Cancelled</span>`;
-      }
-
-      const rawMrn = (a.mrn || '').toString().replace(/MRN-?/gi, '');
-      const formattedMrn = rawMrn ? `MRN: #${rawMrn}` : `MRN: #${a.patient_id}`;
-
-      return `
-        <tr>
-          <td class="cell-nowrap">
-            <span class="mrn-tag" style="font-size: 0.76rem; font-weight: 800; padding: 0.18rem 0.45rem; display: inline-block;">${formattedMrn}</span>
-          </td>
-          <td class="patient-details-cell">
-            <div style="display: flex; align-items: center; gap: 0.45rem;">
-              <div class="avatar-bubble ${avatarColor}" style="cursor: pointer; flex-shrink: 0; width: 28px; height: 28px; font-size: 0.7rem;" onclick="app.openAppointmentDetailsModal(${a.id})" title="View Full Booking Details">${initials}</div>
-              <div style="min-width: 0; overflow: hidden;">
-                <div style="font-weight: 700; color: var(--text-main); font-size: 0.82rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="app.openAppointmentDetailsModal(${a.id})" title="View Full Details">${a.patient_name}</div>
-                <div style="font-size: 0.68rem; color: var(--text-muted); white-space: nowrap;">${a.patient_phone || (a.gender ? `${a.gender}${a.age ? ', ' + a.age + 'y' : ''}` : 'Patient')}</div>
-              </div>
+          vitalsHtml = `
+            <div class="vitals-summary-box">
+              ${a.systolic_bp && a.diastolic_bp ? `
+                <span class="vital-chip ${bpChipClass}" title="Blood Pressure">
+                  <i class="fa-solid fa-heart-pulse"></i> ${a.systolic_bp}/${a.diastolic_bp}
+                </span>
+              ` : ''}
+              ${a.pulse_rate ? `
+                <span class="vital-chip vital-chip-pulse" title="Pulse Rate">
+                  <i class="fa-solid fa-wave-square"></i> ${a.pulse_rate}
+                </span>
+              ` : ''}
+              ${a.temperature_f ? `
+                <span class="vital-chip vital-chip-temp" title="Temperature">
+                  <i class="fa-solid fa-temperature-half"></i> ${a.temperature_f}°F
+                </span>
+              ` : ''}
+              ${a.spo2 ? `
+                <span class="vital-chip vital-chip-spo2" title="Blood Oxygen SpO2">
+                  <i class="fa-solid fa-lungs"></i> ${a.spo2}%
+                </span>
+              ` : ''}
+              ${a.weight_kg && !a.systolic_bp && !a.pulse_rate ? `
+                <span class="vital-chip vital-chip-weight" title="Weight">
+                  <i class="fa-solid fa-weight-scale"></i> ${a.weight_kg}kg
+                </span>
+              ` : ''}
             </div>
-          </td>
-          <td class="doctor-details-cell">
-            <div style="font-weight: 700; color: var(--text-main); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${a.doctor_name}</div>
-            <div style="font-size: 0.68rem; color: var(--text-muted); white-space: nowrap;">${a.doctor_specialty || 'OPD'}</div>
-          </td>
-          <td class="cell-nowrap">${vitalsHtml}</td>
-          <td class="cell-nowrap"><span class="badge ${badgeClass}">${beaconDot}${statusLabel}</span></td>
-          <td class="cell-nowrap">${billingBadge}</td>
-          <td style="text-align: right; white-space: nowrap;">
-            <div style="display: inline-flex; align-items: center; gap: 0.3rem;">
-              ${nextStepActionHtml}
-              
-              <!-- Full Details Popup -->
-              <button onclick="app.openAppointmentDetailsModal(${a.id})" class="btn btn-outline btn-sm" title="View Full Patient & Booking Details" style="padding: 0.22rem 0.45rem; font-size: 0.72rem;">
-                <i class="fa-solid fa-circle-info" style="color: #00c853;"></i> Details
+          `;
+        }
+
+        // Billing status badge
+        let billingBadge = `<span class="badge badge-gray"><i class="fa-regular fa-clock"></i> Unbilled</span>`;
+        if (a.invoice_id) {
+          if (a.invoice_payment_status === 'paid') {
+            billingBadge = `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> Paid (${app.clinic.currency} ${parseFloat(a.invoice_total || 0).toLocaleString()})</span>`;
+          } else {
+            billingBadge = `<span class="badge badge-amber"><i class="fa-solid fa-triangle-exclamation"></i> Unpaid Bill</span>`;
+          }
+        }
+
+        const vitalsObj = JSON.stringify({
+          systolic_bp: a.systolic_bp,
+          diastolic_bp: a.diastolic_bp,
+          pulse_rate: a.pulse_rate,
+          temperature_f: a.temperature_f,
+          spo2: a.spo2,
+          weight_kg: a.weight_kg,
+          height_cm: a.height_cm,
+          bmi: a.bmi,
+          blood_sugar_random: a.blood_sugar_random
+        }).replace(/"/g, '&quot;');
+
+        let nextStepActionHtml = '';
+        const isPaidOrCompleted = a.status === 'completed' || a.invoice_payment_status === 'paid';
+
+        if (isPaidOrCompleted) {
+          nextStepActionHtml = '';
+        } else if (a.status === 'scheduled') {
+          nextStepActionHtml = `
+            <button onclick="appointmentsComponent.directCheckIn(${a.id})" class="btn btn-primary btn-sm" title="Check In Patient" style="box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);">
+              <i class="fa-solid fa-user-check"></i> Check In
+            </button>
+          `;
+        } else if (a.status === 'waiting') {
+          if (!hasVitals) {
+            nextStepActionHtml = `
+              <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${(a.doctor_name || '').replace(/'/g, "\\'")}', '${(a.patient_name || '').replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-primary btn-sm" title="Record Patient Vitals" style="box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);">
+                <i class="fa-solid fa-heart-pulse"></i> Record Vitals
               </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
+              <button onclick="appointmentsComponent.directCheckOut(${a.id})" class="btn btn-outline-warning btn-sm" title="Patient Checked Out / Left Clinic">
+                <i class="fa-solid fa-person-walking-arrow-right"></i> Check Out
+              </button>
+            `;
+          } else {
+            nextStepActionHtml = `
+              <button onclick="app.sendToDoctor(${a.id})" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #0284c7; font-weight: 700; box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35);" title="Send Patient to Doctor Consultation Queue">
+                <i class="fa-solid fa-user-doctor"></i> Send to Doctor
+              </button>
+              <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${(a.doctor_name || '').replace(/'/g, "\\'")}', '${(a.patient_name || '').replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-outline btn-sm" title="Re-edit Patient Vitals">
+                <i class="fa-solid fa-pen-to-square"></i> Re-edit Vitals
+              </button>
+            `;
+          }
+        } else if (a.status === 'in_consultation') {
+          nextStepActionHtml = `
+            <button onclick="app.openMakeBillModal(${a.id}, ${a.patient_id}, ${a.doctor_id}, ${a.consultation_fee}, '${(a.doctor_name || '').replace(/'/g, "\\'")}', '${(a.patient_name || '').replace(/'/g, "\\'")}', '')" class="btn btn-success btn-sm" title="Proceed for the bill and payment of the patient" style="background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16, 185, 129, 0.35); font-weight: 700;">
+              <i class="fa-solid fa-file-invoice-dollar"></i> Proceed for Bill
+            </button>
+          `;
+        } else if (a.status === 'checked_out') {
+          nextStepActionHtml = `
+            <span class="badge badge-amber"><i class="fa-solid fa-person-walking-arrow-right"></i> Checked Out</span>
+          `;
+        } else {
+          nextStepActionHtml = `<span class="badge badge-gray">Cancelled</span>`;
+        }
 
+        const rawMrn = (a.mrn || '').toString().replace(/MRN-?/gi, '');
+        const formattedMrn = rawMrn ? `MRN: #${rawMrn}` : `MRN: #${a.patient_id}`;
+
+        return `
+          <tr>
+            <td class="cell-nowrap">
+              <span class="mrn-tag" style="font-size: 0.76rem; font-weight: 800; padding: 0.18rem 0.45rem; display: inline-block;">${formattedMrn}</span>
+            </td>
+            <td class="patient-details-cell">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <div class="avatar-bubble ${avatarColor}" style="cursor: pointer; flex-shrink: 0; width: 28px; height: 28px; font-size: 0.7rem;" onclick="app.openAppointmentDetailsModal(${a.id})" title="View Full Booking Details">${initials}</div>
+                <div style="min-width: 0; overflow: hidden;">
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 0.82rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="app.openAppointmentDetailsModal(${a.id})" title="View Full Details">${a.patient_name}</div>
+                  <div style="font-size: 0.68rem; color: var(--text-muted); white-space: nowrap;">${a.patient_phone || (a.gender ? `${a.gender}${a.age ? ', ' + a.age + 'y' : ''}` : 'Patient')}</div>
+                </div>
+              </div>
+            </td>
+            <td class="doctor-details-cell">
+              <div style="font-weight: 700; color: var(--text-main); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${a.doctor_name}</div>
+              <div style="font-size: 0.68rem; color: var(--text-muted); white-space: nowrap;">${a.doctor_specialty || 'OPD'}</div>
+            </td>
+            <td class="cell-nowrap">${vitalsHtml}</td>
+            <td class="cell-nowrap"><span class="badge ${badgeClass}">${beaconDot}${statusLabel}</span></td>
+            <td class="cell-nowrap">${billingBadge}</td>
+            <td style="text-align: right; white-space: nowrap;">
+              <div style="display: inline-flex; align-items: center; gap: 0.3rem;">
+                ${nextStepActionHtml}
+                <button onclick="app.openAppointmentDetailsModal(${a.id})" class="btn btn-outline btn-sm" title="View Full Patient & Booking Details" style="padding: 0.22rem 0.45rem; font-size: 0.72rem;">
+                  <i class="fa-solid fa-circle-info" style="color: #00c853;"></i> Details
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    // Use SWR for instant 0ms UI load + background refresh
+    const res = await app.swrApi(url, (fresh) => {
+      if (fresh && fresh.success) {
+        renderAppointments(fresh.data);
+      }
+    }, 15000);
+
+    if (res && res.success) {
+      renderAppointments(res.data);
+    }
   },
 
   async setStatus(appointmentId, status) {
