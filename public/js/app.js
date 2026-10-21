@@ -366,6 +366,8 @@ const app = {
   logout() {
     localStorage.removeItem('dgp_token');
     localStorage.removeItem('dgp_user');
+    sessionStorage.removeItem('gclinic_current_view');
+    window.location.hash = '';
     this.token = null;
     this.user = null;
     if (this.pollTimer) clearInterval(this.pollTimer);
@@ -406,8 +408,24 @@ const app = {
     // Apply role-based UI permissions
     this.applyRolePermissions();
 
-    // Always navigate to dashboard view by default when application opens
-    this.navigate('dashboard');
+    // Valid navigation views in the application
+    const validViews = ['dashboard', 'doctors', 'patients', 'appointments', 'vitals-bills', 'patient-history', 'billing', 'settings'];
+    
+    // Determine target view on startup:
+    // 1. If URL has a valid hash (e.g. page refresh on #appointments), respect it.
+    // 2. Otherwise if user refreshed or stayed in same browser tab session, restore saved view.
+    // 3. Otherwise (first time user opens via link), default to 'dashboard'.
+    const hash = window.location.hash.replace('#', '');
+    const sessionView = sessionStorage.getItem('gclinic_current_view');
+    
+    let targetView = 'dashboard';
+    if (hash && validViews.includes(hash)) {
+      targetView = hash;
+    } else if (sessionView && validViews.includes(sessionView)) {
+      targetView = sessionView;
+    }
+
+    this.navigate(targetView);
 
     // Start auto polling for OPD updates
     if (this.pollTimer) clearInterval(this.pollTimer);
@@ -495,6 +513,7 @@ const app = {
 
     this.currentView = viewName;
     window.location.hash = viewName;
+    sessionStorage.setItem('gclinic_current_view', viewName);
 
     // Update sidebar active link
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => {
@@ -3761,4 +3780,13 @@ const app = {
 // Initialize Application on Page Load
 document.addEventListener('DOMContentLoaded', () => {
   app.init();
+});
+
+// React to browser back/forward or URL hash changes
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.replace('#', '');
+  const validViews = ['dashboard', 'doctors', 'patients', 'appointments', 'vitals-bills', 'patient-history', 'billing', 'settings'];
+  if (hash && validViews.includes(hash) && app.currentView !== hash) {
+    app.navigate(hash);
+  }
 });
