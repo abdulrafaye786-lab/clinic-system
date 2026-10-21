@@ -411,18 +411,41 @@ const app = {
     // Valid navigation views in the application
     const validViews = ['dashboard', 'doctors', 'patients', 'appointments', 'vitals-bills', 'patient-history', 'billing', 'settings'];
     
-    // Determine target view on startup:
-    // 1. If URL has a valid hash (e.g. page refresh on #appointments), respect it.
-    // 2. Otherwise if user refreshed or stayed in same browser tab session, restore saved view.
-    // 3. Otherwise (first time user opens via link), default to 'dashboard'.
+    // Check navigation type to detect browser page reload vs fresh link navigation
+    let isPageReload = false;
+    try {
+      const navEntries = performance.getEntriesByType('navigation');
+      if (navEntries && navEntries.length > 0) {
+        isPageReload = navEntries[0].type === 'reload';
+      } else if (performance.navigation) {
+        isPageReload = performance.navigation.type === 1; // TYPE_RELOAD
+      }
+    } catch (e) {
+      isPageReload = false;
+    }
+
     const hash = window.location.hash.replace('#', '');
     const sessionView = sessionStorage.getItem('gclinic_current_view');
-    
+
     let targetView = 'dashboard';
-    if (hash && validViews.includes(hash)) {
-      targetView = hash;
-    } else if (sessionView && validViews.includes(sessionView)) {
-      targetView = sessionView;
+
+    if (isPageReload) {
+      // User refreshed the page (F5 or reload button): preserve their active tab
+      if (hash && validViews.includes(hash)) {
+        targetView = hash;
+      } else if (sessionView && validViews.includes(sessionView)) {
+        targetView = sessionView;
+      }
+    } else {
+      // Fresh navigation via link: always land on dashboard by default
+      // If the link explicitly had a hash (e.g. clinic.com/#appointments), only then honor it
+      if (hash && validViews.includes(hash) && hash !== 'dashboard') {
+        targetView = hash;
+      } else {
+        targetView = 'dashboard';
+        window.location.hash = 'dashboard';
+        sessionStorage.setItem('gclinic_current_view', 'dashboard');
+      }
     }
 
     this.navigate(targetView);
