@@ -406,13 +406,8 @@ const app = {
     // Apply role-based UI permissions
     this.applyRolePermissions();
 
-    // Navigate to default view or hash view
-    const hash = window.location.hash.replace('#', '');
-    if (hash && ['dashboard', 'doctors', 'patients', 'appointments', 'vitals-bills', 'patient-history', 'billing', 'settings'].includes(hash)) {
-      this.navigate(hash);
-    } else {
-      this.navigate('dashboard');
-    }
+    // Always navigate to dashboard view by default when application opens
+    this.navigate('dashboard');
 
     // Start auto polling for OPD updates
     if (this.pollTimer) clearInterval(this.pollTimer);
