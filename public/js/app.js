@@ -22,11 +22,28 @@ const app = {
   },
 
   getSelectedDate() {
-    const saved = localStorage.getItem('gclinic_selected_date');
-    if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved)) {
-      return saved;
-    }
     const today = this.getLocalISODate();
+    // Check if this is an explicit in-session page reload (F5)
+    let isPageReload = false;
+    try {
+      const navEntries = performance.getEntriesByType('navigation');
+      if (navEntries && navEntries.length > 0) {
+        isPageReload = navEntries[0].type === 'reload';
+      } else if (performance.navigation) {
+        isPageReload = performance.navigation.type === 1; // TYPE_RELOAD
+      }
+    } catch (e) {
+      isPageReload = false;
+    }
+
+    if (isPageReload) {
+      const saved = localStorage.getItem('gclinic_selected_date');
+      if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved)) {
+        return saved;
+      }
+    }
+
+    // On fresh application open / new day, always default to today's date
     localStorage.setItem('gclinic_selected_date', today);
     return today;
   },
@@ -335,6 +352,7 @@ const app = {
       localStorage.setItem('dgp_token', this.token);
       localStorage.setItem('dgp_user', JSON.stringify(this.user));
 
+      this.setSelectedDate(this.getLocalISODate());
       this.toast(`Welcome, ${this.user.full_name}!`, 'success');
       this.showPortal();
     } else {
@@ -366,6 +384,7 @@ const app = {
   logout() {
     localStorage.removeItem('dgp_token');
     localStorage.removeItem('dgp_user');
+    localStorage.removeItem('gclinic_selected_date');
     sessionStorage.removeItem('gclinic_current_view');
     window.location.hash = '';
     this.token = null;
