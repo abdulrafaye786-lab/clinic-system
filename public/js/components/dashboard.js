@@ -538,6 +538,25 @@ const dashboardComponent = {
 
     if (res && res.success) {
       handleData(res);
+    } else {
+      const waitEl = document.getElementById('kpi-waiting-appts');
+      if (waitEl) waitEl.innerHTML = `<span style="color: #ef4444; font-size: 0.72rem;"><i class="fa-solid fa-triangle-exclamation"></i> Server sync failed</span>`;
+
+      const tbody = document.getElementById('dash-appointments-tbody');
+      if (tbody && (!this.appointmentsData || this.appointmentsData.length === 0)) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem; color: #ef4444;">
+              <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+              <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">Unable to load dashboard data</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${res?.message || 'The database connection timed out or is temporarily unavailable.'}</div>
+              <button onclick="dashboardComponent.load()" class="btn btn-primary btn-sm" style="margin-top: 0.75rem; font-size: 0.75rem;">
+                <i class="fa-solid fa-arrows-rotate"></i> Retry Connection
+              </button>
+            </td>
+          </tr>
+        `;
+      }
     }
   },
 

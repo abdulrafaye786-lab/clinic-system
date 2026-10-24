@@ -223,11 +223,17 @@ const app = {
       ...(options.headers || {})
     };
 
+    // Prevent hanging requests indefinitely by setting a 12s timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs || 12000);
+
     try {
       const response = await fetch(`/api${endpoint}`, {
         ...options,
+        signal: controller.signal,
         headers
       });
+      clearTimeout(timeoutId);
 
       if (response.status === 401) {
         if (!endpoint.includes('/auth/login') && !endpoint.includes('/public/')) {
@@ -418,11 +424,12 @@ const app = {
       avatarEl.textContent = initials || 'DG';
     }
 
-    // Load initial doctor cache
-    const docRes = await this.api('/doctors');
-    if (docRes.success) {
-      this.doctors = docRes.data;
-    }
+    // Load initial doctor cache in background without blocking portal rendering
+    this.api('/doctors').then(docRes => {
+      if (docRes && docRes.success && docRes.data) {
+        this.doctors = docRes.data;
+      }
+    }).catch(() => {});
 
     // Apply role-based UI permissions
     this.applyRolePermissions();
