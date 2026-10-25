@@ -176,17 +176,6 @@ async function createPatient(req, res) {
       });
     }
 
-    // Auto-generate strictly continuous lifetime MRN sequence: 1, 2, 3... (never resets annually)
-    const [maxRow] = await query("SELECT MAX(CAST(mrn AS INTEGER)) as max_mrn FROM patients WHERE mrn ~ '^[0-9]+$'");
-    let nextNum = 1;
-    if (maxRow && maxRow[0] && maxRow[0].max_mrn) {
-      nextNum = Number(maxRow[0].max_mrn) + 1;
-    } else {
-      const [lastPatient] = await query('SELECT id FROM patients ORDER BY id DESC LIMIT 1');
-      nextNum = (lastPatient.length > 0 ? lastPatient[0].id + 1 : 1);
-    }
-    const mrn = `${nextNum}`;
-
     // Calculate exact age if dob given
     let calculatedAge = parseInt(age, 10);
     if (dob) {
@@ -201,17 +190,43 @@ async function createPatient(req, res) {
     }
     if (isNaN(calculatedAge)) calculatedAge = 0;
 
-    const [result] = await query(`
-      INSERT INTO patients (
-        mrn, full_name, gender, dob, age, phone, cnic, email, blood_group, marital_status,
-        address, emergency_contact_name, emergency_contact_phone, allergies, chronic_conditions, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      mrn, full_name.trim(), gender, dob || null, calculatedAge, phone.trim(), cnic || null,
-      email || null, blood_group || 'Unknown', marital_status || 'Single',
-      address || null, emergency_contact_name || null, emergency_contact_phone || null,
-      allergies || null, chronic_conditions || null, notes || null
-    ]);
+    // Auto-generate strictly continuous lifetime MRN sequence: 1, 2, 3...
+    let mrn;
+    let result;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const [maxRow] = await query("SELECT MAX(CAST(mrn AS INTEGER)) as max_mrn FROM patients WHERE mrn ~ '^[0-9]+$'");
+      let nextNum = 1;
+      if (maxRow && maxRow[0] && maxRow[0].max_mrn) {
+        nextNum = Number(maxRow[0].max_mrn) + 1 + attempt;
+      } else {
+        const [lastPatient] = await query('SELECT id FROM patients ORDER BY id DESC LIMIT 1');
+        nextNum = (lastPatient && lastPatient.length > 0 ? lastPatient[0].id + 1 + attempt : 1);
+      }
+      mrn = `${nextNum}`;
+
+      try {
+        const [resInsert] = await query(`
+          INSERT INTO patients (
+            mrn, full_name, gender, dob, age, phone, cnic, email, blood_group, marital_status,
+            address, emergency_contact_name, emergency_contact_phone, allergies, chronic_conditions, notes
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          mrn, full_name.trim(), gender, dob || null, calculatedAge, phone.trim(), cnic || null,
+          email || null, blood_group || 'Unknown', marital_status || 'Single',
+          address || null, emergency_contact_name || null, emergency_contact_phone || null,
+          allergies || null, chronic_conditions || null, notes || null
+        ]);
+        result = resInsert;
+        break;
+      } catch (insertErr) {
+        if (insertErr.message && insertErr.message.includes('gclinic_patients_mrn_key') && attempt < 4) {
+          // retry with slight backoff
+          await new Promise(r => setTimeout(r, 50 * (attempt + 1)));
+          continue;
+        }
+        throw insertErr;
+      }
+    }
 
     const newPatientId = result.insertId;
 

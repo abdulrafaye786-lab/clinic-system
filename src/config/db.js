@@ -59,7 +59,7 @@ function formatSql(sql, params) {
   });
 }
 
-function executeSqlOnSupabase(sql, retries = 2) {
+function executeSqlOnSupabase(sql, retries = 5) {
   return new Promise((resolve, reject) => {
     const postData = JSON.stringify({ query: sql });
     const req = https.request({
@@ -81,10 +81,14 @@ function executeSqlOnSupabase(sql, retries = 2) {
           const parsed = JSON.parse(data);
           if (res.statusCode >= 400 || (parsed && parsed.error)) {
             const errMsg = parsed.message || parsed.error || JSON.stringify(parsed);
-            if (retries > 0 && res.statusCode >= 500) {
+            const isRateLimit = res.statusCode === 429 || errMsg.includes('ThrottlerException') || errMsg.includes('Too Many Requests');
+            if (retries > 0 && (res.statusCode >= 500 || isRateLimit)) {
+              // Exponential backoff with jitter to reliably absorb Cloud API burst limits
+              const attempt = 6 - retries;
+              const backoff = isRateLimit ? (Math.pow(2, attempt) * 400 + Math.random() * 300) : 500;
               return setTimeout(() => {
                 executeSqlOnSupabase(sql, retries - 1).then(resolve).catch(reject);
-              }, 500);
+              }, backoff);
             }
             return reject(new Error(`[Supabase DB Error] ${errMsg}`));
           }
