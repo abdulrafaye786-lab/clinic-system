@@ -64,12 +64,32 @@ app.use('/api', apiLimiter);
 // 6. API Routes
 app.use('/api', apiRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check endpoint with database diagnostics
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'untested';
+  let dbError = null;
+  const projectRef = process.env.SUPABASE_PROJECT_REF;
+  const tokenPresent = Boolean(process.env.SUPABASE_ACCESS_TOKEN);
+
+  try {
+    const { query } = require('./src/config/db');
+    const [test] = await query('SELECT 1 as connected');
+    dbStatus = (test && test.length > 0) ? 'connected' : 'empty_response';
+  } catch (err) {
+    dbStatus = 'error';
+    dbError = err.message;
+  }
+
   res.json({
     status: 'online',
     clinic: 'Dream Garden PolyClinic',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    database: {
+      status: dbStatus,
+      projectRefConfigured: Boolean(projectRef),
+      tokenConfigured: tokenPresent,
+      error: dbError
+    }
   });
 });
 
