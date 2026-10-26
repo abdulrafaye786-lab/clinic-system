@@ -235,28 +235,18 @@ const doctorsComponent = {
                 <th style="padding: 0.45rem 0.6rem; min-width: 150px;">Specialty & Dept</th>
                 <th style="padding: 0.45rem 0.6rem; min-width: 90px;">Fee</th>
                 <th style="padding: 0.45rem 0.6rem; min-width: 110px;">Share (Doc/Clinic)</th>
-                <th style="padding: 0.45rem 0.6rem; min-width: 190px;">Duty Schedule</th>
-                <th style="padding: 0.45rem 0.6rem; min-width: 100px; text-align: center;">Status</th>
-                <th style="padding: 0.45rem 0.6rem; min-width: 130px; text-align: right;">Actions</th>
+                <th style="padding: 0.45rem 0.6rem; min-width: 110px; text-align: center;">Status</th>
+                <th style="padding: 0.45rem 0.6rem; min-width: 150px; text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody>
               ${doctors.map((d, idx) => {
                 const grad = avatarGradients[idx % avatarGradients.length];
                 const initials = (d.name || 'Dr').replace('Dr.', '').trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                const schedules = d.schedules || [];
                 const fee = parseFloat(d.consultation_fee || 1500);
                 const docShare = parseFloat(d.doctor_share_percent !== undefined ? d.doctor_share_percent : 60);
                 const clinicShare = 100 - docShare;
                 const safeName = d.name.replace(/'/g, "\\'");
-
-                // Compact one-line schedule summary in AM/PM format
-                let scheduleSummary = '';
-                if (schedules.length > 0) {
-                  scheduleSummary = schedules.map(s => `${s.day_of_week.slice(0,3)} ${s.start_time}-${s.end_time}`).join('; ');
-                } else {
-                  scheduleSummary = `${(d.available_days || 'Daily').slice(0,10)}: ${d.start_time || ''}`;
-                }
 
                 return `
                   <tr style="border-bottom: 1px solid var(--border-color); height: 42px;">
@@ -279,17 +269,14 @@ const doctorsComponent = {
                     <td style="padding: 0.4rem 0.6rem; vertical-align: middle; font-size: 0.74rem; white-space: nowrap;">
                       <span style="font-weight: 800; color: var(--cyber-green-dark);">${docShare}%</span> / <span style="color: var(--text-muted);">${clinicShare}%</span>
                     </td>
-                    <td style="padding: 0.4rem 0.6rem; vertical-align: middle; font-size: 0.72rem; color: var(--text-body);" title="${scheduleSummary}">
-                      <div style="display: flex; align-items: center; gap: 0.3rem;">
-                        <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 0.7rem; flex-shrink: 0;"></i>
-                        <span style="overflow: hidden; text-overflow: ellipsis;">${scheduleSummary}</span>
-                      </div>
-                    </td>
                     <td style="padding: 0.4rem 0.6rem; vertical-align: middle; text-align: center; white-space: nowrap;">
                       ${this.renderDoctorDutyBadge(d)}
                     </td>
                     <td style="padding: 0.4rem 0.6rem; vertical-align: middle; text-align: right; white-space: nowrap;">
                       <div style="display: inline-flex; gap: 0.25rem; align-items: center; justify-content: flex-end;">
+                        <button onclick="doctorsComponent.openDoctorDetailsModal(${d.id})" class="btn btn-outline btn-sm" title="View Duty Schedule & Profile Details" style="padding: 0.18rem 0.45rem; font-size: 0.72rem; height: 26px;">
+                          <i class="fa-solid fa-circle-info"></i> Details
+                        </button>
                         <button onclick="app.openBookAppointmentModal(null, ${d.id})" class="btn btn-primary btn-sm" title="Book Appointment" style="padding: 0.18rem 0.45rem; font-size: 0.72rem; height: 26px;">
                           <i class="fa-solid fa-calendar-plus"></i>
                         </button>
@@ -566,11 +553,13 @@ const doctorsComponent = {
             </div>
 
             <div id="${prefix}-slots-container" style="max-height: 110px; overflow-y: auto; padding: 2px;">
-              ${schedules.length > 0 ? schedules.map(s => this.addScheduleSlotRowHtml(s.day_of_week, s.start_time, s.end_time, s.room_no || 'OPD')).join('') : `
+              ${schedules.length > 0 ? schedules.map(s => this.addScheduleSlotRowHtml(s.day_of_week, s.start_time, s.end_time, s.room_no || 'OPD')).join('') : (prefix === 'ed' && (d.start_time || d.available_days) ? `
+                ${this.addScheduleSlotRowHtml(d.available_days ? d.available_days.split(',')[0].trim() : 'Monday', d.start_time || '10:00 AM', d.end_time || '03:00 PM', d.room_no || 'OPD-1')}
+              ` : `
                 ${this.addScheduleSlotRowHtml('Monday', '09:00 AM', '01:00 PM', 'OPD-1')}
                 ${this.addScheduleSlotRowHtml('Wednesday', '10:00 AM', '02:00 PM', 'OPD-1')}
                 ${this.addScheduleSlotRowHtml('Friday', '02:00 PM', '06:00 PM', 'OPD-1')}
-              `}
+              `)}
             </div>
           </div>
         </div>
@@ -884,5 +873,96 @@ const doctorsComponent = {
     } else {
       app.toast(res.message || 'Failed to add roster shift', 'error');
     }
+  },
+
+  async openDoctorDetailsModal(doctorId) {
+    const res = await app.api(`/doctors/${doctorId}`);
+    if (!res || !res.success || !res.data) {
+      app.toast('Failed to load doctor details', 'error');
+      return;
+    }
+    const d = res.data;
+    const schedules = d.schedules || [];
+    const fee = parseFloat(d.consultation_fee || 1500);
+
+    const bodyHtml = `
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 0.85rem 1rem;">
+          <div class="avatar-bubble" style="width: 52px; height: 52px; border-radius: 14px; font-size: 1.25rem; font-weight: 800; background: var(--primary-gradient); color: white; display: flex; align-items: center; justify-content: center;">
+            ${(d.name || 'Dr').replace('Dr.', '').trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">${d.name}</h3>
+              ${this.renderDoctorDutyBadge(d)}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              <span class="specialty-pill" style="font-size: 0.72rem; margin-right: 6px;">${d.specialty}</span>
+              ${d.qualification ? `<span>${d.qualification}</span> • ` : ''}
+              <span>${d.department_name || 'General OPD'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div style="background: var(--bg-canvas); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Consultation Fee</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--caramel); font-family: monospace;">${app.clinic.currency} ${fee.toLocaleString()}</div>
+          </div>
+          <div style="background: var(--bg-canvas); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Room / Cabin</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">${d.room_no || 'OPD-1'}</div>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 0.85rem 1rem;">
+          <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-regular fa-calendar-check"></i> Complete Weekly Duty Schedule & Timings
+          </div>
+          ${schedules.length === 0 ? `
+            <div style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem 0;">
+              Standard schedule: <strong>${d.available_days || 'Mon - Sat'}</strong> (${d.start_time || '10:00 AM'} - ${d.end_time || '03:00 PM'})
+            </div>
+          ` : `
+            <table class="table" style="font-size: 0.78rem; margin: 0; width: 100%;">
+              <thead>
+                <tr style="border-bottom: 1.5px solid var(--border-color);">
+                  <th style="padding: 0.35rem 0.5rem;">Day of Week</th>
+                  <th style="padding: 0.35rem 0.5rem;">Shift Hours</th>
+                  <th style="padding: 0.35rem 0.5rem;">Max Slots</th>
+                  <th style="padding: 0.35rem 0.5rem;">Cabin</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${schedules.map(s => `
+                  <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 0.35rem 0.5rem; font-weight: 700; color: var(--text-main);">${s.day_of_week}</td>
+                    <td style="padding: 0.35rem 0.5rem; font-family: monospace; color: var(--cyber-green-dark);">${s.start_time} - ${s.end_time}</td>
+                    <td style="padding: 0.35rem 0.5rem;">${s.max_slots || 30} patients</td>
+                    <td style="padding: 0.35rem 0.5rem; color: var(--text-muted);">${s.room_no || d.room_no || 'OPD'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>
+    `;
+
+    const footerHtml = `
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="app.closeModal()">Close</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline btn-sm admin-only-btn" onclick="app.closeModal(); doctorsComponent.openEditDoctorModal(${d.id});">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="app.closeModal(); app.openBookAppointmentModal(null, ${d.id});">
+            <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+          </button>
+        </div>
+      </div>
+    `;
+
+    app.openModal(`<i class="fa-solid fa-user-doctor"></i> Doctor Profile: ${d.name}`, bodyHtml, footerHtml, 'modal-md');
   }
 };

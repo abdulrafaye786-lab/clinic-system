@@ -219,10 +219,11 @@ async function updateDoctor(req, res) {
         if (s.day_of_week && s.start_time && s.end_time) {
           const startTimeSql = toMySQLTime(s.start_time);
           const endTimeSql = toMySQLTime(s.end_time);
+          const maxSlots = parseInt(s.max_slots, 10) || 30;
           await query(`
             INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, max_slots, is_active)
-            VALUES (?, ?, ?, ?, ?, 1)
-          `, [id, s.day_of_week, startTimeSql, endTimeSql, s.max_slots || 30]);
+            VALUES (?, ?, ?, ?, ?, true)
+          `, [id, s.day_of_week, startTimeSql, endTimeSql, maxSlots]);
         }
       }
     }

@@ -1263,7 +1263,7 @@ const app = {
     const { patient, doctor, date } = this.bookState;
 
     const bodyHtml = `
-      <div id="single-book-appointment-form" style="display: flex; flex-direction: column; gap: 1rem;">
+      <form id="single-book-appointment-form" onsubmit="event.preventDefault(); app.confirmBookAppointment();" style="display: flex; flex-direction: column; gap: 1rem;">
         
         <!-- Step 1: Patient Selection Card -->
         <div style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 0.85rem 1rem;">
@@ -1273,7 +1273,7 @@ const app = {
               <span>Patient Details</span>
               <span class="required">*</span>
             </div>
-            <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline-primary btn-sm" id="btn-toggle-new-pat" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; height: 28px; border-radius: 6px;">
+            <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline-primary btn-sm" id="btn-toggle-new-pat" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; height: 28px; border-radius: 6px;" tabindex="3">
               <i class="fa-solid fa-user-plus"></i> + New Patient
             </button>
           </div>
@@ -1282,7 +1282,7 @@ const app = {
           <div id="book-existing-pat-box">
             <div style="position: relative; display: flex; align-items: center;">
               <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; color: var(--primary); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
-              <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.4rem !important; font-size: 0.84rem; height: 38px !important; font-weight: 600; border-radius: 8px; width: 100%;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)">
+              <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.4rem !important; font-size: 0.84rem; height: 38px !important; font-weight: 600; border-radius: 8px; width: 100%;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)" onkeydown="app.handleBookPatientKeydown(event)" tabindex="1" autofocus>
               ${patient ? `<button type="button" onclick="app.clearBookPatientSelection()" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; line-height: 1;" title="Clear patient">&times;</button>` : ''}
             </div>
             
@@ -1372,7 +1372,7 @@ const app = {
             <!-- Doctor Picker Dropdown (Only On-Duty Doctors for Selected Date) -->
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 0.76rem; font-weight: 700; color: var(--text-body);">Consultant Doctor <span class="required">*</span></label>
-              <select id="book-appt-doctor-select" class="form-control" style="height: 38px; font-size: 0.85rem; font-weight: 700;" onchange="app.onBookDoctorDropdownChange(this.value)">
+              <select id="book-appt-doctor-select" class="form-control" style="height: 38px; font-size: 0.85rem; font-weight: 700;" onchange="app.onBookDoctorDropdownChange(this.value)" tabindex="2">
                 ${this.renderBookDoctorOptionsHtml(date, doctor ? doctor.id : null)}
               </select>
               <div id="book-doc-meta-info" style="margin-top: 0.4rem; font-size: 0.74rem; color: #64748b; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
@@ -1385,11 +1385,11 @@ const app = {
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                 <label class="form-label" style="font-size: 0.76rem; font-weight: 700; color: var(--text-body); margin-bottom: 0;">Appointment Date <span class="required">*</span></label>
                 <div style="display: flex; gap: 0.25rem;">
-                  <button type="button" class="btn btn-sm btn-outline" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" onclick="app.setBookDatePreset('today')">Today</button>
-                  <button type="button" class="btn btn-sm btn-outline" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" onclick="app.setBookDatePreset('tomorrow')">Tomorrow</button>
+                  <button type="button" class="btn btn-sm btn-outline" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" onclick="app.setBookDatePreset('today')" tabindex="-1">Today</button>
+                  <button type="button" class="btn btn-sm btn-outline" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" onclick="app.setBookDatePreset('tomorrow')" tabindex="-1">Tomorrow</button>
                 </div>
               </div>
-              <input type="date" id="book-appt-date" class="form-control" style="height: 38px; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem;" value="${date}" onchange="app.handleBookDateChange(this.value)">
+              <input type="date" id="book-appt-date" class="form-control" style="height: 38px; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem;" value="${date}" onchange="app.handleBookDateChange(this.value)" tabindex="3">
             </div>
           </div>
 
@@ -1413,7 +1413,7 @@ const app = {
           <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 0.65rem; align-items: center;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 0.72rem; margin-bottom: 2px;">Type</label>
-              <select id="book-appt-type" class="form-control" style="height: 32px; font-size: 0.8rem;">
+              <select id="book-appt-type" class="form-control" style="height: 32px; font-size: 0.8rem;" tabindex="4">
                 <option value="scheduled" selected>Scheduled</option>
                 <option value="walk_in">Walk-in OPD</option>
                 <option value="follow_up">Follow-up</option>
@@ -1422,7 +1422,7 @@ const app = {
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 0.72rem; margin-bottom: 2px;">Priority</label>
-              <select id="book-appt-priority" class="form-control" style="height: 32px; font-size: 0.8rem;">
+              <select id="book-appt-priority" class="form-control" style="height: 32px; font-size: 0.8rem;" tabindex="5">
                 <option value="normal" selected>Normal</option>
                 <option value="urgent">Urgent</option>
                 <option value="vip">VIP</option>
@@ -1430,12 +1430,12 @@ const app = {
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 0.72rem; margin-bottom: 2px;">Reason / Chief Complaint</label>
-              <input type="text" id="book-appt-complaint" class="form-control" placeholder="e.g. Routine checkup, fever, headache" style="height: 32px; font-size: 0.8rem;">
+              <input type="text" id="book-appt-complaint" class="form-control" placeholder="e.g. Routine checkup, fever, headache" style="height: 32px; font-size: 0.8rem;" tabindex="6">
             </div>
           </div>
         </div>
 
-      </div>
+      </form>
     `;
 
     const footerHtml = `
@@ -1695,7 +1695,59 @@ const app = {
       );
     }
 
+    this._filteredBookPatients = filtered;
     listEl.innerHTML = this.renderBookPatientRowsHtml(filtered);
+  },
+
+  handleBookPatientKeydown(e) {
+    const listEl = document.getElementById('book-patient-search-list');
+    if (!listEl) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const rows = listEl.querySelectorAll('.patient-search-row');
+      if (rows.length > 0) {
+        let selectedIdx = Array.from(rows).findIndex(r => r.classList.contains('active-kbd'));
+        if (selectedIdx >= 0) rows[selectedIdx].classList.remove('active-kbd');
+        selectedIdx = (selectedIdx + 1) % rows.length;
+        rows[selectedIdx].classList.add('active-kbd');
+        rows[selectedIdx].scrollIntoView({ block: 'nearest' });
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const rows = listEl.querySelectorAll('.patient-search-row');
+      if (rows.length > 0) {
+        let selectedIdx = Array.from(rows).findIndex(r => r.classList.contains('active-kbd'));
+        if (selectedIdx >= 0) rows[selectedIdx].classList.remove('active-kbd');
+        selectedIdx = selectedIdx <= 0 ? rows.length - 1 : selectedIdx - 1;
+        rows[selectedIdx].classList.add('active-kbd');
+        rows[selectedIdx].scrollIntoView({ block: 'nearest' });
+      }
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // If a row is highlighted with arrow keys
+      const activeRow = listEl.querySelector('.patient-search-row.active-kbd');
+      if (activeRow) {
+        activeRow.click();
+        return;
+      }
+      // If no row is highlighted but search results exist, select the first match
+      if (this._filteredBookPatients && this._filteredBookPatients.length > 0) {
+        this.selectBookPatient(this._filteredBookPatients[0].id);
+        return;
+      }
+      // If a patient is already selected, advance to doctor dropdown
+      if (this.bookState.patient) {
+        const docSelect = document.getElementById('book-appt-doctor-select');
+        if (docSelect) docSelect.focus();
+      }
+    }
   },
 
   selectBookPatient(patId) {
@@ -1732,6 +1784,12 @@ const app = {
         <button type="button" onclick="app.clearBookPatientSelection()" class="btn btn-outline btn-xs" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" title="Change / Clear Patient">Change</button>
       `;
     }
+
+    // Auto-advance keyboard focus to the next field (Consultant Doctor dropdown)
+    setTimeout(() => {
+      const docSelect = document.getElementById('book-appt-doctor-select');
+      if (docSelect) docSelect.focus();
+    }, 50);
   },
 
   async sendToDoctor(appointmentId) {
