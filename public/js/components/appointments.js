@@ -205,9 +205,17 @@ const appointmentsComponent = {
       if (appointments.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">
-              <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
-              No appointments found for selected date and filters.
+            <td colspan="7" style="text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted);">
+              <i class="fa-regular fa-calendar-xmark" style="font-size: 2.2rem; margin-bottom: 0.5rem; display: block; color: var(--border-color);"></i>
+              <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                No appointments found for selected date and filters
+              </div>
+              <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                Queue is clear. Book an appointment now or select a different date using the quick chips above.
+              </p>
+              <button onclick="app.openBookAppointmentModal(null, null, appointmentsComponent.selectedDate)" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0.35rem 0.95rem;">
+                <i class="fa-solid fa-calendar-plus"></i> Book Appointment for this Date
+              </button>
             </td>
           </tr>
         `;

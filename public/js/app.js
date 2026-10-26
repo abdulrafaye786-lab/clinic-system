@@ -99,8 +99,19 @@ const app = {
   // --------------------------------------------------------------------------
   initGlobalShortcuts() {
     window.addEventListener('keydown', (e) => {
-      // 1. Modal Close: Escape key closes global modal
+      // 1. Esc Key Handling: Clear focused search input OR safely close modal with dirty check
       if (e.key === 'Escape') {
+        const activeEl = document.activeElement;
+        // If an input/search is currently focused and contains text, clear it first
+        if (activeEl && (activeEl.matches('input[type="text"], input[type="search"], #dash-appt-search, #patient-search-input, #doc-search-input, #bill-search, #vitals-search-input, #bills-search-input') || activeEl.id.includes('search'))) {
+          if (activeEl.value && activeEl.value.trim() !== '') {
+            e.preventDefault();
+            activeEl.value = '';
+            activeEl.dispatchEvent(new Event('input', { bubbles: true }));
+            return;
+          }
+        }
+
         const modal = document.getElementById('global-modal');
         if (modal && modal.classList.contains('active')) {
           e.preventDefault();
@@ -816,8 +827,23 @@ const app = {
     }
   },
 
-  closeModal() {
+  closeModal(force = false) {
     const modal = document.getElementById('global-modal');
+    if (!modal) return;
+
+    if (!force) {
+      // Check if any non-empty user text exists in modal inputs
+      const dirtyInput = modal.querySelector('.modal-body input:not([type="hidden"]):not([type="submit"]):not([type="button"]), .modal-body textarea');
+      const isDirty = Array.from(modal.querySelectorAll('.modal-body input:not([type="hidden"]), .modal-body textarea'))
+        .some(el => el.value && el.value.trim() !== '' && el.type !== 'date');
+
+      if (isDirty) {
+        if (!confirm('You have unsaved form entries. Are you sure you want to discard them?')) {
+          return;
+        }
+      }
+    }
+
     modal.classList.remove('active');
   },
 

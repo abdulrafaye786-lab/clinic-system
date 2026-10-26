@@ -70,9 +70,17 @@ const patientsComponent = {
       if (patients.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 3.5rem; color: #94a3b8;">
-              <i class="fa-regular fa-user" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: #cbd5e1;"></i>
-              No patient records found matching "${this.currentSearch}".
+            <td colspan="6" style="text-align: center; padding: 2.8rem 1.5rem; color: var(--text-muted);">
+              <i class="fa-regular fa-user" style="font-size: 2.2rem; margin-bottom: 0.5rem; display: block; color: var(--border-color);"></i>
+              <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                ${this.currentSearch ? `No patient records found matching "${this.currentSearch}"` : 'No patient records registered yet'}
+              </div>
+              <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                ${this.currentSearch ? 'Try adjusting your search criteria, clearing search with Esc, or register a new patient below.' : 'Start by registering your clinic\'s first patient in the digital database.'}
+              </p>
+              <button onclick="app.openNewPatientModal()" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0.35rem 0.95rem;">
+                <i class="fa-solid fa-user-plus"></i> Register New Patient [Alt + N]
+              </button>
             </td>
           </tr>
         `;

@@ -590,12 +590,11 @@ body {
   transform: scale(0.98);
 }
 
-/* Top Header User Badge (Moved from sidebar to top header) */
 .header-user-badge {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.35rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
@@ -609,9 +608,9 @@ body {
 }
 
 .header-user-badge .user-avatar {
-  width: 32px;
-  height: 32px;
-  font-size: 0.8rem;
+  width: 30px;
+  height: 30px;
+  font-size: 0.78rem;
   border-radius: 50%;
   background: var(--primary-gradient);
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
@@ -621,19 +620,53 @@ body {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
+  padding-right: 0.25rem;
 }
 
 .header-user-info .user-name {
   color: var(--text-main);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-user-info .user-role {
   color: var(--primary);
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.04em;
+}
+
+/* Logout Button Inside Header User Badge */
+.header-user-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  background: rgba(225, 29, 72, 0.08);
+  color: #f43f5e;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 0.2rem;
+}
+
+.header-user-logout-btn:hover {
+  background: var(--danger-gradient);
+  color: #ffffff;
+  border-color: #f43f5e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35);
+}
+
+.header-user-logout-btn:active {
+  transform: scale(0.96);
 }
 
 /* Light / Dark Mode Segmented Buttons in Top Header */
@@ -3570,6 +3603,54 @@ textarea:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--primary) !important;
   outline-offset: 1px !important;
+}
+
+/* Sticky Table Headers for Zero-Scroll Workflow (QA Recommendation 2.1) */
+.table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background-color: var(--bg-card) !important;
+  box-shadow: 0 1px 0 var(--border-color) !important;
+}
+
+[data-theme="dark"] .table thead th {
+  background-color: var(--bg-card) !important;
+  box-shadow: 0 1px 0 rgba(148, 163, 184, 0.16) !important;
+}
+
+/* High-Contrast Queue & Visit Status Badges (QA Recommendation 2.3) */
+.badge-status-waiting,
+.badge.badge-amber {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #d97706 !important;
+  border: 1px solid rgba(217, 119, 6, 0.28) !important;
+  font-weight: 700 !important;
+}
+
+.badge-status-in-consult,
+.badge.badge-blue {
+  background: rgba(13, 148, 136, 0.12) !important;
+  color: #0d9488 !important;
+  border: 1px solid rgba(13, 148, 136, 0.28) !important;
+  font-weight: 700 !important;
+}
+
+.badge-status-completed,
+.badge.badge-teal,
+.badge.badge-emerald {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #059669 !important;
+  border: 1px solid rgba(5, 150, 105, 0.28) !important;
+  font-weight: 700 !important;
+}
+
+.badge-status-cancelled,
+.badge.badge-rose {
+  background: rgba(225, 29, 72, 0.12) !important;
+  color: #e11d48 !important;
+  border: 1px solid rgba(225, 29, 72, 0.28) !important;
+  font-weight: 700 !important;
 }
 
 

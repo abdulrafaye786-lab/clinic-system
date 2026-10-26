@@ -155,13 +155,7 @@
         </a>
       </nav>
 
-      <div class="sidebar-footer">
-        <!-- Log Out Button in Sidebar Footer -->
-        <button type="button" id="sidebar-logout-btn" class="sidebar-logout-btn-full" onclick="app.logout()" title="Sign Out / Log Out [Alt+Q]" aria-label="Log Out">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-          <span>Log Out</span>
-        </button>
-      </div>
+      <div class="sidebar-footer" style="display: none;"></div>
     </aside>
 
     <!-- Main Content Wrapper -->
@@ -185,13 +179,18 @@
         </div>
 
         <div class="header-right">
-          <!-- User Profile Badge (Moved to Top Header) -->
+          <!-- User Profile Badge with Embedded Logout Button -->
           <div class="header-user-badge">
             <div class="user-avatar" id="sidebar-user-avatar">AD</div>
             <div class="user-info header-user-info">
               <div class="user-name" id="sidebar-user-name">Administrator</div>
               <div class="user-role" id="sidebar-user-role">Super Admin</div>
             </div>
+            <!-- Logout Button placed directly inside the user profile badge -->
+            <button type="button" id="header-logout-btn" class="header-user-logout-btn" onclick="app.logout()" title="Sign Out / Log Out [Alt+Q]" aria-label="Log Out">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Logout</span>
+            </button>
           </div>
 
           <!-- Light & Dark Theme Segmented Switcher (Moved to Top Header) -->

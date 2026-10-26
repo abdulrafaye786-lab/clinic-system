@@ -93,9 +93,17 @@ const doctorsComponent = {
 
     if (doctors.length === 0) {
       outlet.innerHTML = `
-        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
-          <i class="fa-solid fa-user-doctor" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block; color: var(--light-gray-dark);"></i>
-          No doctor profiles match your query "${this.searchQuery}".
+        <div style="text-align: center; padding: 2.8rem 1.5rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1.5px dashed var(--border-color);">
+          <i class="fa-solid fa-user-doctor" style="font-size: 2.2rem; margin-bottom: 0.5rem; display: block; color: var(--border-color);"></i>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+            ${this.searchQuery ? `No doctor profiles match your query "${this.searchQuery}"` : 'No consultant doctors added yet'}
+          </div>
+          <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+            Add specialist doctors and configure their OPD availability schedules and consultation fees.
+          </p>
+          <button onclick="doctorsComponent.openAddDoctorModal()" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0.35rem 0.95rem;">
+            <i class="fa-solid fa-user-plus"></i> Add New Doctor [Alt + D]
+          </button>
         </div>
       `;
       return;
