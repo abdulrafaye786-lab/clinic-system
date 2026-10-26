@@ -187,19 +187,97 @@ const app = {
       }
     });
 
-    // Support comprehensive keyboard form navigation: Enter advances to next field; Ctrl+Enter or Enter on last field submits
+    // Support comprehensive keyboard form navigation:
+    // - Enter, ArrowDown, ArrowRight to advance to next field
+    // - ArrowUp, ArrowLeft to go back to previous field
+    // - Ctrl+Enter or Enter on last field to submit form
     document.addEventListener('keydown', (e) => {
-      // Form Quick Submission via Enter on last field or Ctrl+Enter anywhere in any form
       const target = e.target;
       if (!target) return;
 
-      // Handle Enter inside form controls (except textarea where Enter adds newline, unless Ctrl+Enter)
-      if (e.key === 'Enter') {
-        const form = target.closest('form') || target.closest('.modal-body');
-        if (!form) return;
+      const isInput = target.tagName === 'INPUT';
+      const isSelect = target.tagName === 'SELECT';
+      const isTextarea = target.tagName === 'TEXTAREA';
+      const isButton = target.tagName === 'BUTTON';
 
-        // If Ctrl+Enter or Cmd+Enter: Submit form immediately
-        if (e.ctrlKey || e.metaKey) {
+      if (!isInput && !isSelect && !isTextarea && !isButton) return;
+
+      const form = target.closest('form') || target.closest('.modal-body') || target.closest('.modal-content');
+      if (!form) return;
+
+      // Special exemption: Don't hijack arrow keys if patient search dropdown list is currently open and has items
+      const bookPatientList = document.getElementById('book-patient-search-list');
+      if (bookPatientList && bookPatientList.children.length > 0 && target.id === 'book-pat-filter-input') {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          return; // Let handleBookPatientKeydown handle list item selection
+        }
+      }
+
+      // Check for Ctrl+Enter or Cmd+Enter: Submit form immediately from anywhere in form
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
+        if (submitBtn && !submitBtn.disabled) {
+          submitBtn.click();
+        } else if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        }
+        return;
+      }
+
+      // 1. FORWARD NAVIGATION (Enter, ArrowDown, or ArrowRight)
+      const isForward = e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowRight';
+      // 2. BACKWARD NAVIGATION (ArrowUp or ArrowLeft)
+      const isBackward = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
+
+      if (!isForward && !isBackward) return;
+
+      // Handle Textarea edge cases:
+      if (isTextarea) {
+        // Plain Enter in textarea should insert newline naturally
+        if (e.key === 'Enter') return;
+
+        // In textarea, only navigate with ArrowUp at the very top (cursor at position 0)
+        // or ArrowDown at the very bottom
+        if (e.key === 'ArrowUp' && target.selectionStart !== 0) return;
+        if (e.key === 'ArrowDown' && target.selectionStart !== target.value.length) return;
+        if (e.key === 'ArrowLeft' && target.selectionStart !== 0) return;
+        if (e.key === 'ArrowRight' && target.selectionStart !== target.value.length) return;
+      }
+
+      // Handle Select dropdown edge cases:
+      // In select elements, standard up/down arrows can change value when focused,
+      // but users requested arrow keys to switch fields. Let's allow ArrowDown/ArrowRight and ArrowUp/ArrowLeft
+      // or Alt+Arrows, but direct arrows switch field if user intends form navigation.
+      // If select is currently open, standard behavior is handled by browser, but we provide smooth switching.
+
+      // Handle text input cursor edges for Left/Right arrow keys:
+      if (isInput && (target.type === 'text' || target.type === 'search' || target.type === 'email' || target.type === 'password' || target.type === 'tel' || target.type === 'number')) {
+        if (e.key === 'ArrowLeft') {
+          // Only go back if cursor is at the very beginning or text is selected
+          if (target.selectionStart !== undefined && target.selectionStart > 0 && target.selectionStart === target.selectionEnd) {
+            return; // let cursor move inside input
+          }
+        }
+        if (e.key === 'ArrowRight') {
+          // Only go forward if cursor is at the very end or text is selected
+          if (target.selectionEnd !== undefined && target.selectionEnd < target.value.length && target.selectionStart === target.selectionEnd) {
+            return; // let cursor move inside input
+          }
+        }
+      }
+
+      // Collect all interactive focusable elements in this form/modal
+      const focusableSelector = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[type="submit"]:not([disabled]), #btn-submit-new-patient:not([disabled]), #btn-confirm-book:not([disabled]), .modal-footer .btn-primary:not([disabled])';
+      const focusable = Array.from(form.querySelectorAll(focusableSelector))
+        .filter(el => !el.disabled && el.offsetParent !== null && el.type !== 'hidden' && el.style.display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden');
+
+      const currentIndex = focusable.indexOf(target);
+      if (currentIndex === -1) return;
+
+      if (isForward) {
+        // If on the last field and Enter is pressed, submit
+        if (e.key === 'Enter' && currentIndex === focusable.length - 1) {
           e.preventDefault();
           const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
           if (submitBtn && !submitBtn.disabled) {
@@ -210,29 +288,23 @@ const app = {
           return;
         }
 
-        // Normal Enter in input/select/button: advance focus to next input field
-        if (target.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select')) {
-          const focusable = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, textarea, button[type="submit"], #btn-submit-new-patient, #btn-confirm-book, .modal-footer .btn-primary'))
-            .filter(el => !el.disabled && el.offsetParent !== null && el.type !== 'hidden');
-          
-          const idx = focusable.indexOf(target);
-          if (idx >= 0) {
-            e.preventDefault();
-            if (idx < focusable.length - 1) {
-              const nextEl = focusable[idx + 1];
-              nextEl.focus();
-              if (nextEl.select && typeof nextEl.select === 'function' && nextEl.tagName === 'INPUT') {
-                nextEl.select();
-              }
-            } else {
-              // On the last field, pressing Enter submits the form
-              const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
-              if (submitBtn && !submitBtn.disabled) {
-                submitBtn.click();
-              } else if (typeof form.requestSubmit === 'function') {
-                form.requestSubmit();
-              }
-            }
+        // Navigate forward
+        if (currentIndex < focusable.length - 1) {
+          e.preventDefault();
+          const nextEl = focusable[currentIndex + 1];
+          nextEl.focus();
+          if (nextEl.select && typeof nextEl.select === 'function' && nextEl.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit'].includes(nextEl.type)) {
+            nextEl.select();
+          }
+        }
+      } else if (isBackward) {
+        // Navigate backward
+        if (currentIndex > 0) {
+          e.preventDefault();
+          const prevEl = focusable[currentIndex - 1];
+          prevEl.focus();
+          if (prevEl.select && typeof prevEl.select === 'function' && prevEl.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit'].includes(prevEl.type)) {
+            prevEl.select();
           }
         }
       }
