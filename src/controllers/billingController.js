@@ -6,11 +6,17 @@ async function getInvoices(req, res) {
     let sql = `
       SELECT inv.*, 
         p.mrn, p.full_name as patient_name, p.phone as patient_phone, p.gender, p.age,
-        d.name as doctor_name, d.specialty as doctor_specialty
+        d.name as doctor_name, d.specialty as doctor_specialty,
+        COALESCE(d.doctor_share_percent, 60) as doctor_share_percent,
+        COALESCE(a.token_display, a.appointment_code, CONCAT('R-', inv.id)) as reg_no,
+        a.chief_complaint,
+        v.weight_kg, v.notes as vitals_notes,
+        (SELECT COUNT(*) FROM appointments WHERE patient_id = p.id AND id <= a.id) as visit_number
       FROM invoices inv
       JOIN patients p ON inv.patient_id = p.id
       LEFT JOIN appointments a ON inv.appointment_id = a.id
       LEFT JOIN doctors d ON a.doctor_id = d.id
+      LEFT JOIN patient_vitals v ON v.appointment_id = a.id
     `;
     const conditions = [];
     const params = [];

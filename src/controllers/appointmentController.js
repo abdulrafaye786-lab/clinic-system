@@ -385,25 +385,9 @@ async function checkInPatient(req, res) {
     if (appts.length === 0) {
       return res.status(404).json({ success: false, message: 'Appointment not found.' });
     }
-    const { patient_id, doctor_id, appointment_date } = appts[0];
-
-    // Check same-doctor concurrency rule when checking in to waiting
-    const [conflictAppt] = await query(`
-      SELECT a.id, a.token_display, a.status, d.name as doctor_name
-      FROM appointments a
-      JOIN doctors d ON a.doctor_id = d.id
-      WHERE a.patient_id = ? AND a.doctor_id = ? AND a.id != ?
-        AND a.appointment_date = ?
-        AND a.status IN ('waiting', 'in_consultation')
-      LIMIT 1
-    `, [patient_id, doctor_id, id, appointment_date]);
-
-    if (conflictAppt && conflictAppt.length > 0) {
-      const docName = conflictAppt[0].doctor_name || 'this doctor';
-      return res.status(400).json({
-        success: false,
-        message: `Only 1 appointment with ${docName} can be proceeded at a time. Token ${conflictAppt[0].token_display} is already ${conflictAppt[0].status}. Please complete it before checking in another for the same doctor.`
-      });
+    const { patient_id, doctor_id } = appts[0];
+    if (!patient_id || !doctor_id) {
+      return res.status(400).json({ success: false, message: 'Invalid appointment patient or doctor link.' });
     }
 
     // Update appointment status to waiting and record check in timestamp

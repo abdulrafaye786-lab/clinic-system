@@ -1,5 +1,20 @@
 const { query } = require('../config/db');
 
+function formatToAmPm(timeStr) {
+  if (!timeStr) return '';
+  const str = String(timeStr).trim();
+  const match24 = str.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (match24) {
+    let hours = parseInt(match24[1], 10);
+    const minutes = match24[2];
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  }
+  return str;
+}
+
 async function getDoctors(req, res) {
   try {
     const { department_id, status } = req.query;
@@ -31,7 +46,15 @@ async function getDoctors(req, res) {
     const [doctors] = await query(sql, params);
     const [allSchedules] = await query('SELECT * FROM doctor_schedules WHERE is_active = 1 ORDER BY id ASC');
     for (let d of doctors) {
-      d.schedules = allSchedules.filter(s => s.doctor_id === d.id);
+      d.start_time = formatToAmPm(d.start_time);
+      d.end_time = formatToAmPm(d.end_time);
+      d.schedules = allSchedules
+        .filter(s => s.doctor_id === d.id)
+        .map(s => ({
+          ...s,
+          start_time: formatToAmPm(s.start_time),
+          end_time: formatToAmPm(s.end_time)
+        }));
     }
     return res.json({ success: true, data: doctors });
   } catch (err) {
@@ -54,9 +77,18 @@ async function getDoctorById(req, res) {
       return res.status(404).json({ success: false, message: 'Doctor not found.' });
     }
 
-    const [schedules] = await query('SELECT * FROM doctor_schedules WHERE doctor_id = ? ORDER BY id ASC', [id]);
+    const doc = doctors[0];
+    doc.start_time = formatToAmPm(doc.start_time);
+    doc.end_time = formatToAmPm(doc.end_time);
 
-    return res.json({ success: true, data: { ...doctors[0], schedules } });
+    const [schedules] = await query('SELECT * FROM doctor_schedules WHERE doctor_id = ? ORDER BY id ASC', [id]);
+    const formattedSchedules = schedules.map(s => ({
+      ...s,
+      start_time: formatToAmPm(s.start_time),
+      end_time: formatToAmPm(s.end_time)
+    }));
+
+    return res.json({ success: true, data: { ...doc, schedules: formattedSchedules } });
   } catch (err) {
     console.error('getDoctorById error:', err);
     return res.status(500).json({ success: false, message: 'Failed to retrieve doctor details.' });

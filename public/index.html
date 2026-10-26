@@ -128,29 +128,29 @@
 
       <nav class="sidebar-nav">
         <div class="nav-section-title">Clinical Workflow</div>
-        <a class="nav-item" data-view="dashboard" onclick="app.navigate('dashboard')">
+        <a class="nav-item" data-view="dashboard" onclick="app.navigate('dashboard')" title="Dashboard Overview [Alt + 1]">
           <i class="fa-solid fa-gauge-high"></i> <span>Dashboard</span>
         </a>
-        <a class="nav-item" data-view="doctors" onclick="app.navigate('doctors')">
+        <a class="nav-item" data-view="doctors" onclick="app.navigate('doctors')" title="Doctors & Rosters [Alt + 2]">
           <i class="fa-solid fa-user-doctor"></i> <span>Doctors & Rosters</span>
         </a>
-        <a class="nav-item" data-view="appointments" onclick="app.navigate('appointments')">
+        <a class="nav-item" data-view="appointments" onclick="app.navigate('appointments')" title="Appointments Queue [Alt + 3]">
           <i class="fa-solid fa-calendar-check"></i> <span>Appointments Queue</span>
           <span class="nav-badge" id="sidebar-queue-badge">0</span>
         </a>
-        <a class="nav-item" data-view="vitals-bills" onclick="app.navigate('vitals-bills')">
+        <a class="nav-item" data-view="vitals-bills" onclick="app.navigate('vitals-bills')" title="All Vitals & Bills [Alt + 4]">
           <i class="fa-solid fa-heart-pulse"></i> <span>All Vitals & Bills</span>
         </a>
-        <a class="nav-item" data-view="patient-history" onclick="app.navigate('patient-history')">
+        <a class="nav-item" data-view="patient-history" onclick="app.navigate('patient-history')" title="Patient Records & History [Alt + 5]">
           <i class="fa-solid fa-id-card-clip"></i> <span>Patient Records</span>
         </a>
-        <a class="nav-item" data-view="billing" onclick="app.navigate('billing')">
+        <a class="nav-item" data-view="billing" onclick="app.navigate('billing')" title="Billing, POS & OPD Register [Alt + 6]">
           <i class="fa-solid fa-cash-register"></i> <span>Billing & POS</span>
         </a>
 
         <!-- Administration Section (Admin only) -->
         <div class="nav-section-title admin-only-item">Administration</div>
-        <a class="nav-item admin-only-item" data-view="settings" data-role="admin" onclick="app.navigate('settings')">
+        <a class="nav-item admin-only-item" data-view="settings" data-role="admin" onclick="app.navigate('settings')" title="Clinic Settings [Alt + 7]">
           <i class="fa-solid fa-sliders"></i> <span>Clinic Settings</span>
         </a>
       </nav>
@@ -162,8 +162,9 @@
             <div class="user-name" id="sidebar-user-name">Administrator</div>
             <div class="user-role" id="sidebar-user-role">Super Admin</div>
           </div>
-          <button onclick="app.logout()" class="sidebar-logout-btn" title="Sign Out from System" aria-label="Sign Out">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <!-- Theme Toggle Button in Sidebar Footer -->
+          <button type="button" id="theme-toggle-btn" class="sidebar-theme-toggle-btn" onclick="app.toggleTheme()" title="Switch Light & Dark Mode [Alt+T]" aria-label="Toggle Theme">
+            <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color: var(--caramel);"></i>
           </button>
         </div>
       </div>
@@ -190,10 +191,16 @@
         </div>
 
         <div class="header-right">
-          <!-- Light / Dark Mode Toggle Button -->
-          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" onclick="app.toggleTheme()" title="Switch between Light & Dark Mode">
-            <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color: var(--caramel);"></i>
-            <span id="theme-toggle-text">Dark Mode</span>
+          <!-- Quick Action Keyboard Shortcuts Helper -->
+          <div class="header-shortcuts-badge" title="Keyboard Shortcuts Active">
+            <i class="fa-solid fa-keyboard" style="color: var(--primary);"></i>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Shortcuts Active</span>
+          </div>
+
+          <!-- Log Out Button in Top Header -->
+          <button type="button" id="header-logout-btn" class="header-logout-btn" onclick="app.logout()" title="Sign Out / Log Out [Alt+Q]" aria-label="Log Out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Log Out</span>
           </button>
         </div>
       </header>

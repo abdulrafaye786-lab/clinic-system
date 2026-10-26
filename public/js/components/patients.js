@@ -21,8 +21,8 @@ const patientsComponent = {
           </div>
 
           <div style="display: flex; gap: 0.4rem;">
-            <button onclick="app.openNewPatientModal()" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
-              <i class="fa-solid fa-user-plus"></i> Register New Patient
+            <button onclick="app.openNewPatientModal()" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;" title="Register New Patient [Alt + N]">
+              <i class="fa-solid fa-user-plus"></i> Register Patient <span style="opacity: 0.75; font-size: 0.7rem; font-weight: 500; margin-left: 2px;">[Alt+N]</span>
             </button>
           </div>
         </div>
@@ -524,10 +524,10 @@ const patientsComponent = {
         </div>
 
         <!-- Row 2: Contact, Date of Birth & Identification -->
-        <div style="display: grid; grid-template-columns: 1.3fr 1.3fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
+        <div style="display: grid; grid-template-columns: 1.2fr 1.1fr 1.1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label"><span class="required">*</span> Phone Number</label>
-            <input type="tel" id="ep-phone" class="form-control" value="${p.phone}" required>
+            <label class="form-label"><span class="required">*</span> Phone (Digits Only)</label>
+            <input type="tel" id="ep-phone" class="form-control" value="${p.phone || ''}" placeholder="03001234567" maxlength="11" oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 11)" required>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
@@ -539,16 +539,20 @@ const patientsComponent = {
             <input type="date" id="ep-dob" class="form-control" value="${p.dob ? new Date(p.dob).toISOString().slice(0,10) : ''}" onchange="app.calcAgeFromDob('ep-dob', 'ep-age-display')" oninput="app.calcAgeFromDob('ep-dob', 'ep-age-display')" required>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">CNIC / ID No</label>
-            <input type="text" id="ep-cnic" class="form-control" value="${p.cnic || ''}">
+            <label class="form-label">CNIC (13 Digits Only)</label>
+            <input type="text" id="ep-cnic" class="form-control" value="${(p.cnic || '').replace(/\\D/g, '')}" placeholder="3520212345671" maxlength="13" oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 13)">
           </div>
         </div>
 
-        <!-- Row 3: Residence & Marital Status -->
-        <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
+        <!-- Row 3: Residence, Email & Marital Status -->
+        <div style="display: grid; grid-template-columns: 1.8fr 1.3fr 1fr; gap: 0.65rem; margin-bottom: 0.55rem;">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Residential Address</label>
-            <input type="text" id="ep-address" class="form-control" value="${p.address || ''}">
+            <input type="text" id="ep-address" class="form-control" value="${p.address || ''}" placeholder="House #, Street, Block, Area / City">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Email Address (Optional)</label>
+            <input type="email" id="ep-email" class="form-control" value="${p.email || ''}" placeholder="patient@example.com">
           </div>
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Marital Status</label>
@@ -564,7 +568,7 @@ const patientsComponent = {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label"><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> Known Allergies</label>
-            <input type="text" id="ep-allergies" class="form-control" value="${p.allergies || ''}" placeholder="e.g. Penicillin, NSAIDs (or NKDA)">
+            <input type="text" id="ep-allergies" class="form-control" value="${p.allergies || ''}" placeholder="e.g. Penicillin, NSAIDs (or None)">
           </div>
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label"><i class="fa-solid fa-heart-pulse" style="color: var(--primary);"></i> Chronic Conditions</label>
@@ -576,12 +580,12 @@ const patientsComponent = {
 
     const footerHtml = `
       <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-        <button type="button" class="btn btn-outline" style="color: var(--wine-red); border-color: var(--wine-red);" onclick="patientsComponent.deletePatient(${p.id}, '${p.full_name.replace(/'/g, "\\'")}')">
+        <button type="button" class="btn btn-outline btn-sm" style="color: var(--wine-red); border-color: var(--wine-red);" onclick="patientsComponent.deletePatient(${p.id}, '${p.full_name.replace(/'/g, "\\'")}')">
           <i class="fa-solid fa-trash-can"></i> Delete Patient Record
         </button>
         <div style="display: flex; gap: 0.5rem;">
-          <button type="button" class="btn btn-outline" onclick="app.closeModal()">Cancel</button>
-          <button type="button" class="btn btn-primary" onclick="patientsComponent.submitEditPatient(${p.id})"><i class="fa-solid fa-save"></i> Save Changes</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="app.closeModal()">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="patientsComponent.submitEditPatient(${p.id})"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
         </div>
       </div>
     `;
@@ -592,11 +596,12 @@ const patientsComponent = {
   async submitEditPatient(patientId) {
     const full_name = document.getElementById('ep-name').value.trim();
     const gender = document.getElementById('ep-gender').value;
-    const phone = document.getElementById('ep-phone').value.trim();
+    const phone = document.getElementById('ep-phone').value.replace(/\\D/g, '').trim();
     const dob = document.getElementById('ep-dob').value;
     const age = app.calcAgeFromDob('ep-dob', 'ep-age-display') || 0;
     const blood_group = document.getElementById('ep-blood').value;
-    const cnic = document.getElementById('ep-cnic').value.trim();
+    const cnic = document.getElementById('ep-cnic').value.replace(/\\D/g, '').trim();
+    const email = document.getElementById('ep-email').value.trim();
     const marital_status = document.getElementById('ep-marital').value;
     const address = document.getElementById('ep-address').value.trim();
     const allergies = document.getElementById('ep-allergies').value.trim();
@@ -605,12 +610,20 @@ const patientsComponent = {
     app.clearAllHighlights(document.getElementById('edit-patient-form'));
 
     let hasError = false;
-    if (!full_name) {
+    if (!full_name || full_name.length < 2) {
       app.highlightField('ep-name', 'Full name is required');
       hasError = true;
     }
     if (!phone || phone.length < 10) {
-      app.highlightField('ep-phone', 'Please enter a valid phone number (at least 10 digits)');
+      app.highlightField('ep-phone', 'Please enter a valid phone number (10-11 digits only)');
+      hasError = true;
+    }
+    if (cnic && cnic.length !== 13) {
+      app.highlightField('ep-cnic', 'CNIC Number must be exactly 13 digits');
+      hasError = true;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      app.highlightField('ep-email', 'Please enter a valid email address or leave blank');
       hasError = true;
     }
     if (!dob) {
@@ -633,6 +646,7 @@ const patientsComponent = {
         age,
         blood_group,
         cnic,
+        email,
         marital_status,
         address,
         allergies,

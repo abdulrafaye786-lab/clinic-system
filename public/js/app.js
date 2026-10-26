@@ -85,12 +85,112 @@ const app = {
     }
 
     this.startLiveClock();
+    this.initGlobalShortcuts();
 
     if (this.token && this.user) {
       this.showPortal();
     } else {
       this.showLogin();
     }
+  },
+
+  // --------------------------------------------------------------------------
+  // GLOBAL KEYBOARD SHORTCUTS & ZERO-MOUSE WORKFLOW
+  // --------------------------------------------------------------------------
+  initGlobalShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      // 1. Modal Close: Escape key closes global modal
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('global-modal');
+        if (modal && modal.classList.contains('active')) {
+          e.preventDefault();
+          this.closeModal();
+          return;
+        }
+      }
+
+      // 2. Form Quick Submission: Ctrl + Enter or Cmd + Enter inside modal submits the primary action
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const modal = document.getElementById('global-modal');
+        if (modal && modal.classList.contains('active')) {
+          const submitBtn = modal.querySelector('.modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book');
+          if (submitBtn && !submitBtn.disabled) {
+            e.preventDefault();
+            submitBtn.click();
+            return;
+          }
+        }
+      }
+
+      // 3. Global Alt Key Combinations (Workflow Navigation & Fast Actions)
+      if (e.altKey && !e.ctrlKey && !e.shiftKey) {
+        const key = e.key.toLowerCase();
+        
+        // Alt + N: Register New Patient Form
+        if (key === 'n') {
+          e.preventDefault();
+          this.openNewPatientModal();
+          return;
+        }
+        // Alt + A / Alt + B: Book Appointment Modal
+        if (key === 'a' || key === 'b') {
+          e.preventDefault();
+          this.openBookAppointmentModal();
+          return;
+        }
+        // Alt + D: Add Doctor Modal
+        if (key === 'd') {
+          e.preventDefault();
+          if (typeof doctorsComponent !== 'undefined' && doctorsComponent.openAddDoctorModal) {
+            doctorsComponent.openAddDoctorModal();
+          }
+          return;
+        }
+        // Alt + S: Focus Search Input on active view
+        if (key === 's') {
+          e.preventDefault();
+          const searchInput = document.querySelector('.page-content input[type="text"], #patient-search-input, #doc-search-input, #bill-search');
+          if (searchInput) searchInput.focus();
+          return;
+        }
+        // Alt + T: Toggle Theme
+        if (key === 't') {
+          e.preventDefault();
+          this.toggleTheme();
+          return;
+        }
+        // Alt + Q: Log Out
+        if (key === 'q') {
+          e.preventDefault();
+          this.logout();
+          return;
+        }
+        // Navigation Shortcuts: Alt + 1 to 7
+        if (key === '1') { e.preventDefault(); this.navigate('dashboard'); return; }
+        if (key === '2') { e.preventDefault(); this.navigate('doctors'); return; }
+        if (key === '3') { e.preventDefault(); this.navigate('appointments'); return; }
+        if (key === '4') { e.preventDefault(); this.navigate('vitals-bills'); return; }
+        if (key === '5') { e.preventDefault(); this.navigate('patient-history'); return; }
+        if (key === '6') { e.preventDefault(); this.navigate('billing'); return; }
+        if (key === '7') { e.preventDefault(); this.navigate('settings'); return; }
+      }
+    });
+
+    // Support auto-advance on Enter in standard modal inputs
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target && e.target.matches('.modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not(textarea)')) {
+        const form = e.target.closest('form');
+        if (form && !e.ctrlKey && !e.metaKey) {
+          const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, textarea, button.btn-primary'))
+            .filter(el => !el.disabled && el.offsetParent !== null);
+          const idx = inputs.indexOf(e.target);
+          if (idx >= 0 && idx < inputs.length - 1) {
+            e.preventDefault();
+            inputs[idx + 1].focus();
+          }
+        }
+      }
+    });
   },
 
   // --------------------------------------------------------------------------
@@ -651,6 +751,14 @@ const app = {
     footerEl.innerHTML = footerHtml;
 
     modal.classList.add('active');
+
+    // Auto-focus first input for pure keyboard interaction
+    setTimeout(() => {
+      const firstInput = bodyEl.querySelector('input:not([type="hidden"]), select, textarea');
+      if (firstInput && !firstInput.disabled) {
+        firstInput.focus();
+      }
+    }, 50);
 
     // Ensure clicking outside the dialog never dismisses the modal
     if (!this._modalBackdropConfigured) {
@@ -2577,64 +2685,64 @@ const app = {
         <style>
           .np-form-card {
             background: var(--bg-card);
-            border-radius: 12px;
-            padding: 0.85rem;
-            margin-bottom: 0.75rem;
+            border-radius: 10px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.55rem;
             border: 1.5px solid var(--border-color);
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
           }
           .np-section-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.82rem;
+            gap: 0.45rem;
+            font-size: 0.76rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--primary);
-            margin-bottom: 0.65rem;
-            padding-bottom: 0.35rem;
+            margin-bottom: 0.45rem;
+            padding-bottom: 0.25rem;
             border-bottom: 1px dashed var(--border-color);
           }
           .np-field-label {
-            font-size: 0.76rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.25rem;
           }
           .np-input {
-            height: 34px;
-            font-size: 0.82rem;
-            border-radius: 8px;
+            height: 30px;
+            font-size: 0.8rem;
+            border-radius: 6px;
             border: 1.5px solid var(--border-color);
-            padding: 0.35rem 0.65rem;
+            padding: 0.25rem 0.55rem;
             background: var(--bg-card);
             color: var(--text-main);
             transition: all 0.2s ease;
           }
           .np-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 2.5px rgba(37, 99, 235, 0.15);
           }
         </style>
 
-        <!-- Section 1: Primary Identity & Demographics -->
+        <!-- Section 1: Primary Identity & Contact (Compact Zero-Scroll) -->
         <div class="np-form-card">
           <div class="np-section-header">
             <i class="fa-solid fa-user-tag"></i> 1. Basic Demographics & Contact
           </div>
           
-          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.65rem; margin-bottom: 0.6rem;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.55rem; margin-bottom: 0.45rem;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-user" style="color: var(--primary);"></i> Full Name <span class="required" style="color: var(--danger);">*</span></label>
-              <input type="text" id="np-name" class="form-control np-input" placeholder="e.g. Asim Khan" required autofocus>
+              <input type="text" id="np-name" class="form-control np-input" placeholder="e.g. Asim Khan" required autofocus tabindex="1">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-venus-mars" style="color: #8b5cf6;"></i> Gender <span class="required" style="color: var(--danger);">*</span></label>
-              <select id="np-gender" class="form-control np-input" required>
+              <select id="np-gender" class="form-control np-input" required tabindex="2">
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -2642,7 +2750,7 @@ const app = {
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-droplet" style="color: #ef4444;"></i> Blood Group</label>
-              <select id="np-blood" class="form-control np-input">
+              <select id="np-blood" class="form-control np-input" tabindex="3">
                 <option value="Unknown">Unknown</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
@@ -2656,42 +2764,46 @@ const app = {
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 0.8fr 1.2fr; gap: 0.65rem;">
+          <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 0.8fr 1.3fr; gap: 0.55rem;">
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="np-field-label"><i class="fa-solid fa-phone" style="color: #10b981;"></i> Phone Number <span class="required" style="color: var(--danger);">*</span></label>
-              <input type="tel" id="np-phone" class="form-control np-input" placeholder="03xx-xxxxxxx" required>
+              <label class="np-field-label"><i class="fa-solid fa-phone" style="color: #10b981;"></i> Phone (Digits Only) <span class="required" style="color: var(--danger);">*</span></label>
+              <input type="tel" id="np-phone" class="form-control np-input" placeholder="03001234567" maxlength="11" oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 11)" required tabindex="4">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
                 <label class="np-field-label" style="margin-bottom: 0;"><i class="fa-solid fa-cake-candles" style="color: #f59e0b;"></i> Date of Birth</label>
                 <div id="np-age-display"></div>
               </div>
-              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')">
+              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" tabindex="5">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-hashtag" style="color: var(--primary);"></i> Age (Yrs)</label>
-              <input type="number" id="np-age-input" class="form-control np-input" placeholder="e.g. 28" min="0" max="130" oninput="app.handleAgeChange('np-age-input', 'np-dob', 'np-age-display')">
+              <input type="number" id="np-age-input" class="form-control np-input" placeholder="e.g. 28" min="0" max="130" oninput="this.value = this.value.replace(/\\D/g, ''); app.handleAgeChange('np-age-input', 'np-dob', 'np-age-display')" tabindex="6">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="np-field-label"><i class="fa-solid fa-id-card" style="color: #6366f1;"></i> CNIC / Identity</label>
-              <input type="text" id="np-cnic" class="form-control np-input" placeholder="35202-xxxxxxx-x">
+              <label class="np-field-label"><i class="fa-solid fa-id-card" style="color: #6366f1;"></i> CNIC (13 Digits Only)</label>
+              <input type="text" id="np-cnic" class="form-control np-input" placeholder="3520212345671" maxlength="13" oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 13)" tabindex="7">
             </div>
           </div>
         </div>
 
-        <!-- Section 2: Address & Socio-demographics -->
+        <!-- Section 2: Address, Email & Demographics -->
         <div class="np-form-card">
           <div class="np-section-header">
-            <i class="fa-solid fa-location-dot"></i> 2. Address & Family Information
+            <i class="fa-solid fa-location-dot"></i> 2. Address, Email & Family
           </div>
-          <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 0.65rem;">
+          <div style="display: grid; grid-template-columns: 1.8fr 1.3fr 1fr; gap: 0.55rem;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-house" style="color: #0284c7;"></i> Residential Address</label>
-              <input type="text" id="np-address" class="form-control np-input" placeholder="House #, Street, Block, Area / City">
+              <input type="text" id="np-address" class="form-control np-input" placeholder="House #, Street, Block, Area / City" tabindex="8">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="np-field-label"><i class="fa-solid fa-envelope" style="color: #f59e0b;"></i> Email (Optional)</label>
+              <input type="email" id="np-email" class="form-control np-input" placeholder="patient@example.com" tabindex="9">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-ring" style="color: #ec4899;"></i> Marital Status</label>
-              <select id="np-marital" class="form-control np-input">
+              <select id="np-marital" class="form-control np-input" tabindex="10">
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
                 <option value="Divorced">Divorced</option>
@@ -2706,14 +2818,14 @@ const app = {
           <div class="np-section-header">
             <i class="fa-solid fa-shield-virus"></i> 3. Clinical Alerts & Pre-existing Conditions
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> Known Allergies</label>
-              <input type="text" id="np-allergies" class="form-control np-input" placeholder="e.g. Penicillin, NSAIDs, Dust, Pollen (or None)">
+              <input type="text" id="np-allergies" class="form-control np-input" placeholder="e.g. Penicillin, NSAIDs, Dust, Pollen (or None)" tabindex="11">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-heart-pulse" style="color: #0d9488;"></i> Chronic Illnesses</label>
-              <input type="text" id="np-chronic" class="form-control np-input" placeholder="e.g. Hypertension, Diabetes, Asthma">
+              <input type="text" id="np-chronic" class="form-control np-input" placeholder="e.g. Hypertension, Diabetes, Asthma" tabindex="12">
             </div>
           </div>
         </div>
@@ -2722,9 +2834,9 @@ const app = {
 
     const footerHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <button type="button" class="btn btn-outline" onclick="${returnToToken ? 'app.openNewAppointmentModal()' : 'app.closeModal()'}">Cancel</button>
-        <button type="button" class="btn btn-primary" id="btn-submit-new-patient" onclick="app.submitNewPatient(${returnToToken})" style="padding: 0.45rem 1.35rem; font-weight: 700;">
-          <i class="fa-solid fa-user-plus"></i> Register Patient
+        <button type="button" class="btn btn-outline btn-sm" onclick="${returnToToken ? 'app.openNewAppointmentModal()' : 'app.closeModal()'}">Cancel [Esc]</button>
+        <button type="button" class="btn btn-primary" id="btn-submit-new-patient" onclick="app.submitNewPatient(${returnToToken})" style="padding: 0.4rem 1.25rem; font-weight: 700;" tabindex="13" title="Save Patient Record [Ctrl + Enter]">
+          <i class="fa-solid fa-floppy-disk"></i> Save Patient
         </button>
       </div>
     `;
@@ -2741,14 +2853,15 @@ const app = {
     const submitBtn = document.getElementById('btn-submit-new-patient');
     const full_name = (document.getElementById('np-name')?.value || '').trim();
     const gender = document.getElementById('np-gender')?.value || 'Male';
-    const phone = (document.getElementById('np-phone')?.value || '').trim();
+    const phone = (document.getElementById('np-phone')?.value || '').replace(/\\D/g, '').trim();
     const dob = document.getElementById('np-dob')?.value || null;
     const ageInput = parseInt(document.getElementById('np-age-input')?.value || '', 10);
     const calculatedAge = this.calcAgeFromDob('np-dob', 'np-age-display');
     const age = !isNaN(ageInput) && ageInput >= 0 ? ageInput : (calculatedAge || 0);
 
     const blood_group = document.getElementById('np-blood')?.value || 'Unknown';
-    const cnic = (document.getElementById('np-cnic')?.value || '').trim();
+    const cnic = (document.getElementById('np-cnic')?.value || '').replace(/\\D/g, '').trim();
+    const email = (document.getElementById('np-email')?.value || '').trim();
     const marital_status = document.getElementById('np-marital')?.value || 'Single';
     const address = (document.getElementById('np-address')?.value || '').trim();
     const allergies = (document.getElementById('np-allergies')?.value || '').trim();
@@ -2757,25 +2870,33 @@ const app = {
     this.clearAllHighlights(document.getElementById('new-patient-form'));
 
     let hasError = false;
-    if (!full_name) {
-      this.highlightField('np-name', 'Full name is required');
+    if (!full_name || full_name.length < 2) {
+      this.highlightField('np-name', 'Full name is required (letters only)');
       hasError = true;
     }
-    if (!phone || phone.replace(/\D/g, '').length < 10) {
-      this.highlightField('np-phone', 'Please enter a valid phone number (min 10 digits)');
+    if (!phone || phone.length < 10) {
+      this.highlightField('np-phone', 'Please enter a valid phone number (10-11 digits only)');
+      hasError = true;
+    }
+    if (cnic && cnic.length !== 13) {
+      this.highlightField('np-cnic', 'CNIC Number must be exactly 13 digits (digits only)');
+      hasError = true;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.highlightField('np-email', 'Please enter a valid email address or leave blank');
       hasError = true;
     }
 
     if (hasError) {
-      this.toast('Please fill all required patient details correctly.', 'error');
+      this.toast('Please correct the highlighted fields.', 'error');
       return;
     }
 
-    // Set lock flag and button loading state to completely eliminate duplicate double-clicks
+    // Set lock flag and button loading state to eliminate duplicate double-clicks
     this._isSubmittingPatient = true;
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
     }
 
     try {
@@ -2789,6 +2910,7 @@ const app = {
           age,
           blood_group,
           cnic,
+          email,
           marital_status,
           address,
           allergies,
@@ -2797,7 +2919,7 @@ const app = {
       });
 
       if (res.success) {
-        this.toast(`Patient registered successfully! MRN: #${res.mrn}`, 'success');
+        this.toast(`Patient saved successfully! MRN: #${res.mrn}`, 'success');
         if (returnToToken) {
           this.openNewAppointmentModal();
         } else {
@@ -2816,7 +2938,7 @@ const app = {
       this._isSubmittingPatient = false;
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Register Patient';
+        submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Patient';
       }
     }
   },
