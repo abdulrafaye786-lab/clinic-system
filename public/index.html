@@ -156,17 +156,11 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-profile-badge">
-          <div class="user-avatar" id="sidebar-user-avatar">AD</div>
-          <div class="user-info">
-            <div class="user-name" id="sidebar-user-name">Administrator</div>
-            <div class="user-role" id="sidebar-user-role">Super Admin</div>
-          </div>
-          <!-- Theme Toggle Button in Sidebar Footer -->
-          <button type="button" id="theme-toggle-btn" class="sidebar-theme-toggle-btn" onclick="app.toggleTheme()" title="Switch Light & Dark Mode [Alt+T]" aria-label="Toggle Theme">
-            <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color: var(--caramel);"></i>
-          </button>
-        </div>
+        <!-- Log Out Button in Sidebar Footer -->
+        <button type="button" id="sidebar-logout-btn" class="sidebar-logout-btn-full" onclick="app.logout()" title="Sign Out / Log Out [Alt+Q]" aria-label="Log Out">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Log Out</span>
+        </button>
       </div>
     </aside>
 
@@ -191,17 +185,26 @@
         </div>
 
         <div class="header-right">
-          <!-- Quick Action Keyboard Shortcuts Helper -->
-          <div class="header-shortcuts-badge" title="Keyboard Shortcuts Active">
-            <i class="fa-solid fa-keyboard" style="color: var(--primary);"></i>
-            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Shortcuts Active</span>
+          <!-- User Profile Badge (Moved to Top Header) -->
+          <div class="header-user-badge">
+            <div class="user-avatar" id="sidebar-user-avatar">AD</div>
+            <div class="user-info header-user-info">
+              <div class="user-name" id="sidebar-user-name">Administrator</div>
+              <div class="user-role" id="sidebar-user-role">Super Admin</div>
+            </div>
           </div>
 
-          <!-- Log Out Button in Top Header -->
-          <button type="button" id="header-logout-btn" class="header-logout-btn" onclick="app.logout()" title="Sign Out / Log Out [Alt+Q]" aria-label="Log Out">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Log Out</span>
-          </button>
+          <!-- Light & Dark Theme Segmented Switcher (Moved to Top Header) -->
+          <div class="header-theme-switcher" role="group" aria-label="Theme Selection">
+            <button type="button" id="theme-btn-light" class="header-theme-opt" onclick="app.setTheme('light')" title="Switch to Light Sanctuary Theme">
+              <i class="fa-solid fa-sun"></i>
+              <span>Light</span>
+            </button>
+            <button type="button" id="theme-btn-dark" class="header-theme-opt" onclick="app.setTheme('dark')" title="Switch to Dark Midnight Slate Theme">
+              <i class="fa-solid fa-moon"></i>
+              <span>Dark</span>
+            </button>
+          </div>
         </div>
       </header>
 

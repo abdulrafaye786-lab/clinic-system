@@ -176,17 +176,52 @@ const app = {
       }
     });
 
-    // Support auto-advance on Enter in standard modal inputs
+    // Support comprehensive keyboard form navigation: Enter advances to next field; Ctrl+Enter or Enter on last field submits
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target && e.target.matches('.modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not(textarea)')) {
-        const form = e.target.closest('form');
-        if (form && !e.ctrlKey && !e.metaKey) {
-          const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, textarea, button.btn-primary'))
-            .filter(el => !el.disabled && el.offsetParent !== null);
-          const idx = inputs.indexOf(e.target);
-          if (idx >= 0 && idx < inputs.length - 1) {
+      // Form Quick Submission via Enter on last field or Ctrl+Enter anywhere in any form
+      const target = e.target;
+      if (!target) return;
+
+      // Handle Enter inside form controls (except textarea where Enter adds newline, unless Ctrl+Enter)
+      if (e.key === 'Enter') {
+        const form = target.closest('form') || target.closest('.modal-body');
+        if (!form) return;
+
+        // If Ctrl+Enter or Cmd+Enter: Submit form immediately
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
+          if (submitBtn && !submitBtn.disabled) {
+            submitBtn.click();
+          } else if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+          }
+          return;
+        }
+
+        // Normal Enter in input/select/button: advance focus to next input field
+        if (target.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select')) {
+          const focusable = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, textarea, button[type="submit"], #btn-submit-new-patient, #btn-confirm-book, .modal-footer .btn-primary'))
+            .filter(el => !el.disabled && el.offsetParent !== null && el.type !== 'hidden');
+          
+          const idx = focusable.indexOf(target);
+          if (idx >= 0) {
             e.preventDefault();
-            inputs[idx + 1].focus();
+            if (idx < focusable.length - 1) {
+              const nextEl = focusable[idx + 1];
+              nextEl.focus();
+              if (nextEl.select && typeof nextEl.select === 'function' && nextEl.tagName === 'INPUT') {
+                nextEl.select();
+              }
+            } else {
+              // On the last field, pressing Enter submits the form
+              const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
+              if (submitBtn && !submitBtn.disabled) {
+                submitBtn.click();
+              } else if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+              }
+            }
           }
         }
       }
@@ -205,15 +240,17 @@ const app = {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('gclinic_theme', theme);
 
-    const btnIcon = document.getElementById('theme-toggle-icon');
-    const btnText = document.getElementById('theme-toggle-text');
+    const btnLight = document.getElementById('theme-btn-light');
+    const btnDark = document.getElementById('theme-btn-dark');
 
-    if (theme === 'dark') {
-      if (btnIcon) btnIcon.className = 'fa-solid fa-sun';
-      if (btnText) btnText.textContent = 'Light Mode';
-    } else {
-      if (btnIcon) btnIcon.className = 'fa-solid fa-moon';
-      if (btnText) btnText.textContent = 'Dark Mode';
+    if (btnLight && btnDark) {
+      if (theme === 'dark') {
+        btnDark.classList.add('active');
+        btnLight.classList.remove('active');
+      } else {
+        btnLight.classList.add('active');
+        btnDark.classList.remove('active');
+      }
     }
 
     // Refresh charts if on dashboard
@@ -226,7 +263,7 @@ const app = {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     this.setTheme(next);
-    this.toast(`Switched to ${next === 'dark' ? 'Dark Midnight Slate' : 'Light Arctic Medical'} Mode`, 'success');
+    this.toast(`Switched to ${next === 'dark' ? 'Dark Luxury Slate' : 'Light Clinical Sanctuary'} Mode`, 'success');
   },
 
   // --------------------------------------------------------------------------
