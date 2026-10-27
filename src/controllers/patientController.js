@@ -294,12 +294,32 @@ async function addVitals(req, res) {
       appointment_id, recorded_by, systolic_bp, diastolic_bp, pulse_rate,
       temperature_f, respiratory_rate, spo2, weight_kg, height_cm,
       blood_sugar_random, blood_sugar_fasting, notes
-    } = req.body;
+    } = req.body || {};
+
+    const parseNumOrNull = (val, isFloat = false) => {
+      if (val === undefined || val === null) return null;
+      const s = String(val).trim();
+      if (s === '') return null;
+      const parsed = isFloat ? parseFloat(s) : parseInt(s, 10);
+      return isNaN(parsed) ? null : parsed;
+    };
+
+    const cleanSys = parseNumOrNull(systolic_bp);
+    const cleanDia = parseNumOrNull(diastolic_bp);
+    const cleanPulse = parseNumOrNull(pulse_rate);
+    const cleanTemp = parseNumOrNull(temperature_f, true);
+    const cleanResp = parseNumOrNull(respiratory_rate);
+    const cleanSpo2 = parseNumOrNull(spo2);
+    const cleanWeight = parseNumOrNull(weight_kg, true);
+    const cleanHeight = parseNumOrNull(height_cm, true);
+    const cleanSugarRandom = parseNumOrNull(blood_sugar_random, true);
+    const cleanSugarFasting = parseNumOrNull(blood_sugar_fasting, true);
+    const cleanNotes = notes && String(notes).trim() !== '' ? String(notes).trim() : null;
 
     let bmi = null;
-    if (weight_kg && height_cm && height_cm > 0) {
-      const heightInM = height_cm / 100;
-      bmi = parseFloat((weight_kg / (heightInM * heightInM)).toFixed(1));
+    if (cleanWeight && cleanHeight && cleanHeight > 0) {
+      const heightInM = cleanHeight / 100;
+      bmi = parseFloat((cleanWeight / (heightInM * heightInM)).toFixed(1));
     }
 
     const [result] = await query(`
@@ -310,10 +330,10 @@ async function addVitals(req, res) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       id, appointment_id || null, recorded_by || (req.user ? req.user.full_name : 'Staff Nurse'),
-      systolic_bp || null, diastolic_bp || null, pulse_rate || null,
-      temperature_f || null, respiratory_rate || null, spo2 || null,
-      weight_kg || null, height_cm || null, bmi,
-      blood_sugar_random || null, blood_sugar_fasting || null, notes || null
+      cleanSys, cleanDia, cleanPulse,
+      cleanTemp, cleanResp, cleanSpo2,
+      cleanWeight, cleanHeight, bmi,
+      cleanSugarRandom, cleanSugarFasting, cleanNotes
     ]);
 
     return res.status(201).json({ success: true, message: 'Vitals recorded successfully.', vitalsId: result.insertId });
