@@ -279,6 +279,10 @@ const app = {
         // If on the last field and Enter is pressed, submit
         if (e.key === 'Enter' && currentIndex === focusable.length - 1) {
           e.preventDefault();
+          // Never auto-submit vitals forms on Enter key to prevent accidental premature modal closure
+          if (form.id === 'checkin-vitals-form' || form.id === 'vitals-entry-form') {
+            return;
+          }
           const submitBtn = form.querySelector('button[type="submit"], .modal-footer .btn-primary, #btn-submit-new-patient, #btn-confirm-book, .btn-primary');
           if (submitBtn && !submitBtn.disabled) {
             submitBtn.click();
@@ -990,7 +994,21 @@ const app = {
   // Instant Print Engine
   printDocument(contentHtml) {
     const container = document.getElementById('printable-container');
-    container.innerHTML = contentHtml;
+    const brandFooterHtml = `<div class="print-ar-branding" style="text-align: center; font-size: 10px; font-weight: 700; color: #475569; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #cbd5e1; letter-spacing: 0.5px;">Made by AR Works.</div>`;
+    
+    // Ensure "Made by AR Works." is present in all printable outputs
+    let finalHtml = contentHtml;
+    if (!finalHtml.includes('Made by AR Works.')) {
+      // If the content is wrapped in a container class like thermal-receipt or prescription-layout, append inside or right after
+      if (finalHtml.includes('</div>')) {
+        const lastDivIndex = finalHtml.lastIndexOf('</div>');
+        finalHtml = finalHtml.slice(0, lastDivIndex) + brandFooterHtml + finalHtml.slice(lastDivIndex);
+      } else {
+        finalHtml += brandFooterHtml;
+      }
+    }
+
+    container.innerHTML = finalHtml;
     window.print();
   },
 
@@ -2771,6 +2789,7 @@ const app = {
         <div class="divider"></div>
         <div class="center" style="font-size: 10px;">Date & Time: ${new Date().toLocaleString()}</div>
         <div class="center" style="font-size: 10px; margin-top: 4px;">* Thank you for choosing Dream Garden PolyClinic *</div>
+        <div class="center" style="font-size: 10px; margin-top: 6px; font-weight: 700; color: #475569; letter-spacing: 0.5px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">Made by AR Works.</div>
       </div>
     `;
 
@@ -2823,6 +2842,7 @@ const app = {
         <div class="divider"></div>
         <div class="center" style="font-size: 10px;">Recorded Date: ${new Date().toLocaleString()}</div>
         <div class="center" style="font-size: 10px; margin-top: 4px;">* Triage & Vitals Receipt *</div>
+        <div class="center" style="font-size: 10px; margin-top: 6px; font-weight: 700; color: #475569; letter-spacing: 0.5px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">Made by AR Works.</div>
       </div>
     `;
 
@@ -3242,7 +3262,7 @@ const app = {
     const formattedMrn = pat.mrn ? (pat.mrn.startsWith('MRN') ? pat.mrn : `MRN-#${pat.mrn}`) : `MRN-#${patientId}`;
 
     const bodyHtml = `
-      <form id="checkin-vitals-form" onsubmit="event.preventDefault(); app.submitCheckInVitals(${appointmentId}, ${patientId}, false, ${doctorId || 'null'}, ${doctorFee || 1500}, '${(doctorName || '').replace(/'/g, "\\'")}', '${(pat.full_name || patientName || '').replace(/'/g, "\\'")}');">
+      <form id="checkin-vitals-form" onsubmit="event.preventDefault();">
         <!-- Patient & Doctor Header -->
         <div style="background: #e8fbf0; border: 1.5px solid #bbf7d0; padding: 0.85rem 1.15rem; border-radius: 10px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
           <div>

@@ -551,7 +551,8 @@ const consultationComponent = {
         <!-- Doctor Signature Footer -->
         <div style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: flex-end;">
           <div style="font-size: 0.75rem; color: #94a3b8;">
-            * Electronic Medical Prescription generated from Dream Garden PolyClinic System *
+            <div>* Electronic Medical Prescription generated from Dream Garden PolyClinic System *</div>
+            <div style="margin-top: 4px; font-weight: 700; color: #475569;">Made by AR Works.</div>
           </div>
           <div style="text-align: center; border-top: 1.5px solid #0f172a; width: 220px; padding-top: 6px;">
             <div style="font-weight: 700; font-size: 0.9rem;">${c.doctor_name}</div>

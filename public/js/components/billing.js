@@ -736,6 +736,7 @@ const billingComponent = {
           <div class="divider"></div>
           <div class="center" style="font-size: 10px;">Cashier: ${inv.cashier_name}</div>
           <div class="center" style="font-size: 10px; margin-top: 4px;">Thank you for choosing Dream Garden PolyClinic!</div>
+          <div class="center" style="font-size: 10px; margin-top: 6px; font-weight: 700; color: #475569; letter-spacing: 0.5px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">Made by AR Works.</div>
         </div>
       `;
       app.printDocument(posHtml);
@@ -817,7 +818,8 @@ const billingComponent = {
 
           <div style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: flex-end;">
             <div style="font-size: 0.75rem; color: #94a3b8;">
-              Thank you for trusting Dream Garden PolyClinic.
+              <div>Thank you for trusting Dream Garden PolyClinic.</div>
+              <div style="margin-top: 4px; font-weight: 700; color: #475569;">Made by AR Works.</div>
             </div>
             <div style="text-align: center; border-top: 1.5px solid #0f172a; width: 220px; padding-top: 6px;">
               <div style="font-weight: 700; font-size: 0.9rem;">${inv.cashier_name}</div>

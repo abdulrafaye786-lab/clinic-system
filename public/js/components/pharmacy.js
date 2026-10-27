@@ -402,6 +402,7 @@ const pharmacyComponent = {
         <div class="divider"></div>
         <div class="center" style="font-size: 10px;">* Medicines once sold cannot be returned if unsealed *</div>
         <div class="center" style="font-size: 10px; margin-top: 4px;">Thank you! Wishing you good health.</div>
+        <div class="center" style="font-size: 10px; margin-top: 6px; font-weight: 700; color: #475569; letter-spacing: 0.5px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">Made by AR Works.</div>
       </div>
     `;
 

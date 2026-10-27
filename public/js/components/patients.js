@@ -382,7 +382,7 @@ const patientsComponent = {
 
   openAddVitalsModal(patientId, patientName) {
     const bodyHtml = `
-      <form id="vitals-entry-form">
+      <form id="vitals-entry-form" onsubmit="event.preventDefault();">
         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
           Recording vital signs for: <strong style="color: #00c853;">${patientName}</strong>
         </p>
@@ -721,8 +721,11 @@ const patientsComponent = {
           </table>
         `}
 
-        <div style="margin-top: 3rem; display: flex; justify-content: space-between;">
-          <div style="font-size: 0.8rem; color: #94a3b8;">* Electronic Health Record Document generated from Dream Garden PolyClinic System *</div>
+        <div style="margin-top: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+          <div style="font-size: 0.8rem; color: #94a3b8;">
+            <div>* Electronic Health Record Document generated from Dream Garden PolyClinic System *</div>
+            <div style="margin-top: 4px; font-weight: 700; color: #475569;">Made by AR Works.</div>
+          </div>
           <div style="text-align: center; border-top: 1px solid #333; width: 200px; padding-top: 4px; font-size: 0.85rem;">
             Medical Officer Signature
           </div>
