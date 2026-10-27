@@ -24,11 +24,11 @@ const doctorsComponent = {
 
           <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
             <!-- List / Grid View Mode Toggle -->
-            <div class="view-mode-toggle">
-              <button class="view-mode-btn ${this.viewMode === 'list' ? 'active' : ''}" onclick="doctorsComponent.setViewMode('list')" title="List Table View" style="padding: 0.2rem 0.55rem; font-size: 0.74rem;">
+            <div class="view-mode-toggle" id="doc-view-mode-toggle">
+              <button id="doc-view-list-btn" class="view-mode-btn ${this.viewMode === 'list' ? 'active' : ''}" onclick="doctorsComponent.setViewMode('list')" title="List Table View" style="padding: 0.2rem 0.55rem; font-size: 0.74rem;">
                 <i class="fa-solid fa-list-ul"></i> List
               </button>
-              <button class="view-mode-btn ${this.viewMode === 'grid' ? 'active' : ''}" onclick="doctorsComponent.setViewMode('grid')" title="Grid Card View" style="padding: 0.2rem 0.55rem; font-size: 0.74rem;">
+              <button id="doc-view-grid-btn" class="view-mode-btn ${this.viewMode === 'grid' ? 'active' : ''}" onclick="doctorsComponent.setViewMode('grid')" title="Grid Card View" style="padding: 0.2rem 0.55rem; font-size: 0.74rem;">
                 <i class="fa-solid fa-table-cells-large"></i> Grid
               </button>
             </div>
@@ -62,10 +62,10 @@ const doctorsComponent = {
 
   setViewMode(mode) {
     this.viewMode = mode;
-    const btns = document.querySelectorAll('.view-mode-toggle .view-mode-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    if (mode === 'list' && btns[0]) btns[0].classList.add('active');
-    if (mode === 'grid' && btns[1]) btns[1].classList.add('active');
+    const listBtn = document.getElementById('doc-view-list-btn');
+    const gridBtn = document.getElementById('doc-view-grid-btn');
+    if (listBtn) listBtn.classList.toggle('active', mode === 'list');
+    if (gridBtn) gridBtn.classList.toggle('active', mode === 'grid');
     this.load();
   },
 

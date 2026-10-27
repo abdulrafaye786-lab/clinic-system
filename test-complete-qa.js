@@ -298,6 +298,7 @@ async function runCompleteQA() {
         full_name: 'Mrs. QA Clinical Patient',
         gender: 'Female',
         phone: '0321-7788990',
+        dob: '1990-03-21',
         age: 34,
         blood_group: 'B+',
         address: 'DHA Phase 5, Lahore',

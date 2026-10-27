@@ -2077,15 +2077,15 @@ body {
 }
 
 .view-mode-btn.active {
-  background: var(--white);
-  color: var(--cyber-green);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.35) !important;
 }
 
 [data-theme="dark"] .view-mode-btn.active {
-  background: var(--primary);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.45) !important;
 }
 
 .doc-profile-card {
@@ -2548,9 +2548,9 @@ html {
 }
 
 .view-mode-btn.active {
-  background: var(--bg-card);
-  color: var(--cyber-green);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.35) !important;
 }
 
 /* ==========================================================================

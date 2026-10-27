@@ -227,6 +227,7 @@ async function runTests() {
         full_name: 'Verification Patient',
         gender: 'Female',
         phone: '0311-9988776',
+        dob: '1996-05-14',
         age: 28,
         blood_group: 'O+',
         address: 'Model Town, Lahore',

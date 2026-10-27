@@ -334,9 +334,6 @@ const appointmentsComponent = {
               <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${(a.doctor_name || '').replace(/'/g, "\\'")}', '${(a.patient_name || '').replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-primary btn-sm" title="Record Patient Vitals" style="box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);">
                 <i class="fa-solid fa-heart-pulse"></i> Record Vitals
               </button>
-              <button onclick="appointmentsComponent.directCheckOut(${a.id})" class="btn btn-outline-warning btn-sm" title="Patient Checked Out / Left Clinic">
-                <i class="fa-solid fa-person-walking-arrow-right"></i> Check Out
-              </button>
             `;
           } else {
             nextStepActionHtml = `

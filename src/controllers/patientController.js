@@ -154,8 +154,8 @@ async function createPatient(req, res) {
       address, emergency_contact_name, emergency_contact_phone, allergies, chronic_conditions, notes
     } = req.body;
 
-    if (!full_name || !gender || !phone) {
-      return res.status(400).json({ success: false, message: 'Full name, gender and phone number are required.' });
+    if (!full_name || !gender || !phone || !dob) {
+      return res.status(400).json({ success: false, message: 'Full name, gender, phone number, and date of birth are required.' });
     }
 
     const cleanPhone = phone.trim().replace(/[\s\-\(\)]/g, '');

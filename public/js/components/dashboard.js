@@ -737,13 +737,10 @@ const dashboardComponent = {
         `;
       } else if (a.status === 'waiting') {
         if (!hasVitals) {
-          // Stage 2: After check in (pending vitals) -> ONLY 2 buttons: Record Vitals & Check Out
+          // Stage 2: After check in (pending vitals) -> Record Vitals
           nextStepActionHtml = `
             <button onclick="app.openCheckInVitalsModal(${a.id}, ${a.patient_id}, '${(a.doctor_name || '').replace(/'/g, "\\'")}', '${(a.patient_name || '').replace(/'/g, "\\'")}', '', ${vitalsObj}, ${a.doctor_id}, ${a.consultation_fee})" class="btn btn-primary btn-xs" title="Record Patient Vitals" style="font-weight: 700; padding: 0.18rem 0.5rem; font-size: 0.72rem;">
               <i class="fa-solid fa-heart-pulse"></i> Vitals
-            </button>
-            <button onclick="appointmentsComponent.directCheckOut(${a.id})" class="btn btn-outline-warning btn-xs" title="Patient Check Out" style="padding: 0.18rem 0.38rem; font-size: 0.72rem;">
-              <i class="fa-solid fa-person-walking-arrow-right"></i> Check Out
             </button>
           `;
         } else {

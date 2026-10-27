@@ -1404,7 +1404,7 @@ const app = {
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" style="font-size: 0.75rem;"><span class="required">*</span> Date of Birth</label>
-                <input type="date" id="book-np-dob" class="form-control" style="height: 32px; font-size: 0.82rem; padding: 0.2rem 0.45rem;" onchange="app.calcAgeFromDob('book-np-dob', 'book-np-age-display')">
+                <input type="date" id="book-np-dob" class="form-control" style="height: 32px; font-size: 0.82rem; padding: 0.2rem 0.45rem;" onchange="app.calcAgeFromDob('book-np-dob', 'book-np-age-display')" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" style="font-size: 0.75rem;">Blood Group</label>
@@ -1901,12 +1901,8 @@ const app = {
     const full_name = document.getElementById('book-np-name').value.trim();
     const phone = document.getElementById('book-np-phone').value.trim();
     const gender = document.getElementById('book-np-gender').value;
-    let dob = document.getElementById('book-np-dob').value;
-    let age = this.calcAgeFromDob('book-np-dob', 'book-np-age-display') || 0;
-    if (!dob) {
-      dob = '1995-01-01';
-      age = 30;
-    }
+    const dob = document.getElementById('book-np-dob').value;
+    const age = this.calcAgeFromDob('book-np-dob', 'book-np-age-display') || 0;
     const blood_group = document.getElementById('book-np-blood').value;
 
     let hasError = false;
@@ -1918,6 +1914,11 @@ const app = {
 
     if (!phone || phone.length < 10) {
       this.highlightField('book-np-phone', 'Please enter a valid phone number (at least 10 digits)');
+      hasError = true;
+    }
+
+    if (!dob) {
+      this.highlightField('book-np-dob', 'Date of birth is required');
       hasError = true;
     }
 
@@ -2964,10 +2965,10 @@ const app = {
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
-                <label class="np-field-label" style="margin-bottom: 0;"><i class="fa-solid fa-cake-candles" style="color: #f59e0b;"></i> Date of Birth</label>
+                <label class="np-field-label" style="margin-bottom: 0;"><i class="fa-solid fa-cake-candles" style="color: #f59e0b;"></i> Date of Birth <span class="required" style="color: var(--danger);">*</span></label>
                 <div id="np-age-display"></div>
               </div>
-              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" tabindex="5">
+              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" required tabindex="5">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-hashtag" style="color: var(--primary);"></i> Age (Yrs)</label>
@@ -3069,6 +3070,10 @@ const app = {
     }
     if (!phone || phone.length < 10) {
       this.highlightField('np-phone', 'Please enter a valid phone number (10-11 digits only)');
+      hasError = true;
+    }
+    if (!dob) {
+      this.highlightField('np-dob', 'Date of birth is required');
       hasError = true;
     }
     if (cnic && cnic.length !== 13) {
