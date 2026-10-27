@@ -495,8 +495,8 @@ const doctorsComponent = {
 
           <div class="form-row" style="margin-bottom: 0.35rem;">
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" style="font-size: 0.74rem;"><span class="required">*</span> Specialty Title</label>
-              <input type="text" id="${prefix}-spec" class="form-control" placeholder="e.g. Consultant Physician" value="${d.specialty || ''}" style="height: 30px; font-size: 0.82rem;" required data-error-msg="Specialty title is required">
+              <label class="form-label" style="font-size: 0.74rem;"><span class="required">*</span> Specialization / Area of Specialization</label>
+              <input type="text" id="${prefix}-spec" class="form-control" placeholder="e.g. Consultant Physician, Cardiology" value="${d.specialty || ''}" style="height: 30px; font-size: 0.82rem;" required data-error-msg="Specialization / Area of Specialization is required">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 0.74rem;"><span class="required">*</span> Qualifications</label>
