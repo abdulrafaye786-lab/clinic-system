@@ -10,7 +10,7 @@ const patientHistoryComponent = {
   genderFilter: 'all',
   bloodFilter: 'all',
   sortBy: 'newest',
-  viewMode: 'grid',
+  viewMode: 'list',
 
   async render(container, preselectedPatientId = null) {
     if (preselectedPatientId) {
@@ -352,7 +352,7 @@ const patientHistoryComponent = {
           <div class="p360-toolbar-left" style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; flex: 1;">
             <div class="p360-title-badge" style="display: flex; align-items: center; gap: 0.45rem; font-weight: 800; font-size: 0.95rem; color: var(--text-main); white-space: nowrap;">
               <i class="fa-solid fa-id-card-clip" style="color: var(--primary);"></i>
-              <span>Patient Records</span>
+              <span>All Patients</span>
               <span class="badge badge-teal" id="p360-total-badge" style="font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.45rem;">0 Patients</span>
             </div>
 

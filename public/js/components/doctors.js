@@ -62,10 +62,10 @@ const doctorsComponent = {
 
   setViewMode(mode) {
     this.viewMode = mode;
-    const btns = document.querySelectorAll('.view-mode-btn');
+    const btns = document.querySelectorAll('.view-mode-toggle .view-mode-btn');
     btns.forEach(b => b.classList.remove('active'));
-    if (mode === 'grid' && btns[0]) btns[0].classList.add('active');
-    if (mode === 'list' && btns[1]) btns[1].classList.add('active');
+    if (mode === 'list' && btns[0]) btns[0].classList.add('active');
+    if (mode === 'grid' && btns[1]) btns[1].classList.add('active');
     this.load();
   },
 

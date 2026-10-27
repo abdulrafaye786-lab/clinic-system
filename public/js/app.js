@@ -826,12 +826,12 @@ const app = {
         appointmentsComponent.render(mainView);
         break;
       case 'vitals-bills':
-        pageTitle.textContent = 'All Vitals & Patient Invoices';
+        pageTitle.textContent = 'Patient Records';
         pageSubtitle.textContent = 'Consolidated history of all recorded patient vitals, warning alerts, invoices & receipts';
         vitalsBillsComponent.render(mainView);
         break;
       case 'patient-history':
-        pageTitle.textContent = 'Patient Records';
+        pageTitle.textContent = 'All Patients';
         pageSubtitle.textContent = 'Patient directory, medical history, past vitals, appointments, invoices & quick registration';
         patientHistoryComponent.render(mainView);
         break;
