@@ -54,9 +54,28 @@ const app = {
     localStorage.setItem('gclinic_selected_date', dateStr);
     if (typeof appointmentsComponent !== 'undefined') {
       appointmentsComponent.selectedDate = dateStr;
+      const apptInput = document.getElementById('appt-date-picker-input');
+      if (apptInput && apptInput.value !== dateStr) apptInput.value = dateStr;
+      const apptLabel = document.getElementById('appt-date-display-label');
+      if (apptLabel) {
+        apptLabel.textContent = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+        });
+      }
     }
     if (typeof dashboardComponent !== 'undefined') {
       dashboardComponent.selectedDate = dateStr;
+      const dashPicker = document.getElementById('dash-date-picker');
+      if (dashPicker && dashPicker.value !== dateStr) dashPicker.value = dateStr;
+      const dashDisplay = document.getElementById('dash-date-display');
+      if (dashDisplay) {
+        dashDisplay.textContent = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+          weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'
+        });
+      }
+      if (typeof dashboardComponent.updatePresetButtonStyles === 'function') {
+        dashboardComponent.updatePresetButtonStyles();
+      }
     }
   },
 
@@ -1363,13 +1382,19 @@ const app = {
               <span>Patient Details</span>
               <span class="required">*</span>
             </div>
-            <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline-primary btn-sm" id="btn-toggle-new-pat" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; height: 28px; border-radius: 6px;" tabindex="3">
-              <i class="fa-solid fa-user-plus"></i> + New Patient
-            </button>
+            ${this.bookPatients.length > 0 ? `
+              <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline-primary btn-sm" id="btn-toggle-new-pat" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; height: 28px; border-radius: 6px;" tabindex="3">
+                <i class="fa-solid fa-user-plus"></i> + New Patient
+              </button>
+            ` : `
+              <span class="badge badge-warning" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Register New Patient
+              </span>
+            `}
           </div>
 
-          <!-- Existing Patient Search & Selected Badge -->
-          <div id="book-existing-pat-box">
+          <!-- Existing Patient Search & Selected Badge (Shown if patients exist) -->
+          <div id="book-existing-pat-box" style="display: ${this.bookPatients.length > 0 ? 'block' : 'none'};">
             <div style="position: relative; display: flex; align-items: center;">
               <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; color: var(--primary); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
               <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.4rem !important; font-size: 0.84rem; height: 38px !important; font-weight: 600; border-radius: 8px; width: 100%;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)" onkeydown="app.handleBookPatientKeydown(event)" tabindex="1" autofocus>
@@ -1396,10 +1421,17 @@ const app = {
             </div>
           </div>
 
-          <!-- Inline Quick Registration Form -->
-          <div id="book-new-pat-box" style="display: none; background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 0.75rem; border-radius: 8px; margin-top: 0.25rem;">
-            <div style="font-weight: 800; font-size: 0.84rem; color: #007a33; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
-              <i class="fa-solid fa-user-plus"></i> Quick Patient Registration
+          <!-- Inline Quick Registration Form (Directly open when 0 patients exist) -->
+          <div id="book-new-pat-box" style="display: ${this.bookPatients.length === 0 ? 'block' : 'none'}; background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 0.75rem; border-radius: 8px; margin-top: 0.25rem;">
+            <div style="font-weight: 800; font-size: 0.84rem; color: #007a33; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+              <span style="display: flex; align-items: center; gap: 0.35rem;">
+                <i class="fa-solid fa-user-plus"></i> ${this.bookPatients.length === 0 ? 'Register New Patient (No Patients In System)' : 'Quick Patient Registration'}
+              </span>
+              ${this.bookPatients.length === 0 ? `
+                <button type="button" onclick="app.closeModal(); app.openNewPatientModal(true);" class="btn btn-primary btn-xs" style="font-size: 0.72rem; padding: 0.15rem 0.5rem;">
+                  <i class="fa-solid fa-address-card"></i> Full Patient Form
+                </button>
+              ` : ''}
             </div>
             <div class="form-row" style="margin-bottom: 0.45rem;">
               <div class="form-group" style="margin-bottom: 0;">
@@ -1440,7 +1472,7 @@ const app = {
               </div>
             </div>
             <div style="display: flex; gap: 0.5rem;">
-              <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline btn-sm" style="height: 30px; font-size: 0.78rem;">Cancel</button>
+              ${this.bookPatients.length > 0 ? `<button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline btn-sm" style="height: 30px; font-size: 0.78rem;">Cancel</button>` : ''}
               <button type="button" onclick="app.submitBookQuickPatient()" class="btn btn-primary btn-sm" style="flex: 1; height: 30px; font-size: 0.78rem; box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);">
                 <i class="fa-solid fa-save"></i> Save & Select Patient
               </button>
@@ -1734,7 +1766,12 @@ const app = {
       return `
         <div style="padding: 1.25rem; text-align: center; color: #94a3b8; font-size: 0.84rem;">
           <i class="fa-regular fa-user-xmark" style="font-size: 1.5rem; display: block; margin-bottom: 0.4rem; color: #cbd5e1;"></i>
-          No matching patients found. Click "<strong>+ New Patient</strong>" above to register.
+          No registered patients found.
+          <div style="margin-top: 0.5rem;">
+            <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-primary btn-xs" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">
+              <i class="fa-solid fa-user-plus"></i> Register a New Patient
+            </button>
+          </div>
         </div>
       `;
     }
