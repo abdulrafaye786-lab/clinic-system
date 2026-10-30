@@ -660,16 +660,12 @@ const app = {
       });
       clearTimeout(timeoutId);
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         if (!endpoint.includes('/auth/login') && !endpoint.includes('/public/')) {
-          this.toast('Session expired or unauthenticated. Please sign in again.', 'warning');
+          this.toast('Session expired or access unauthorized. Please sign in again.', 'warning');
           this.logout();
           return { success: false, message: 'Unauthorized' };
         }
-      } else if (response.status === 403) {
-        const data = await response.json().catch(() => ({ message: 'Access Restricted' }));
-        this.toast(`🔒 ${data.message || 'Access Restricted: You do not have permission for this action.'}`, 'warning');
-        return { success: false, message: data.message || 'Permission Denied' };
       }
 
       const contentType = response.headers.get('content-type') || '';

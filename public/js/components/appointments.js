@@ -397,14 +397,20 @@ const appointmentsComponent = {
     };
 
     // Use SWR for instant 0ms UI load + background refresh
-    const res = await app.swrApi(url, (fresh) => {
-      if (fresh && fresh.success) {
-        renderAppointments(fresh.data);
-      }
-    }, 15000);
+    try {
+      const res = await app.swrApi(url, (fresh) => {
+        if (fresh && fresh.success) {
+          renderAppointments(fresh.data);
+        }
+      }, 15000);
 
-    if (res && res.success) {
-      renderAppointments(res.data);
+      if (res && res.success) {
+        renderAppointments(res.data);
+      } else {
+        renderAppointments([]);
+      }
+    } catch (e) {
+      renderAppointments([]);
     }
   },
 
