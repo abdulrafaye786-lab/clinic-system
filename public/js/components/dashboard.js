@@ -192,118 +192,132 @@ const dashboardComponent = {
       <!-- ================================================================= -->
       <!-- 4. BOTTOM: CLINICAL & PRACTICE ANALYSIS (SCROLL DOWN) -->
       <!-- ================================================================= -->
-      <div style="margin-top: 0.4rem; flex-shrink: 0;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 0.2rem;">
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.45rem;">
-            <i class="fa-solid fa-chart-pie" style="color: var(--secondary);"></i> Practice Performance & Clinical Analytics
+      <div style="margin-top: 0.5rem; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem; padding: 0 0.2rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <div style="width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid rgba(139, 92, 246, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+              <i class="fa-solid fa-chart-pie" style="font-size: 0.95rem;"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.98rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">
+                Practice Performance & Clinical Analysis
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">
+                Live executive metrics, patient flow velocity, peak congestion, and financial analytics
+              </div>
+            </div>
           </div>
-          <span class="badge badge-teal" style="font-size: 0.7rem; padding: 0.12rem 0.5rem;">Live Analytics</span>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.35rem;">
+              <span class="pulse-dot green" style="width: 6px; height: 6px;"></span> Live Analytics
+            </span>
+          </div>
         </div>
 
-        <div id="dash-view-analytics" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.95rem;">
+        <div id="dash-view-analytics" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
           
-          <!-- Chart 1: 7-Day OPD Patient Volume & Revenue Velocity -->
-          <div class="card u-morphism-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06); border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-            <div class="card-header" style="padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
-              <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: #10b981; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);">
-                  <i class="fa-solid fa-chart-area" style="font-size: 0.9rem;"></i>
+          <!-- Chart 1: 7-Day OPD Patient Volume & Velocity Spline -->
+          <div class="card u-morphism-card chart-luxury-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-card); box-shadow: 0 4px 20px -3px rgba(0,0,0,0.06);">
+            <div class="card-header" style="padding: 0.8rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(6, 182, 212, 0.18)); border: 1px solid rgba(99, 102, 241, 0.3); display: flex; align-items: center; justify-content: center; color: #6366f1;">
+                  <i class="fa-solid fa-chart-line" style="font-size: 0.95rem;"></i>
                 </div>
                 <div>
-                  <div class="card-title" style="font-size: 0.88rem; font-weight: 800; margin: 0; line-height: 1.2;">OPD Patient Velocity (7-Day Flow)</div>
-                  <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Daily patient registrations & consultation throughput</div>
+                  <div class="card-title" style="font-size: 0.9rem; font-weight: 800; margin: 0; line-height: 1.2;">Patient Flow Velocity (7-Day Curve)</div>
+                  <div style="font-size: 0.71rem; color: var(--text-muted); font-weight: 600;">Daily patient registrations & OPD consultation momentum</div>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span id="dash-weekly-badge" class="badge badge-green" style="font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 700;">
-                  <i class="fa-solid fa-bolt" style="margin-right: 3px;"></i> Live Inflow
+                <span id="dash-weekly-badge" class="badge" style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); color: #6366f1; font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 800; border-radius: 20px;">
+                  <i class="fa-solid fa-arrow-trend-up" style="margin-right: 3px;"></i> 7-Day Trend
                 </span>
               </div>
             </div>
-            <div class="card-body" style="padding: 0.85rem 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-              <div style="height: 230px; position: relative; width: 100%;">
+            <div class="card-body" style="padding: 0.9rem 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="height: 235px; position: relative; width: 100%;">
                 <canvas id="dash-weekly-chart"></canvas>
               </div>
-              <div id="dash-weekly-note" class="chart-live-data-note" style="margin-top: 0.6rem; padding: 0.35rem 0.65rem; border-radius: 8px;"></div>
+              <div id="dash-weekly-note" class="chart-live-data-note" style="margin-top: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 10px;"></div>
             </div>
           </div>
 
-          <!-- Chart 2: Hourly Queue Rush -->
-          <div class="card u-morphism-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06); border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-            <div class="card-header" style="padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
-              <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(2, 132, 199, 0.12); display: flex; align-items: center; justify-content: center; color: #0284c7; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);">
-                  <i class="fa-solid fa-wave-square" style="font-size: 0.9rem;"></i>
+          <!-- Chart 2: Hourly Peak Queue Rush Pill Bars -->
+          <div class="card u-morphism-card chart-luxury-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-card); box-shadow: 0 4px 20px -3px rgba(0,0,0,0.06);">
+            <div class="card-header" style="padding: 0.8rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.18), rgba(16, 185, 129, 0.18)); border: 1px solid rgba(2, 132, 199, 0.3); display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                  <i class="fa-solid fa-wave-square" style="font-size: 0.95rem;"></i>
                 </div>
                 <div>
-                  <div class="card-title" style="font-size: 0.88rem; font-weight: 800; margin: 0; line-height: 1.2;">Peak Queue Hours (Inflow Rush)</div>
-                  <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">OPD token arrival timeline & congestion detection</div>
+                  <div class="card-title" style="font-size: 0.9rem; font-weight: 800; margin: 0; line-height: 1.2;">Peak Queue Hours (Congestion Detector)</div>
+                  <div style="font-size: 0.71rem; color: var(--text-muted); font-weight: 600;">Hourly OPD token arrivals & clinic rush density</div>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span id="dash-hourly-badge" class="badge badge-teal" style="font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 700;">
-                  <i class="fa-solid fa-clock" style="margin-right: 3px;"></i> Slot Load
+                <span id="dash-hourly-badge" class="badge" style="background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(2, 132, 199, 0.3); color: #0284c7; font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 800; border-radius: 20px;">
+                  <i class="fa-solid fa-clock" style="margin-right: 3px;"></i> Slot Density
                 </span>
               </div>
             </div>
-            <div class="card-body" style="padding: 0.85rem 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-              <div style="height: 230px; position: relative; width: 100%;">
+            <div class="card-body" style="padding: 0.9rem 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="height: 235px; position: relative; width: 100%;">
                 <canvas id="dash-hourly-chart"></canvas>
               </div>
-              <div id="dash-hourly-note" class="chart-live-data-note" style="margin-top: 0.6rem; padding: 0.35rem 0.65rem; border-radius: 8px;"></div>
+              <div id="dash-hourly-note" class="chart-live-data-note" style="margin-top: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 10px;"></div>
             </div>
           </div>
 
-          <!-- Chart 3: Revenue Analytics & Category Breakdown -->
-          <div class="card u-morphism-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06); border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-            <div class="card-header" style="padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
-              <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(5, 150, 105, 0.12); display: flex; align-items: center; justify-content: center; color: #059669; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);">
-                  <i class="fa-solid fa-chart-pie" style="font-size: 0.9rem;"></i>
+          <!-- Chart 3: Revenue Analytics & Category Breakdown Thin Ring Donut -->
+          <div class="card u-morphism-card chart-luxury-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-card); box-shadow: 0 4px 20px -3px rgba(0,0,0,0.06);">
+            <div class="card-header" style="padding: 0.8rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.18)); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #10b981;">
+                  <i class="fa-solid fa-circle-dollar-to-slot" style="font-size: 0.95rem;"></i>
                 </div>
                 <div>
-                  <div class="card-title" style="font-size: 0.88rem; font-weight: 800; margin: 0; line-height: 1.2;">Revenue Analytics & Collections</div>
-                  <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">OPD clinical collections & service fee breakdown</div>
+                  <div class="card-title" style="font-size: 0.9rem; font-weight: 800; margin: 0; line-height: 1.2;">Clinical Revenue & Category Share</div>
+                  <div style="font-size: 0.71rem; color: var(--text-muted); font-weight: 600;">Fee collections, OPD consultations, and service totals</div>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span id="dash-revenue-badge" class="badge badge-wine" style="font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 700;">
-                  <i class="fa-solid fa-coins" style="margin-right: 3px;"></i> Financial
+                <span id="dash-revenue-badge" class="badge" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 800; border-radius: 20px;">
+                  <i class="fa-solid fa-coins" style="margin-right: 3px;"></i> Real-time
                 </span>
               </div>
             </div>
-            <div class="card-body" style="padding: 0.85rem 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-              <div style="height: 230px; position: relative; width: 100%;">
+            <div class="card-body" style="padding: 0.9rem 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="height: 235px; position: relative; width: 100%;">
                 <canvas id="dash-revenue-chart"></canvas>
               </div>
-              <div id="dash-category-breakdown" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem; justify-content: center;"></div>
-              <div id="dash-revenue-note" class="chart-live-data-note" style="margin-top: 0.6rem; padding: 0.35rem 0.65rem; border-radius: 8px;"></div>
+              <div id="dash-category-breakdown" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.55rem; justify-content: center;"></div>
+              <div id="dash-revenue-note" class="chart-live-data-note" style="margin-top: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 10px;"></div>
             </div>
           </div>
 
-          <!-- Chart 4: Specialty & Department Demand -->
-          <div class="card u-morphism-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06); border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-            <div class="card-header" style="padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
-              <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(139, 92, 246, 0.12); display: flex; align-items: center; justify-content: center; color: #8b5cf6; box-shadow: 0 2px 6px rgba(139, 92, 246, 0.2);">
-                  <i class="fa-solid fa-stethoscope" style="font-size: 0.9rem;"></i>
+          <!-- Chart 4: Specialty & Department Workload Horizontal Progress Bars -->
+          <div class="card u-morphism-card chart-luxury-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-card); box-shadow: 0 4px 20px -3px rgba(0,0,0,0.06);">
+            <div class="card-header" style="padding: 0.8rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(99, 102, 241, 0.18)); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; color: #a855f7;">
+                  <i class="fa-solid fa-stethoscope" style="font-size: 0.95rem;"></i>
                 </div>
                 <div>
-                  <div class="card-title" style="font-size: 0.88rem; font-weight: 800; margin: 0; line-height: 1.2;">Specialty Demand & Consultations</div>
-                  <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Clinical workload by department & specialty</div>
+                  <div class="card-title" style="font-size: 0.9rem; font-weight: 800; margin: 0; line-height: 1.2;">Department Workload & Demand</div>
+                  <div style="font-size: 0.71rem; color: var(--text-muted); font-weight: 600;">Doctor patient consultations distribution by medical specialty</div>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span id="dash-specialty-badge" class="badge badge-caramel" style="font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 700;">
-                  <i class="fa-solid fa-hospital-user" style="margin-right: 3px;"></i> Workload
+                <span id="dash-specialty-badge" class="badge" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); color: #a855f7; font-size: 0.68rem; padding: 0.2rem 0.55rem; font-weight: 800; border-radius: 20px;">
+                  <i class="fa-solid fa-user-doctor" style="margin-right: 3px;"></i> Caseload
                 </span>
               </div>
             </div>
-            <div class="card-body" style="padding: 0.85rem 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-              <div style="height: 230px; position: relative; width: 100%;">
+            <div class="card-body" style="padding: 0.9rem 1.1rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="height: 235px; position: relative; width: 100%;">
                 <canvas id="dash-specialty-chart"></canvas>
               </div>
-              <div id="dash-specialty-note" class="chart-live-data-note" style="margin-top: 0.6rem; padding: 0.35rem 0.65rem; border-radius: 8px;"></div>
+              <div id="dash-specialty-note" class="chart-live-data-note" style="margin-top: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 10px;"></div>
             </div>
           </div>
 
@@ -823,26 +837,28 @@ const dashboardComponent = {
       Chart.defaults.color = textColor;
 
       // =====================================================================
-      // 1. Weekly OPD Volume Curve (Animated Multi-Stop Cyan-Emerald Gradient Flow)
+      // 1. Weekly OPD Volume Curve (Luminous Dual Gradient Spline)
       // =====================================================================
       const weeklyCtx = document.getElementById('dash-weekly-chart');
       if (weeklyCtx) {
         if (this.charts.weekly) this.charts.weekly.destroy();
         const ctx = weeklyCtx.getContext('2d');
 
-        // Multi-stop neon emerald & cyan luminous gradient
+        // Multi-stop neon royal-indigo & electric-cyan luminous area gradient
         const bgGradient = ctx.createLinearGradient(0, 0, 0, 230);
-        bgGradient.addColorStop(0, 'rgba(16, 185, 129, 0.42)');
-        bgGradient.addColorStop(0.45, 'rgba(6, 182, 212, 0.18)');
-        bgGradient.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
+        bgGradient.addColorStop(0, isDark ? 'rgba(99, 102, 241, 0.45)' : 'rgba(99, 102, 241, 0.35)');
+        bgGradient.addColorStop(0.5, isDark ? 'rgba(6, 182, 212, 0.18)' : 'rgba(6, 182, 212, 0.14)');
+        bgGradient.addColorStop(1, 'rgba(99, 102, 241, 0.00)');
 
-        // Stroke line gradient
-        const strokeGradient = ctx.createLinearGradient(0, 0, 400, 0);
-        strokeGradient.addColorStop(0, '#06b6d4');
+        // Stroke line horizontal gradient
+        const strokeGradient = ctx.createLinearGradient(0, 0, 450, 0);
+        strokeGradient.addColorStop(0, '#6366f1');
+        strokeGradient.addColorStop(0.5, '#06b6d4');
         strokeGradient.addColorStop(1, '#10b981');
 
         // Build array for last 7 days ending at selectedDate
         const days = [];
+        const shortDays = [];
         const counts = [];
         const trendMap = {};
 
@@ -857,7 +873,9 @@ const dashboardComponent = {
           d.setDate(d.getDate() - i);
           const dateKey = d.toISOString().slice(0, 10);
           const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+          const dayNameOnly = d.toLocaleDateString('en-US', { weekday: 'short' });
           days.push(dateLabel);
+          shortDays.push(`${dayNameOnly} ${d.getDate()}`);
           
           let count = 0;
           if (trendMap[dateKey] !== undefined) count = trendMap[dateKey];
@@ -866,24 +884,31 @@ const dashboardComponent = {
         }
 
         const maxCount = Math.max(...counts, 0);
-        const avgDaily = counts.length > 0 ? (counts.reduce((a, b) => a + b, 0) / counts.length).toFixed(1) : 0;
+        const totalVelocity = counts.reduce((a, b) => a + b, 0);
+        const avgDaily = counts.length > 0 ? (totalVelocity / counts.length).toFixed(1) : 0;
+        const peakDayIndex = counts.indexOf(maxCount);
+        const peakDayLabel = maxCount > 0 ? days[peakDayIndex] : 'Steady Traffic';
+
+        // Custom point stylings: highlighted glow point on peak day
+        const pointRadii = counts.map(v => (v > 0 ? (v === maxCount ? 7 : 5) : 3));
+        const pointColors = counts.map(v => (v === maxCount && maxCount > 0 ? '#10b981' : '#6366f1'));
 
         this.charts.weekly = new Chart(weeklyCtx, {
           type: 'line',
           data: {
-            labels: days,
+            labels: shortDays,
             datasets: [{
               label: 'OPD Patients',
               data: counts,
               borderColor: strokeGradient,
               borderWidth: 3.5,
               backgroundColor: bgGradient,
-              tension: 0.38,
+              tension: 0.42,
               fill: true,
               pointBackgroundColor: '#ffffff',
-              pointBorderColor: '#10b981',
+              pointBorderColor: pointColors,
               pointBorderWidth: 3,
-              pointRadius: 5,
+              pointRadius: pointRadii,
               pointHoverRadius: 8,
               pointHoverBackgroundColor: '#10b981',
               pointHoverBorderColor: '#ffffff',
@@ -903,60 +928,80 @@ const dashboardComponent = {
               tooltip: {
                 backgroundColor: tooltipBg,
                 titleColor: '#ffffff',
+                titleFont: { size: 12, weight: '800' },
                 bodyColor: '#e2e8f0',
-                borderColor: '#10b981',
+                bodyFont: { size: 11.5, weight: '600' },
+                borderColor: '#6366f1',
                 borderWidth: 1.5,
                 padding: 12,
                 cornerRadius: 10,
                 boxPadding: 6,
                 usePointStyle: true,
                 callbacks: {
-                  label: (ctx) => `  ${ctx.parsed.y} Registered OPD Patients`,
-                  afterLabel: (ctx) => `  Avg Flow: ${avgDaily} / day`
+                  title: (items) => items[0] ? days[items[0].dataIndex] : '',
+                  label: (ctx) => `  ${ctx.parsed.y} OPD Patients Registered`,
+                  afterLabel: (ctx) => `  Weekly Pace: ${avgDaily} patients/day`
                 }
               }
             },
             scales: {
               x: { 
                 grid: { display: false }, 
-                ticks: { color: textColor, font: { size: 10, weight: '600' } } 
+                ticks: { color: textColor, font: { size: 10, weight: '700' } } 
               },
               y: { 
                 beginAtZero: true, 
-                suggestedMax: maxCount > 0 ? maxCount + 2 : 5,
+                suggestedMax: maxCount > 0 ? maxCount + 2 : 4,
                 grid: { color: gridColor }, 
-                ticks: { color: textColor, font: { size: 10 }, precision: 0 } 
+                ticks: { color: textColor, font: { size: 10, weight: '600' }, precision: 0 } 
               }
             }
           }
         });
 
+        const weeklyBadge = document.getElementById('dash-weekly-badge');
+        if (weeklyBadge) {
+          weeklyBadge.innerHTML = `<i class="fa-solid fa-bolt" style="margin-right: 3px;"></i> Total: <strong>${totalVelocity}</strong>`;
+        }
+
         const compToday = data.appointments ? (data.appointments.completed_count || 0) : 0;
         const waitToday = data.appointments ? (data.appointments.waiting_count || 0) : 0;
-        const totalVelocity = counts.reduce((a, b) => a + b, 0);
         const weeklyNoteEl = document.getElementById('dash-weekly-note');
         if (weeklyNoteEl) {
           weeklyNoteEl.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.74rem; font-weight: 600; flex-wrap: wrap; gap: 0.4rem;">
-              <span><i class="fa-solid fa-arrow-trend-up" style="color: #10b981; margin-right: 5px;"></i> 7-Day Velocity: <strong style="color: var(--text-main); font-size: 0.82rem;">${totalVelocity} Patients</strong> (Avg: <strong>${avgDaily}</strong>/day)</span>
-              <span style="color: var(--text-muted);"><strong style="color: #0284c7;">${waitToday}</strong> in Waiting • <strong style="color: #10b981;">${compToday}</strong> Completed</span>
+              <span>
+                <i class="fa-solid fa-arrow-trend-up" style="color: #6366f1; margin-right: 5px;"></i>
+                7-Day Inflow: <strong style="color: var(--text-main); font-size: 0.82rem;">${totalVelocity} Patients</strong> 
+                <span style="color: var(--text-muted); margin-left: 4px;">(Avg: <strong>${avgDaily}</strong>/day • Peak: <strong>${peakDayLabel}</strong>)</span>
+              </span>
+              <span style="color: var(--text-muted);">
+                <strong style="color: #0284c7;">${waitToday}</strong> in Queue • <strong style="color: #10b981;">${compToday}</strong> Completed
+              </span>
             </div>
           `;
         }
       }
 
       // =====================================================================
-      // 2. Hourly Peak Queue Rush (Animated Curved Blue-Teal Bar Chart)
+      // 2. Hourly Peak Queue Rush (Curved Pill Bar Chart with Peak Highlighter)
       // =====================================================================
       const hourlyCtx = document.getElementById('dash-hourly-chart');
       if (hourlyCtx) {
         if (this.charts.hourly) this.charts.hourly.destroy();
         const ctx = hourlyCtx.getContext('2d');
 
-        const barGradient = ctx.createLinearGradient(0, 0, 0, 230);
-        barGradient.addColorStop(0, '#38bdf8');
-        barGradient.addColorStop(0.5, '#0284c7');
-        barGradient.addColorStop(1, '#0369a1');
+        // Normal gradient
+        const normalGradient = ctx.createLinearGradient(0, 0, 0, 230);
+        normalGradient.addColorStop(0, '#38bdf8');
+        normalGradient.addColorStop(0.5, '#0284c7');
+        normalGradient.addColorStop(1, '#0369a1');
+
+        // Peak accent gradient (Vibrant Amethyst/Violet for contrast)
+        const peakGradient = ctx.createLinearGradient(0, 0, 0, 230);
+        peakGradient.addColorStop(0, '#c084fc');
+        peakGradient.addColorStop(0.5, '#9333ea');
+        peakGradient.addColorStop(1, '#6b21a8');
 
         const hourMap = {};
 
@@ -977,7 +1022,6 @@ const dashboardComponent = {
         const standardSlots = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '02:00 PM', '05:30 PM', '08:00 PM'];
         let sortedHours = [];
         if (Object.keys(hourMap).length > 0) {
-          // Sort hours chronologically
           sortedHours = Object.keys(hourMap).sort((a, b) => {
             const da = new Date('1970-01-01 ' + a);
             const db = new Date('1970-01-01 ' + b);
@@ -989,11 +1033,12 @@ const dashboardComponent = {
 
         const hourlyPatients = sortedHours.map(h => hourMap[h] || 0);
         const maxHourly = Math.max(...hourlyPatients, 0);
+        const totalScheduledToday = hourlyPatients.reduce((a, b) => a + b, 0);
 
-        // Highlight the busiest bar with an accent amber gradient
+        // Highlight the busiest bar with accent peak gradient
         const barColors = hourlyPatients.map(val => {
-          if (val === maxHourly && maxHourly > 0) return '#0ea5e9';
-          return barGradient;
+          if (val === maxHourly && maxHourly > 0) return peakGradient;
+          return normalGradient;
         });
 
         this.charts.hourly = new Chart(hourlyCtx, {
@@ -1016,55 +1061,67 @@ const dashboardComponent = {
             maintainAspectRatio: false,
             animation: {
               duration: 1100,
-              easing: 'easeOutBounce'
+              easing: 'easeOutQuart'
             },
             plugins: { 
               legend: { display: false },
               tooltip: {
                 backgroundColor: tooltipBg,
                 titleColor: '#ffffff',
+                titleFont: { size: 12, weight: '800' },
                 bodyColor: '#e2e8f0',
+                bodyFont: { size: 11.5, weight: '600' },
                 borderColor: '#0284c7',
                 borderWidth: 1.5,
                 padding: 12,
                 cornerRadius: 10,
                 callbacks: {
-                  label: (ctx) => `  ${ctx.parsed.y} Patients Scheduled`,
-                  afterLabel: (ctx) => ctx.parsed.y === maxHourly && maxHourly > 0 ? '  🔥 Busiest OPD Slot of the Day' : ''
+                  label: (ctx) => `  ${ctx.parsed.y} Patient${ctx.parsed.y === 1 ? '' : 's'} Scheduled`,
+                  afterLabel: (ctx) => ctx.parsed.y === maxHourly && maxHourly > 0 ? '  🔥 Busiest Queue Rush Hour' : '  Normal Patient Arrival Flow'
                 }
               }
             },
             scales: {
               x: { 
                 grid: { display: false }, 
-                ticks: { color: textColor, font: { size: 9.5, weight: '600' } } 
+                ticks: { color: textColor, font: { size: 9.5, weight: '700' } } 
               },
               y: { 
                 beginAtZero: true, 
-                suggestedMax: maxHourly > 0 ? maxHourly + 1 : 5,
+                suggestedMax: maxHourly > 0 ? maxHourly + 1 : 4,
                 grid: { color: gridColor }, 
-                ticks: { color: textColor, font: { size: 10 }, precision: 0 } 
+                ticks: { color: textColor, font: { size: 10, weight: '600' }, precision: 0 } 
               }
             }
           }
         });
 
+        const hourlyBadge = document.getElementById('dash-hourly-badge');
+        if (hourlyBadge) {
+          hourlyBadge.innerHTML = `<i class="fa-solid fa-clock" style="margin-right: 3px;"></i> Total: <strong>${totalScheduledToday}</strong>`;
+        }
+
         const hourlyNoteEl = document.getElementById('dash-hourly-note');
         if (hourlyNoteEl) {
           const peakSlotIndex = hourlyPatients.indexOf(maxHourly);
           const peakSlotName = maxHourly > 0 ? (sortedHours[peakSlotIndex] || '11:00 AM') : 'None';
-          const totalScheduledToday = hourlyPatients.reduce((a, b) => a + b, 0);
           hourlyNoteEl.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.74rem; font-weight: 600; flex-wrap: wrap; gap: 0.4rem;">
-              <span><i class="fa-solid fa-clock-rotate-left" style="color: #0284c7; margin-right: 5px;"></i> Peak Slot: <strong style="color: var(--text-main); font-size: 0.82rem;">${peakSlotName}</strong> (${maxHourly} patients)</span>
-              <span class="badge badge-teal" style="font-size: 0.65rem;">Total Today: <strong>${totalScheduledToday}</strong></span>
+              <span>
+                <i class="fa-solid fa-clock-rotate-left" style="color: #0284c7; margin-right: 5px;"></i>
+                Rush Slot: <strong style="color: var(--text-main); font-size: 0.82rem;">${peakSlotName}</strong> 
+                <span style="color: var(--text-muted); margin-left: 3px;">(${maxHourly} arrivals • ${maxHourly > 0 ? 'Queue Peak' : 'Clear Queue'})</span>
+              </span>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(2, 132, 199, 0.25); color: #0284c7; font-size: 0.68rem; font-weight: 700; border-radius: 6px;">
+                Today's Bookings: <strong>${totalScheduledToday}</strong>
+              </span>
             </div>
           `;
         }
       }
 
       // =====================================================================
-      // 3. Revenue Analytics & Category Breakdown (Smooth Donut with Centered Totals)
+      // 3. Revenue Analytics & Category Breakdown (Thin Ring Donut with Center Stack)
       // =====================================================================
       const revCtx = document.getElementById('dash-revenue-chart');
       if (revCtx) {
@@ -1092,22 +1149,24 @@ const dashboardComponent = {
           });
           dataValues = clinicalBreakdown.map(b => parseFloat(b.category_total || 0));
         } else {
-          // Zero state: clean empty state when no bills exist
+          // Zero state
           labels = ['OPD Consultations'];
           dataValues = [0];
         }
 
         const colors = [
-          '#059669', // Emerald (Consultation)
+          '#10b981', // Emerald (Consultation)
           '#8b5cf6', // Violet (Procedures)
           '#06b6d4', // Cyan (Nursing / Clinical)
-          '#10b981', // Emerald Green
           '#f59e0b', // Amber
-          '#ec4899'  // Pink
+          '#ec4899', // Pink
+          '#3b82f6'  // Blue
         ];
 
         // Custom center text plugin for Donut
         const totalSum = dataValues.reduce((a, b) => a + b, 0);
+        const displayTotal = revCollected > 0 ? revCollected : totalSum;
+
         const centerPlugin = {
           id: 'customCenterText',
           beforeDraw: (chart) => {
@@ -1119,14 +1178,14 @@ const dashboardComponent = {
             const centerX = chart.getDatasetMeta(0).data[0] ? chart.getDatasetMeta(0).data[0].x : width / 2;
             const centerY = chart.getDatasetMeta(0).data[0] ? chart.getDatasetMeta(0).data[0].y : height / 2;
 
-            ctx.font = '700 0.72rem "Plus Jakarta Sans", sans-serif';
+            ctx.font = '700 0.68rem "Plus Jakarta Sans", sans-serif';
             ctx.fillStyle = textColor;
-            ctx.fillText('COLLECTED', centerX, centerY - 11);
+            ctx.fillText('TOTAL COLLECTED', centerX, centerY - 12);
 
-            ctx.font = '800 1.05rem "Plus Jakarta Sans", sans-serif';
+            ctx.font = '800 1.15rem "Plus Jakarta Sans", sans-serif';
             ctx.fillStyle = isDark ? '#ffffff' : '#0f172a';
-            const displayTotal = revCollected > 0 ? revCollected : totalSum;
-            ctx.fillText(`${app.clinic.currency || 'Rs.'} ${displayTotal >= 1000 ? Math.round(displayTotal).toLocaleString() : displayTotal}`, centerX, centerY + 11);
+            const formattedMoney = `${app.clinic.currency || 'Rs.'} ${displayTotal >= 1000 ? Math.round(displayTotal).toLocaleString() : displayTotal}`;
+            ctx.fillText(formattedMoney, centerX, centerY + 11);
             ctx.restore();
           }
         };
@@ -1137,10 +1196,10 @@ const dashboardComponent = {
             labels: labels,
             datasets: [{
               data: totalSum === 0 ? [1] : dataValues,
-              backgroundColor: totalSum === 0 ? ['#e2e8f0'] : colors.slice(0, labels.length),
+              backgroundColor: totalSum === 0 ? [isDark ? '#1e293b' : '#f1f5f9'] : colors.slice(0, labels.length),
               borderWidth: 3,
-              borderColor: isDark ? '#111827' : '#ffffff',
-              hoverOffset: 8
+              borderColor: isDark ? '#0f172a' : '#ffffff',
+              hoverOffset: 6
             }]
           },
           options: {
@@ -1156,9 +1215,9 @@ const dashboardComponent = {
               legend: {
                 position: 'right',
                 labels: { 
-                  boxWidth: 12, 
-                  boxHeight: 12,
-                  borderRadius: 4,
+                  boxWidth: 10, 
+                  boxHeight: 10,
+                  borderRadius: 3,
                   color: textColor, 
                   font: { size: 10.5, weight: '700' },
                   padding: 12
@@ -1167,8 +1226,10 @@ const dashboardComponent = {
               tooltip: {
                 backgroundColor: tooltipBg,
                 titleColor: '#ffffff',
+                titleFont: { size: 12, weight: '800' },
                 bodyColor: '#e2e8f0',
-                borderColor: '#059669',
+                bodyFont: { size: 11.5, weight: '600' },
+                borderColor: '#10b981',
                 borderWidth: 1.5,
                 padding: 12,
                 cornerRadius: 10,
@@ -1182,17 +1243,22 @@ const dashboardComponent = {
                 }
               }
             },
-            cutout: '70%'
+            cutout: '74%'
           },
           plugins: [centerPlugin]
         });
+
+        const revBadge = document.getElementById('dash-revenue-badge');
+        if (revBadge) {
+          revBadge.innerHTML = `<i class="fa-solid fa-coins" style="margin-right: 3px;"></i> Inflow: <strong>${app.clinic.currency || 'Rs.'} ${displayTotal >= 1000 ? Math.round(displayTotal).toLocaleString() : displayTotal}</strong>`;
+        }
 
         const listEl = document.getElementById('dash-category-breakdown');
         if (listEl) {
           if (totalSum === 0) {
             listEl.innerHTML = `
-              <span class="badge" style="background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.25); color: var(--text-muted); font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 6px;">
-                <i class="fa-solid fa-receipt" style="margin-right: 4px; opacity: 0.7;"></i> No OPD revenue recorded for selected date
+              <span class="badge" style="background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.2); color: var(--text-muted); font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 6px;">
+                <i class="fa-solid fa-receipt" style="margin-right: 4px; opacity: 0.7;"></i> No clinical bill collections recorded for this date
               </span>
             `;
           } else {
@@ -1200,8 +1266,8 @@ const dashboardComponent = {
               const val = dataValues[idx] || 0;
               const pct = totalSum > 0 ? ((val / totalSum) * 100).toFixed(0) : 0;
               return `
-                <span class="badge" style="background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.16); color: var(--text-main); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px;">
-                  <span style="color: ${colors[idx % colors.length]}; font-size: 0.85rem; line-height: 1;">●</span> ${lbl}: ${app.clinic.currency || 'Rs.'} ${val.toLocaleString()} <span style="color: var(--text-muted); font-size: 0.65rem;">(${pct}%)</span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--text-main); font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px;">
+                  <span style="color: ${colors[idx % colors.length]}; font-size: 0.85rem; line-height: 1;">●</span> ${lbl}: <strong>${app.clinic.currency || 'Rs.'} ${val.toLocaleString()}</strong> <span style="color: var(--text-muted); font-size: 0.65rem;">(${pct}%)</span>
                 </span>
               `;
             }).join(' ');
@@ -1210,18 +1276,21 @@ const dashboardComponent = {
 
         const revNoteEl = document.getElementById('dash-revenue-note');
         if (revNoteEl) {
-          const displayCollected = revCollected > 0 ? revCollected : totalSum;
           revNoteEl.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.74rem; font-weight: 600; flex-wrap: wrap; gap: 0.4rem;">
-              <span><i class="fa-solid fa-circle-check" style="color: #059669; margin-right: 5px;"></i> Total Inflow: <strong style="color: var(--text-main); font-size: 0.82rem;">${app.clinic.currency || 'Rs.'} ${displayCollected.toLocaleString()}</strong></span>
-              <span class="badge badge-green" style="font-size: 0.65rem;">Real-time Settlement</span>
+              <span>
+                <i class="fa-solid fa-circle-check" style="color: #10b981; margin-right: 5px;"></i>
+                Financial Volume: <strong style="color: var(--text-main); font-size: 0.82rem;">${app.clinic.currency || 'Rs.'} ${displayTotal.toLocaleString()}</strong>
+                <span style="color: var(--text-muted); margin-left: 4px;">(${revBilled > 0 ? 'Billed: ' + (app.clinic.currency || 'Rs.') + ' ' + revBilled.toLocaleString() : 'Settled In Real-Time'})</span>
+              </span>
+              <span class="badge badge-green" style="font-size: 0.65rem; padding: 0.15rem 0.45rem;">Real-time Settlement</span>
             </div>
           `;
         }
       }
 
       // =====================================================================
-      // 4. Specialty Demand & Consultations (Vibrant Horizontal Bar Chart)
+      // 4. Specialty Demand & Consultations (Vibrant Horizontal Capsule Bars)
       // =====================================================================
       const specCtx = document.getElementById('dash-specialty-chart');
       if (specCtx) {
@@ -1259,14 +1328,14 @@ const dashboardComponent = {
           specData = [0];
         }
 
-        // Modern vibrant medical palette with rounded bars
+        // Modern vibrant medical palette with rounded capsule bars
         const barColors = [
+          '#a855f7', // Purple/Amethyst
           '#6366f1', // Indigo
-          '#10b981', // Emerald
           '#06b6d4', // Cyan
+          '#10b981', // Emerald
           '#f59e0b', // Amber
           '#ec4899', // Pink
-          '#8b5cf6', // Purple
           '#3b82f6'  // Blue
         ];
 
@@ -1300,8 +1369,10 @@ const dashboardComponent = {
               tooltip: {
                 backgroundColor: tooltipBg,
                 titleColor: '#ffffff',
+                titleFont: { size: 12, weight: '800' },
                 bodyColor: '#e2e8f0',
-                borderColor: '#6366f1',
+                bodyFont: { size: 11.5, weight: '600' },
+                borderColor: '#a855f7',
                 borderWidth: 1.5,
                 padding: 12,
                 cornerRadius: 10,
@@ -1309,7 +1380,7 @@ const dashboardComponent = {
                   label: (ctx) => `  ${ctx.parsed.x} Active Patient Consultations`,
                   afterLabel: (ctx) => {
                     const pct = totalConsults > 0 ? ((ctx.parsed.x / totalConsults) * 100).toFixed(0) : 0;
-                    return `  Share of Total OPD Load: ${pct}%`;
+                    return `  Share of OPD Volume: ${pct}%`;
                   }
                 }
               }
@@ -1317,9 +1388,9 @@ const dashboardComponent = {
             scales: {
               x: { 
                 beginAtZero: true, 
-                suggestedMax: maxSpec > 0 ? maxSpec + 1 : 5,
+                suggestedMax: maxSpec > 0 ? maxSpec + 1 : 4,
                 grid: { color: gridColor }, 
-                ticks: { color: textColor, font: { size: 10 }, precision: 0 } 
+                ticks: { color: textColor, font: { size: 10, weight: '600' }, precision: 0 } 
               },
               y: { 
                 grid: { display: false }, 
@@ -1336,15 +1407,26 @@ const dashboardComponent = {
           }
         });
 
+        const specBadge = document.getElementById('dash-specialty-badge');
+        if (specBadge) {
+          specBadge.innerHTML = `<i class="fa-solid fa-stethoscope" style="margin-right: 3px;"></i> Total: <strong>${totalConsults}</strong>`;
+        }
+
         const specNoteEl = document.getElementById('dash-specialty-note');
         if (specNoteEl) {
           const topSpecIndex = specData.indexOf(maxSpec);
-          const topSpecName = specLabels[topSpecIndex] || 'Child Specialist';
+          const topSpecName = maxSpec > 0 ? (specLabels[topSpecIndex] || 'General OPD') : 'All Departments Balanced';
           const topPct = totalConsults > 0 ? ((maxSpec / totalConsults) * 100).toFixed(0) : 0;
           specNoteEl.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.74rem; font-weight: 600; flex-wrap: wrap; gap: 0.4rem;">
-              <span><i class="fa-solid fa-stethoscope" style="color: #6366f1; margin-right: 5px;"></i> Busiest Department: <strong style="color: var(--text-main); font-size: 0.82rem;">${topSpecName}</strong> (${maxSpec} patients, ${topPct}%)</span>
-              <span class="badge badge-caramel" style="font-size: 0.65rem;">Highest Load</span>
+              <span>
+                <i class="fa-solid fa-user-doctor" style="color: #a855f7; margin-right: 5px;"></i>
+                Top Department: <strong style="color: var(--text-main); font-size: 0.82rem;">${topSpecName}</strong> 
+                <span style="color: var(--text-muted); margin-left: 3px;">(${maxSpec} patients • ${topPct}% caseload)</span>
+              </span>
+              <span class="badge" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.25); color: #a855f7; font-size: 0.68rem; font-weight: 700; border-radius: 6px;">
+                Active Caseload: <strong>${totalConsults}</strong>
+              </span>
             </div>
           `;
         }
