@@ -1378,23 +1378,15 @@ const app = {
         <div style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 0.85rem 1rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
             <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.45rem;">
-              <span style="width: 22px; height: 22px; border-radius: 50%; background: #00c853; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800;">1</span>
-              <span>Patient Details</span>
+              <span style="width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800;">1</span>
+              <span>Select Patient</span>
               <span class="required">*</span>
             </div>
-            ${this.bookPatients.length > 0 ? `
-              <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline-primary btn-sm" id="btn-toggle-new-pat" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; height: 28px; border-radius: 6px;" tabindex="3">
-                <i class="fa-solid fa-user-plus"></i> + New Patient
-              </button>
-            ` : `
-              <span class="badge badge-warning" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700;">
-                <i class="fa-solid fa-triangle-exclamation"></i> Register New Patient
-              </span>
-            `}
+            <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 600;">Choose registered patient from directory</span>
           </div>
 
-          <!-- Existing Patient Search & Selected Badge (Shown if patients exist) -->
-          <div id="book-existing-pat-box" style="display: ${this.bookPatients.length > 0 ? 'block' : 'none'};">
+          <!-- Existing Patient Search & Selected Badge -->
+          <div id="book-existing-pat-box">
             <div style="position: relative; display: flex; align-items: center;">
               <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; color: var(--primary); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
               <input type="text" id="book-pat-filter-input" name="gclinic_patient_search_input_${Date.now()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control" style="padding-left: 2.4rem !important; font-size: 0.84rem; height: 38px !important; font-weight: 600; border-radius: 8px; width: 100%;" placeholder="Search patient by name, MRN, or phone number..." value="${patient ? `${patient.mrn} - ${patient.full_name}` : ''}" onfocus="app.renderBookPatientList(this.value)" onclick="app.renderBookPatientList(this.value)" oninput="app.filterBookPatientsList(this.value)" onkeydown="app.handleBookPatientKeydown(event)" tabindex="1" autofocus>
@@ -1406,11 +1398,11 @@ const app = {
               ${this.renderBookPatientRowsHtml(this.bookPatients)}
             </div>
 
-            <div id="book-pat-preview" style="background: rgba(5, 181, 85, 0.08); border: 1.5px solid rgba(5, 181, 85, 0.35); padding: 0.4rem 0.65rem; border-radius: 8px; display: ${patient ? 'flex' : 'none'}; justify-content: space-between; align-items: center; margin-top: 0.4rem;">
+            <div id="book-pat-preview" style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.35); padding: 0.4rem 0.65rem; border-radius: 8px; display: ${patient ? 'flex' : 'none'}; justify-content: space-between; align-items: center; margin-top: 0.4rem;">
               ${patient ? `
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                  <span style="font-weight: 800; font-size: 0.85rem; color: #007a33; display: flex; align-items: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> ${patient.full_name}
+                  <span style="font-weight: 800; font-size: 0.85rem; color: var(--primary); display: flex; align-items: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-circle-check"></i> ${patient.full_name}
                   </span>
                   <span style="font-family: monospace; font-weight: 700; font-size: 0.72rem; color: var(--primary); background: var(--bg-card); padding: 0.1rem 0.35rem; border-radius: 4px; border: 1px solid var(--border-color);">MRN: #${patient.mrn}</span>
                   <span class="badge ${patient.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">${patient.gender || '-'}, ${patient.age || '-'}Y</span>
@@ -1418,64 +1410,6 @@ const app = {
                 </div>
                 <button type="button" onclick="app.clearBookPatientSelection()" class="btn btn-outline btn-xs" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; height: 22px;" title="Change / Clear Patient">Change</button>
               ` : ''}
-            </div>
-          </div>
-
-          <!-- Inline Quick Registration Form (Directly open when 0 patients exist) -->
-          <div id="book-new-pat-box" style="display: ${this.bookPatients.length === 0 ? 'block' : 'none'}; background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 0.75rem; border-radius: 8px; margin-top: 0.25rem;">
-            <div style="font-weight: 800; font-size: 0.84rem; color: #007a33; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-              <span style="display: flex; align-items: center; gap: 0.35rem;">
-                <i class="fa-solid fa-user-plus"></i> ${this.bookPatients.length === 0 ? 'Register New Patient (No Patients In System)' : 'Quick Patient Registration'}
-              </span>
-              ${this.bookPatients.length === 0 ? `
-                <button type="button" onclick="app.closeModal(); app.openNewPatientModal(true);" class="btn btn-primary btn-xs" style="font-size: 0.72rem; padding: 0.15rem 0.5rem;">
-                  <i class="fa-solid fa-address-card"></i> Full Patient Form
-                </button>
-              ` : ''}
-            </div>
-            <div class="form-row" style="margin-bottom: 0.45rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;"><span class="required">*</span> Full Name</label>
-                <input type="text" id="book-np-name" class="form-control" placeholder="e.g. Muhammad Ali" style="height: 32px; font-size: 0.82rem;">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;"><span class="required">*</span> Mobile Number</label>
-                <input type="tel" id="book-np-phone" class="form-control" placeholder="0300-1234567" style="height: 32px; font-size: 0.82rem;">
-              </div>
-            </div>
-            <div class="form-row" style="margin-bottom: 0.55rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;"><span class="required">*</span> Gender</label>
-                <select id="book-np-gender" class="form-control" style="height: 32px; font-size: 0.82rem; padding: 0.2rem 0.45rem;">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;"><span class="required">*</span> Date of Birth</label>
-                <input type="date" id="book-np-dob" class="form-control" style="height: 32px; font-size: 0.82rem; padding: 0.2rem 0.45rem;" onchange="app.calcAgeFromDob('book-np-dob', 'book-np-age-display')" required>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;">Blood Group</label>
-                <select id="book-np-blood" class="form-control" style="height: 32px; font-size: 0.82rem; padding: 0.2rem 0.45rem;">
-                  <option value="Unknown">Unknown</option>
-                  <option value="A+">A+</option>
-                  <option value="B+">B+</option>
-                  <option value="O+">O+</option>
-                  <option value="AB+">AB+</option>
-                  <option value="A-">A-</option>
-                  <option value="B-">B-</option>
-                  <option value="O-">O-</option>
-                  <option value="AB-">AB-</option>
-                </select>
-              </div>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-              ${this.bookPatients.length > 0 ? `<button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-outline btn-sm" style="height: 30px; font-size: 0.78rem;">Cancel</button>` : ''}
-              <button type="button" onclick="app.submitBookQuickPatient()" class="btn btn-primary btn-sm" style="flex: 1; height: 30px; font-size: 0.78rem; box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);">
-                <i class="fa-solid fa-save"></i> Save & Select Patient
-              </button>
             </div>
           </div>
         </div>
@@ -1764,14 +1698,9 @@ const app = {
   renderBookPatientRowsHtml(patientsList) {
     if (!patientsList || patientsList.length === 0) {
       return `
-        <div style="padding: 1.25rem; text-align: center; color: #94a3b8; font-size: 0.84rem;">
-          <i class="fa-regular fa-user-xmark" style="font-size: 1.5rem; display: block; margin-bottom: 0.4rem; color: #cbd5e1;"></i>
-          No registered patients found.
-          <div style="margin-top: 0.5rem;">
-            <button type="button" onclick="app.toggleBookInlineRegister()" class="btn btn-primary btn-xs" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">
-              <i class="fa-solid fa-user-plus"></i> Register a New Patient
-            </button>
-          </div>
+        <div style="padding: 1.25rem; text-align: center; color: var(--text-muted); font-size: 0.84rem;">
+          <i class="fa-regular fa-user-xmark" style="font-size: 1.5rem; display: block; margin-bottom: 0.4rem; color: var(--text-light);"></i>
+          No registered patients found. Please register the patient from <strong>All Patients</strong> directory.
         </div>
       `;
     }
@@ -1788,13 +1717,13 @@ const app = {
                 ${p.full_name} 
                 <span class="badge ${p.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.68rem; padding: 0.1rem 0.4rem; margin-left: 4px;">${p.gender}, ${p.age} Yrs</span>
               </div>
-              <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">
-                MRN: <strong style="color: #00c853; font-family: monospace;">${p.mrn}</strong> • Phone: <strong>${p.phone}</strong> • Blood: <strong>${p.blood_group || 'Unknown'}</strong>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                MRN: <strong style="color: var(--primary); font-family: monospace;">${p.mrn}</strong> • Phone: <strong>${p.phone}</strong> • Blood: <strong>${p.blood_group || 'Unknown'}</strong>
               </div>
             </div>
           </div>
           <div>
-            ${isSelected ? '<span class="badge badge-green"><i class="fa-solid fa-check"></i> Selected</span>' : '<span style="font-size: 0.75rem; color: #00c853; font-weight: 700;">Select <i class="fa-solid fa-chevron-right"></i></span>'}
+            ${isSelected ? '<span class="badge badge-green"><i class="fa-solid fa-check"></i> Selected</span>' : '<span style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">Select <i class="fa-solid fa-chevron-right"></i></span>'}
           </div>
         </div>
       `;
@@ -1901,8 +1830,8 @@ const app = {
       preview.style.alignItems = 'center';
       preview.innerHTML = `
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <span style="font-weight: 800; font-size: 0.85rem; color: #007a33; display: flex; align-items: center; gap: 0.3rem;">
-            <i class="fa-solid fa-circle-check" style="color: #00c853;"></i> ${pat.full_name}
+          <span style="font-weight: 800; font-size: 0.85rem; color: var(--primary); display: flex; align-items: center; gap: 0.3rem;">
+            <i class="fa-solid fa-circle-check"></i> ${pat.full_name}
           </span>
           <span style="font-family: monospace; font-weight: 700; font-size: 0.72rem; color: var(--primary); background: var(--bg-card); padding: 0.1rem 0.35rem; border-radius: 4px; border: 1px solid var(--border-color);">MRN: #${pat.mrn}</span>
           <span class="badge ${pat.gender === 'Female' ? 'badge-rose' : 'badge-blue'}" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">${pat.gender || '-'}, ${pat.age || '-'}Y</span>
