@@ -131,10 +131,7 @@ const patientsComponent = {
             </td>
             <td style="text-align: right; white-space: nowrap;">
               <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
-                <button onclick="app.openBookAppointmentModal(${p.id})" class="btn btn-outline-primary btn-sm" title="Book Appointment for this Patient">
-                  <i class="fa-solid fa-calendar-plus"></i> Book
-                </button>
-                <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="View 360 EHR Record" style="box-shadow: var(--green-glow);">
+                                <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="View 360 EHR Record" style="box-shadow: var(--green-glow);">
                   <i class="fa-solid fa-folder-open"></i> 360 EHR
                 </button>
                 <button onclick="patientsComponent.openEditPatientModal(${p.id})" class="btn-edit-action" title="Re-edit Patient Information">

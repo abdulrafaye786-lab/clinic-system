@@ -208,9 +208,6 @@ const doctorsComponent = {
                     </div>
                   </div>
                   <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                    <button onclick="app.openBookAppointmentModal(null, ${d.id})" class="btn btn-primary btn-sm" title="Book Appointment with Doctor" style="box-shadow: var(--green-glow); padding: 0.2rem 0.5rem; font-size: 0.74rem;">
-                      <i class="fa-solid fa-calendar-plus"></i> Book
-                    </button>
                     <button onclick="doctorsComponent.openAddRosterModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Add Another Roster Slot" style="color: var(--secondary); border-color: rgba(13, 148, 136, 0.4); padding: 0.2rem 0.45rem; font-size: 0.74rem;">
                       <i class="fa-regular fa-clock"></i> + Roster
                     </button>
@@ -276,9 +273,6 @@ const doctorsComponent = {
                       <div style="display: inline-flex; gap: 0.25rem; align-items: center; justify-content: flex-end;">
                         <button onclick="doctorsComponent.openDoctorDetailsModal(${d.id})" class="btn btn-outline btn-sm" title="View Duty Schedule & Profile Details" style="padding: 0.18rem 0.45rem; font-size: 0.72rem; height: 26px;">
                           <i class="fa-solid fa-circle-info"></i> Details
-                        </button>
-                        <button onclick="app.openBookAppointmentModal(null, ${d.id})" class="btn btn-primary btn-sm" title="Book Appointment" style="padding: 0.18rem 0.45rem; font-size: 0.72rem; height: 26px;">
-                          <i class="fa-solid fa-calendar-plus"></i>
                         </button>
                         <button onclick="doctorsComponent.openAddRosterModal(${d.id})" class="btn btn-outline btn-sm admin-only-btn" title="Add Roster Shift" style="padding: 0.18rem 0.4rem; font-size: 0.72rem; height: 26px; color: var(--secondary); border-color: rgba(13, 148, 136, 0.4);">
                           <i class="fa-regular fa-clock"></i>
@@ -955,9 +949,6 @@ const doctorsComponent = {
         <div style="display: flex; gap: 0.5rem;">
           <button type="button" class="btn btn-outline btn-sm admin-only-btn" onclick="app.closeModal(); doctorsComponent.openEditDoctorModal(${d.id});">
             <i class="fa-solid fa-pen-to-square"></i> Edit Profile
-          </button>
-          <button type="button" class="btn btn-primary btn-sm" onclick="app.closeModal(); app.openBookAppointmentModal(null, ${d.id});">
-            <i class="fa-solid fa-calendar-plus"></i> Book Appointment
           </button>
         </div>
       </div>

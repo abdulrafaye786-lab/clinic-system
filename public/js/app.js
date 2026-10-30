@@ -163,10 +163,15 @@ const app = {
           this.openNewPatientModal();
           return;
         }
-        // Alt + A / Alt + B: Book Appointment Modal
+        // Alt + A / Alt + B: Book Appointment Modal (Appointments Queue & Dashboard only)
         if (key === 'a' || key === 'b') {
           e.preventDefault();
-          this.openBookAppointmentModal();
+          if (this.currentView !== 'appointments' && this.currentView !== 'dashboard') {
+            this.navigate('appointments');
+            setTimeout(() => this.openBookAppointmentModal(), 150);
+          } else {
+            this.openBookAppointmentModal();
+          }
           return;
         }
         // Alt + D: Add Doctor Modal
@@ -707,6 +712,10 @@ const app = {
           this.clearClientCache('/dashboard');
           this.clearClientCache('/appointments');
         }
+        // Auto-refresh active view so the user never has to press refresh/F5 manually
+        setTimeout(() => {
+          this.refreshActiveView();
+        }, 80);
       }
 
       // Cache successful GET requests for instant repeat views
@@ -1525,8 +1534,19 @@ const app = {
   // ==========================================================================
   // ==========================================================================
   // UNIFIED SINGLE-FORM APPOINTMENT BOOKING (1 Single Form, No Multi-Step Wizard)
+  // Strict Constraint: Can only be booked from Appointments Queue or Dashboard
   // ==========================================================================
   async openBookAppointmentModal(preselectedPatientId = null, preselectedDoctorId = null, preselectedDate = null) {
+    // Restrict booking to Appointments Queue and Dashboard only
+    if (this.currentView !== 'appointments' && this.currentView !== 'dashboard') {
+      this.toast('Appointments can only be booked from the Appointments Queue or Dashboard.', 'info');
+      this.navigate('appointments');
+      setTimeout(() => {
+        this.openBookAppointmentModal(preselectedPatientId, preselectedDoctorId, preselectedDate);
+      }, 150);
+      return;
+    }
+
     this.bookState = {
       patient: null,
       doctor: null,
@@ -4171,9 +4191,6 @@ const app = {
           <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
             <button class="btn btn-outline" style="color: var(--wine-red); border-color: rgba(136, 19, 55, 0.4);" onclick="app.deletePatientFromModal(${patientId}, '${(p.full_name || 'Patient').replace(/'/g, "\\'")}')" title="Delete Patient Record">
               <i class="fa-solid fa-trash-can"></i> Delete Patient Record
-            </button>
-            <button class="btn btn-primary" onclick="app.openBookAppointmentModal(${patientId})">
-              <i class="fa-solid fa-calendar-plus"></i> Book New Appointment
             </button>
           </div>
         </div>

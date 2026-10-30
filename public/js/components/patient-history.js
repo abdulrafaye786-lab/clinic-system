@@ -618,10 +618,7 @@ const patientHistoryComponent = {
                       <button onclick="app.openPatientHistoryModal(${p.id})" class="btn btn-primary btn-sm" title="Full Medical History" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; height: 24px; line-height: 1;">
                         <i class="fa-solid fa-clock-rotate-left"></i> History
                       </button>
-                      <button onclick="app.openBookAppointmentModal(${p.id})" class="btn btn-success btn-sm" title="Book Doctor Consultation" style="padding: 0.15rem 0.45rem; font-size: 0.7rem; height: 24px; line-height: 1;">
-                        <i class="fa-solid fa-calendar-plus"></i> Book
-                      </button>
-                      <button onclick="patientsComponent.deletePatient(${p.id}, '${safeName}')" class="btn btn-outline btn-sm" title="Delete Patient Record" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; height: 24px; line-height: 1; color: var(--wine-red); border-color: rgba(136, 19, 55, 0.35);">
+                                            <button onclick="patientsComponent.deletePatient(${p.id}, '${safeName}')" class="btn btn-outline btn-sm" title="Delete Patient Record" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; height: 24px; line-height: 1; color: var(--wine-red); border-color: rgba(136, 19, 55, 0.35);">
                         <i class="fa-solid fa-trash-can"></i>
                       </button>
                     </div>
@@ -724,10 +721,7 @@ const patientHistoryComponent = {
             <button onclick="app.openPatientHistoryModal(${p.id})" class="p360-btn p360-btn-history" title="Full Medical History">
               <i class="fa-solid fa-clock-rotate-left"></i> History
             </button>
-            <button onclick="app.openBookAppointmentModal(${p.id})" class="p360-btn p360-btn-book" title="Book Doctor Consultation">
-              <i class="fa-solid fa-calendar-plus"></i> Book
-            </button>
-          </div>
+                      </div>
 
         </div>
       `;
@@ -868,10 +862,7 @@ const patientHistoryComponent = {
             <button class="btn btn-outline btn-sm" onclick="app.closeModal(); app.openPatientHistoryModal(${p.id})">
               <i class="fa-solid fa-clock-rotate-left"></i> Full History
             </button>
-            <button class="btn btn-success btn-sm" onclick="app.closeModal(); app.openBookAppointmentModal(${p.id})">
-              <i class="fa-solid fa-calendar-plus"></i> Book
-            </button>
-          </div>
+                      </div>
         </div>
       `;
 
