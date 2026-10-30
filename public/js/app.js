@@ -104,6 +104,7 @@ const app = {
     }
 
     this.startLiveClock();
+    this.startAnimatedFavicon();
     this.initGlobalShortcuts();
 
     if (this.token && this.user) {
@@ -434,6 +435,116 @@ const app = {
     };
     updateClock();
     setInterval(updateClock, 1000);
+  },
+
+  // --------------------------------------------------------------------------
+  // BROWSER TAB ANIMATED FUTURISTIC LOGO / FAVICON
+  // --------------------------------------------------------------------------
+  startAnimatedFavicon() {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+
+      let angle = 0;
+      let pulse = 0;
+
+      const drawFrame = () => {
+        angle = (angle + 0.05) % (Math.PI * 2);
+        pulse = (pulse + 0.08) % (Math.PI * 2);
+
+        ctx.clearRect(0, 0, 32, 32);
+
+        // 1. Futuristic rounded dark background
+        ctx.save();
+        ctx.beginPath();
+        const r = 7;
+        ctx.moveTo(2 + r, 2);
+        ctx.lineTo(30 - r, 2);
+        ctx.quadraticCurveTo(30, 2, 30, 2 + r);
+        ctx.lineTo(30, 30 - r);
+        ctx.quadraticCurveTo(30, 30, 30 - r, 30);
+        ctx.lineTo(2 + r, 30);
+        ctx.quadraticCurveTo(2, 30, 2, 30 - r);
+        ctx.lineTo(2, 2 + r);
+        ctx.quadraticCurveTo(2, 2, 2 + r, 2);
+        ctx.closePath();
+        ctx.fillStyle = '#090d16';
+        ctx.fill();
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        // 2. Rotating Gyroscope Orbital Ring 1
+        ctx.save();
+        ctx.translate(16, 16);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Quantum orbiting node
+        ctx.beginPath();
+        ctx.arc(11, 0, 1.6, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.restore();
+
+        // 3. Counter-rotating Gyroscope Orbital Ring 2
+        ctx.save();
+        ctx.translate(16, 16);
+        ctx.rotate(-angle * 1.2 + 0.8);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Quantum orbiting node 2
+        ctx.beginPath();
+        ctx.arc(-11, 0, 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = '#34d399';
+        ctx.fill();
+        ctx.restore();
+
+        // 4. Central Futuristic Medical Cross
+        ctx.save();
+        ctx.translate(16, 16);
+        ctx.fillStyle = '#6366f1';
+        
+        // Vertical Arm
+        ctx.fillRect(-2, -7, 4, 14);
+        // Horizontal Arm
+        ctx.fillRect(-7, -2, 14, 4);
+
+        // Pulsing quantum heart center
+        const beat = 1.6 + Math.sin(pulse) * 0.7;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(1, beat), 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.restore();
+
+        link.href = canvas.toDataURL('image/png');
+      };
+
+      // Run smooth tab animation at ~20fps (energy-conscious for browsers)
+      setInterval(drawFrame, 50);
+    } catch (err) {
+      console.warn('Animated favicon error:', err);
+    }
   },
 
   // Calculate age automatically from Date of Birth
