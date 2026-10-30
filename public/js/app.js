@@ -660,11 +660,22 @@ const app = {
       });
       clearTimeout(timeoutId);
 
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         if (!endpoint.includes('/auth/login') && !endpoint.includes('/public/')) {
-          this.toast('Session expired or access unauthorized. Please sign in again.', 'warning');
+          this.toast('Session expired. Please sign in again.', 'warning');
           this.logout();
           return { success: false, message: 'Unauthorized' };
+        }
+      } else if (response.status === 403) {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errData = await response.json().catch(() => ({}));
+          this.toast(errData.message || 'Permission denied for this action.', 'warning');
+          return { success: false, message: errData.message || 'Permission Denied' };
+        } else {
+          // CDN / WAF or transient challenge response
+          console.warn(`Transient 403 protection response on ${endpoint}`);
+          return { success: false, message: 'Server is validating connection. Please click submit again.' };
         }
       }
 
