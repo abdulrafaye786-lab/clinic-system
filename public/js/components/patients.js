@@ -544,7 +544,7 @@ const patientsComponent = {
                 ${p.age ? `<span class="badge badge-teal" style="font-size: 0.76rem; font-weight: 800;"><i class="fa-solid fa-cake-candles"></i> ${p.age} Yrs</span>` : ''}
               </div>
             </div>
-            <input type="date" id="ep-dob" class="form-control" value="${p.dob ? new Date(p.dob).toISOString().slice(0,10) : ''}" onchange="app.calcAgeFromDob('ep-dob', 'ep-age-display')" oninput="app.calcAgeFromDob('ep-dob', 'ep-age-display')" required>
+            <input type="date" id="ep-dob" class="form-control" min="1900-01-01" max="${app.getLocalISODate()}" value="${p.dob ? new Date(p.dob).toISOString().slice(0,10) : ''}" onchange="app.calcAgeFromDob('ep-dob', 'ep-age-display')" oninput="app.calcAgeFromDob('ep-dob', 'ep-age-display')" required>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">CNIC (13 Digits Only)</label>

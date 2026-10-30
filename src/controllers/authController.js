@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { JWT_SECRET } = require('../middleware/auth');
 
-const ALLOWED_ROLES = ['admin', 'doctor', 'receptionist', 'pharmacist', 'cashier'];
+const ALLOWED_ROLES = ['admin', 'receptionist'];
 
 async function login(req, res) {
   try {

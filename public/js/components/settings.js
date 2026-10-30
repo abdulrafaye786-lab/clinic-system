@@ -8,14 +8,14 @@ const settingsComponent = {
   async render(container) {
     container.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-        <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-          <button class="btn btn-sm ${this.activeTab === 'clinic' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('clinic')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem;">
+        <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;" id="settings-tab-bar">
+          <button id="settings-tab-btn-clinic" class="btn btn-sm ${this.activeTab === 'clinic' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('clinic')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem;">
             <i class="fa-solid fa-hospital"></i> Clinic Profile & Setup
           </button>
-          <button class="btn btn-sm ${this.activeTab === 'users' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('users')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem;">
+          <button id="settings-tab-btn-users" class="btn btn-sm ${this.activeTab === 'users' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('users')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem;">
             <i class="fa-solid fa-users-gear"></i> Staff Users & Permissions
           </button>
-          <button class="btn btn-sm ${this.activeTab === 'guide' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('guide')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem; border-color: #059669;">
+          <button id="settings-tab-btn-guide" class="btn btn-sm ${this.activeTab === 'guide' ? 'btn-primary' : 'btn-outline'}" onclick="settingsComponent.switchTab('guide')" style="padding: 0.25rem 0.7rem; font-size: 0.78rem;">
             <i class="fa-solid fa-book-medical"></i> Application User Guide & Manual
           </button>
         </div>
@@ -37,6 +37,22 @@ const settingsComponent = {
     this.activeTab = tab;
     const actionEl = document.getElementById('settings-header-action');
     const contentEl = document.getElementById('settings-content-area');
+
+    // Update tab buttons active/highlight state
+    const tabs = ['clinic', 'users', 'guide'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`settings-tab-btn-${t}`);
+      if (btn) {
+        if (t === tab) {
+          btn.classList.add('btn-primary');
+          btn.classList.remove('btn-outline');
+        } else {
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-outline');
+        }
+      }
+    });
+
     if (!contentEl) return;
 
     if (tab === 'clinic') {
@@ -736,6 +752,10 @@ const settingsComponent = {
   },
 
   async deleteUser(userId, username) {
+    if (username === 'admin' || username === 'reception') {
+      app.toast(`System user "${username}" cannot be deleted as it is a core account.`, 'warning');
+      return;
+    }
     if (!confirm(`Are you sure you want to permanently delete user "${username}" from the database?`)) return;
     const res = await app.api(`/auth/users/${userId}`, { method: 'DELETE' });
     if (res.success) {

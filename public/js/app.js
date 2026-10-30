@@ -547,26 +547,97 @@ const app = {
     }
   },
 
-  // Calculate age automatically from Date of Birth
-  calcAgeFromDob(dobInputId, displayId) {
-    const dobInput = document.getElementById(dobInputId);
-    const displayEl = document.getElementById(displayId);
-    if (!dobInput || !dobInput.value) {
-      if (displayEl) displayEl.innerHTML = '<span style="color: #94a3b8; font-weight: 500; font-size: 0.78rem;">Select Date of Birth</span>';
+  // Calculate age automatically from Date of Birth (Clean Local Date Parsing)
+  calcAgeFromDob(dobInputId, displayId = null) {
+    const el = document.getElementById(dobInputId);
+    if (!el || !el.value) {
+      if (displayId) {
+        const disp = document.getElementById(displayId);
+        if (disp) disp.innerHTML = '<span style="color: var(--text-muted); font-size: 0.72rem;">Select Date of Birth</span>';
+      }
       return null;
     }
-    const birth = new Date(dobInput.value);
+
+    const val = el.value.trim();
+    // Validate YYYY-MM-DD pattern
+    const parts = val.split('-');
+    if (parts.length !== 3) return null;
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+
+    // Ensure valid 4-digit year and reasonable range
     const today = new Date();
-    let years = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-      years--;
+    const currentYear = today.getFullYear();
+    if (isNaN(year) || year < 1900 || year > currentYear || parts[0].length !== 4) {
+      if (displayId) {
+        const disp = document.getElementById(displayId);
+        if (disp) disp.innerHTML = '<span style="color: var(--warning); font-size: 0.72rem;">Enter 4-digit Year</span>';
+      }
+      return null;
     }
-    if (isNaN(years) || years < 0) years = 0;
-    if (displayEl) {
-      displayEl.innerHTML = `<span class="badge badge-teal" style="font-size: 0.78rem; font-weight: 800;"><i class="fa-solid fa-cake-candles"></i> ${years} Years Old</span>`;
+
+    // Local date comparison (avoids UTC timezone shift bug)
+    let age = currentYear - year;
+    const currentMonth = today.getMonth() + 1; // 1-12
+    const currentDay = today.getDate();
+
+    if (currentMonth < month || (currentMonth === month && currentDay < day)) {
+      age--;
     }
-    return years;
+
+    if (isNaN(age) || age < 0) age = 0;
+
+    if (displayId) {
+      const disp = document.getElementById(displayId);
+      if (disp) {
+        disp.innerHTML = `<span class="badge badge-teal" style="font-size: 0.75rem; font-weight: 800;"><i class="fa-solid fa-cake-candles"></i> ${age} Years Old</span>`;
+      }
+    }
+    return age;
+  },
+
+  handleDobChange(dobId, ageId, displayId) {
+    const age = this.calcAgeFromDob(dobId, displayId);
+    const ageEl = document.getElementById(ageId);
+    if (ageEl && age !== null && age >= 0) {
+      ageEl.value = age;
+    }
+  },
+
+  handleAgeChange(ageId, dobId, displayId) {
+    const ageEl = document.getElementById(ageId);
+    const dobEl = document.getElementById(dobId);
+    if (!ageEl) return;
+    const rawVal = ageEl.value.trim();
+    if (!rawVal) return;
+    const val = parseInt(rawVal, 10);
+    if (!isNaN(val) && val >= 0 && val <= 130) {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+      const currentDay = String(today.getDate()).padStart(2, '0');
+      const birthYear = currentYear - val;
+      if (dobEl) {
+        // Keep the same month and day as today or existing DOB
+        let m = currentMonth;
+        let d = currentDay;
+        if (dobEl.value && dobEl.value.includes('-')) {
+          const existingParts = dobEl.value.split('-');
+          if (existingParts.length === 3) {
+            m = existingParts[1];
+            d = existingParts[2];
+          }
+        }
+        dobEl.value = `${birthYear}-${m}-${d}`;
+      }
+      if (displayId) {
+        const disp = document.getElementById(displayId);
+        if (disp) {
+          disp.innerHTML = `<span class="badge badge-teal" style="font-size: 0.75rem; font-weight: 800;"><i class="fa-solid fa-cake-candles"></i> ${val} Years Old</span>`;
+        }
+      }
+    }
   },
 
   // API Fetch Wrapper
@@ -2927,48 +2998,6 @@ const app = {
   },
 
 
-  calcAgeFromDob(dobInputId, displayId = null) {
-    const el = document.getElementById(dobInputId);
-    if (!el || !el.value) return 0;
-    const dob = new Date(el.value);
-    if (isNaN(dob.getTime())) return 0;
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    age = Math.max(0, age);
-    if (displayId) {
-      const disp = document.getElementById(displayId);
-      if (disp) {
-        disp.innerHTML = `<span class="badge badge-teal" style="font-size: 0.68rem; padding: 1px 6px;">Age: ${age} Yrs</span>`;
-      }
-    }
-    return age;
-  },
-
-  handleDobChange(dobId, ageId, displayId) {
-    const age = this.calcAgeFromDob(dobId, displayId);
-    const ageEl = document.getElementById(ageId);
-    if (ageEl && age >= 0) ageEl.value = age;
-  },
-
-  handleAgeChange(ageId, dobId, displayId) {
-    const ageEl = document.getElementById(ageId);
-    const dobEl = document.getElementById(dobId);
-    if (!ageEl) return;
-    const val = parseInt(ageEl.value, 10);
-    if (!isNaN(val) && val >= 0) {
-      const year = new Date().getFullYear() - val;
-      if (dobEl) dobEl.value = `${year}-01-01`;
-      if (displayId) {
-        const disp = document.getElementById(displayId);
-        if (disp) disp.innerHTML = `<span class="badge badge-teal" style="font-size: 0.68rem; padding: 1px 6px;">Age: ${val} Yrs</span>`;
-      }
-    }
-  },
-
   // Quick Action Modal: Register New Patient (Compact, High-Density Zero-Scroll Form)
   openNewPatientModal(returnToToken = false) {
     const bodyHtml = `
@@ -3065,7 +3094,7 @@ const app = {
                 <label class="np-field-label" style="margin-bottom: 0;"><i class="fa-solid fa-cake-candles" style="color: #f59e0b;"></i> Date of Birth <span class="required" style="color: var(--danger);">*</span></label>
                 <div id="np-age-display"></div>
               </div>
-              <input type="date" id="np-dob" class="form-control np-input" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" required tabindex="5">
+              <input type="date" id="np-dob" class="form-control np-input" min="1900-01-01" max="${this.getLocalISODate()}" onchange="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" oninput="app.handleDobChange('np-dob', 'np-age-input', 'np-age-display')" required tabindex="5">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="np-field-label"><i class="fa-solid fa-hashtag" style="color: var(--primary);"></i> Age (Yrs)</label>
