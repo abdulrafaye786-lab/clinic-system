@@ -469,7 +469,7 @@ const app = {
 
         ctx.clearRect(0, 0, 32, 32);
 
-        // 1. Futuristic rounded dark background
+        // 1. Futuristic rounded dark background (Quantum Obsidian Matrix)
         ctx.save();
         ctx.beginPath();
         const r = 7;
@@ -483,51 +483,51 @@ const app = {
         ctx.lineTo(2, 2 + r);
         ctx.quadraticCurveTo(2, 2, 2 + r, 2);
         ctx.closePath();
-        ctx.fillStyle = '#090d16';
+        ctx.fillStyle = '#050811';
         ctx.fill();
-        ctx.strokeStyle = '#6366f1';
+        ctx.strokeStyle = '#00f2fe';
         ctx.lineWidth = 1.2;
         ctx.stroke();
         ctx.restore();
 
-        // 2. Rotating Gyroscope Orbital Ring 1
+        // 2. Rotating Gyroscope Orbital Ring 1 (Neon Cyber Cyan)
         ctx.save();
         ctx.translate(16, 16);
         ctx.rotate(angle);
         ctx.beginPath();
         ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = '#38bdf8';
+        ctx.strokeStyle = '#00f2fe';
         ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Quantum orbiting node
+        // Quantum orbiting node (Laser Emerald)
         ctx.beginPath();
         ctx.arc(11, 0, 1.6, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#00f5a0';
         ctx.fill();
         ctx.restore();
 
-        // 3. Counter-rotating Gyroscope Orbital Ring 2
+        // 3. Counter-rotating Gyroscope Orbital Ring 2 (Cyber Mint)
         ctx.save();
         ctx.translate(16, 16);
         ctx.rotate(-angle * 1.2 + 0.8);
         ctx.beginPath();
         ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = '#c084fc';
+        ctx.strokeStyle = '#00f5a0';
         ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Quantum orbiting node 2
+        // Quantum orbiting node 2 (Electric Violet)
         ctx.beginPath();
         ctx.arc(-11, 0, 1.4, 0, Math.PI * 2);
-        ctx.fillStyle = '#34d399';
+        ctx.fillStyle = '#a855f7';
         ctx.fill();
         ctx.restore();
 
-        // 4. Central Futuristic Medical Cross
+        // 4. Central Futuristic Medical Cross (Electric Cyan)
         ctx.save();
         ctx.translate(16, 16);
-        ctx.fillStyle = '#6366f1';
+        ctx.fillStyle = '#00f2fe';
         
         // Vertical Arm
         ctx.fillRect(-2, -7, 4, 14);

@@ -1,80 +1,83 @@
 /* ==========================================================================
-   DREAM GARDEN POLYCLINIC - MODERN AMETHYST & INDIGO MEDICAL
-   Palette: Polished Slate-Indigo, Lilac Tint, Clean Amethyst, Violet Blue, Rich Midnight Slate
-   Modes: Light Mode (Crisp Modern Indigo & Lilac) & Dark Mode (Deep Midnight Violet & Slate)
+   DREAM GARDEN POLYCLINIC - QUANTUM CYBERNETIC & TITANIUM OBSIDIAN THEME
+   Palette: Cyber Cyan (#00f2fe), Quantum Blue (#0284c7), Neon Mint (#00f5a0), Laser Violet (#8b5cf6)
+   Modes: 
+     Light Mode: Frosted Titanium-Ice (#d9e2ec / #e2ebf5), High-Tech Cyber Silver (#ebf1f8), Electric Cyan & Deep Sapphire
+     Dark Mode: Deep Void Obsidian (#050811 / #070c18), Carbon Matrix (#0d1527), Neon Hologram Cyan & Cyber Mint
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. LIGHT THEME (DEFAULT - Modern Amethyst & Slate-Indigo Medical)
+   1. LIGHT THEME (Frosted Titanium-Ice & Quantum Cyber Sapphire)
    -------------------------------------------------------------------------- */
 :root, [data-theme="light"] {
-  /* Requested Color Theme Palette: Modern Amethyst & Slate-Indigo */
-  --amethyst-indigo: #6366f1;
-  --amethyst-indigo-dark: #4f46e5;
-  --amethyst-indigo-light: #eef2ff;
-  --amethyst-indigo-glow: rgba(99, 102, 241, 0.35);
+  /* High-Tech Accent Palette */
+  --amethyst-indigo: #0284c7;
+  --amethyst-indigo-dark: #0369a1;
+  --amethyst-indigo-light: #e0f2fe;
+  --amethyst-indigo-glow: rgba(2, 132, 199, 0.35);
 
-  --cyan-blue: #6366f1;
-  --cyan-blue-dark: #4f46e5;
-  --cyan-blue-light: #eef2ff;
-  --cyan-blue-glow: rgba(99, 102, 241, 0.32);
+  --cyan-blue: #0ea5e9;
+  --cyan-blue-dark: #0284c7;
+  --cyan-blue-light: #e0f2fe;
+  --cyan-blue-glow: rgba(14, 165, 233, 0.35);
 
-  --light-blue: #818cf8;
-  --light-blue-dark: #6366f1;
-  --light-blue-light: #f5f3ff;
-  --light-blue-glow: rgba(129, 140, 248, 0.3);
+  --light-blue: #38bdf8;
+  --light-blue-dark: #0284c7;
+  --light-blue-light: #f0f9ff;
+  --light-blue-glow: rgba(56, 189, 248, 0.32);
 
   --dark-green: #047857;
   --dark-green-deep: #064e3b;
   --dark-green-light: #ecfdf5;
 
-  --cyber-green: #10b981;
-  --cyber-green-neon: #34d399;
-  --cyber-green-dark: #059669;
-  --cyber-green-light: #ecfdf5;
+  --cyber-green: #059669;
+  --cyber-green-neon: #10b981;
+  --cyber-green-dark: #047857;
+  --cyber-green-light: #d1fae5;
   --cyber-green-glow: rgba(16, 185, 129, 0.35);
 
   --dark-red: #9f1239;
   --dark-red-light: #ffe4e6;
   --dark-red-glow: rgba(159, 18, 57, 0.28);
 
-  --red-vine: #be123c;
-  --red-vine-light: #fff1f2;
-  --red-vine-dark: #881337;
-  --red-vine-glow: rgba(190, 18, 60, 0.3);
+  --red-vine: #e11d48;
+  --red-vine-light: #ffe4e6;
+  --red-vine-dark: #be123c;
+  --red-vine-glow: rgba(225, 29, 72, 0.3);
 
-  --pure-black: #090d16;
-  --slate-black: #0f172a;
-  --charcoal: #1e1b4b;
+  --pure-black: #060b14;
+  --slate-black: #091322;
+  --charcoal: #0f1c30;
 
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  --gray-50: #f1f5f9;
+  --gray-100: #e2e8f0;
+  --gray-200: #cbd5e1;
+  --gray-300: #94a3b8;
+  --gray-400: #64748b;
+  --gray-500: #475569;
+  --gray-600: #334155;
+  --gray-700: #1e293b;
+  --gray-800: #0f172a;
+  --gray-900: #090e1a;
 
-  --pure-white: #ffffff;
-  --off-white: #faf5ff;
+  /* Replaced Plain White with High-Tech Frosted Cyber Ice */
+  --pure-white: #eef4fb;
+  --off-white: #e4ecf7;
 
-  /* Primary Brand: Modern Indigo into Amethyst & Deep Violet */
-  --primary: #4f46e5;
-  --primary-neon: #6366f1;
-  --primary-light: #eef2ff;
-  --primary-dark: #4338ca;
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #7c3aed 100%);
-  --primary-glow: 0 4px 20px rgba(79, 70, 229, 0.32);
+  /* Primary Brand: Electric Cyber Cyan into Deep Quantum Sapphire */
+  --primary: #0284c7;
+  --primary-neon: #00d2ff;
+  --primary-light: #e0f2fe;
+  --primary-dark: #0369a1;
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #06b6d4 100%);
+  --primary-glow: 0 4px 20px rgba(2, 132, 199, 0.35);
 
-  /* Secondary: Amethyst Violet & Lilac Accents */
-  --secondary: #7c3aed;
-  --secondary-light: #f5f3ff;
-  --secondary-dark: #6d28d9;
-  --secondary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --secondary-glow: 0 4px 16px rgba(124, 58, 237, 0.28);
+  /* Secondary: Holographic Laser Violet */
+  --secondary: #6366f1;
+  --secondary-light: #eef2ff;
+  --secondary-dark: #4f46e5;
+  --secondary-gradient: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  --secondary-glow: 0 4px 18px rgba(99, 102, 241, 0.3);
 
   /* Cyber Green Compatibility Aliases */
   --cyber-green-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -87,7 +90,7 @@
   --caramel-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   --caramel-glow: 0 4px 16px rgba(245, 158, 11, 0.25);
 
-  /* Emergency, Alerts, Critical: Modern Rose / Crimson */
+  /* Emergency, Alerts, Critical */
   --danger: #e11d48;
   --danger-light: #ffe4e6;
   --danger-dark: #be123c;
@@ -100,62 +103,62 @@
   --wine-red-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
   --wine-glow: 0 4px 18px rgba(190, 18, 60, 0.3);
 
-  /* Success & Verified Badges */
-  --success: #10b981;
+  /* Success & Badges */
+  --success: #059669;
   --success-light: #ecfdf5;
-  --success-dark: #059669;
-  --success-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --success-dark: #047857;
+  --success-gradient: linear-gradient(135deg, #047857 0%, #10b981 100%);
   --success-glow: 0 4px 16px rgba(16, 185, 129, 0.25);
 
-  /* Amber Gold - Warning & Reminders */
+  /* Warning */
   --warning: #d97706;
   --warning-light: #fef3c7;
   --warning-dark: #b45309;
   --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   --warning-glow: 0 4px 16px rgba(245, 158, 11, 0.25);
 
-  /* Electric Sapphire / Indigo Waters */
-  --electric-blue: #4f46e5;
-  --electric-blue-light: #eef2ff;
-  --electric-blue-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  /* Electric Sapphire / Cyan */
+  --electric-blue: #0284c7;
+  --electric-blue-light: #e0f2fe;
+  --electric-blue-gradient: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
 
-  /* Cool Neutral Slate Scales */
-  --light-gray: #f8fafc;
-  --light-gray-subtle: #f1f5f9;
-  --light-gray-dark: #cbd5e1;
+  /* Cool Neutral Titanium Scales */
+  --light-gray: #e2ebf5;
+  --light-gray-subtle: #dbe5f2;
+  --light-gray-dark: #94a3b8;
 
-  /* Surfaces & Canvas */
-  --cream: #f8fafc;
-  --cream-alt: #f1f5f9;
-  --cream-pure: #ffffff;
-  --white: #ffffff;
+  /* Surfaces & Canvas: High-Tech Frosted Titanium, NO plain white */
+  --cream: #e1ebf6;
+  --cream-alt: #d7e3f1;
+  --cream-pure: #ecf3fc;
+  --white: #ebf2fa;
 
   /* Page Surfaces */
-  --bg-main: #f8fafc;
-  --bg-canvas: #f1f5f9;
-  --bg-card: #ffffff;
-  --bg-card-hover: #ffffff;
-  --bg-input: #ffffff;
-  --bg-header: rgba(255, 255, 255, 0.94);
-  --bg-sidebar: #0f172a;
-  --bg-sidebar-hover: rgba(99, 102, 241, 0.12);
-  --bg-sidebar-active: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #7c3aed 100%);
+  --bg-main: #dbe6f3;
+  --bg-canvas: #d3dfef;
+  --bg-card: #eaf1fa;
+  --bg-card-hover: #f1f6fc;
+  --bg-input: #f4f8fd;
+  --bg-header: rgba(230, 238, 248, 0.94);
+  --bg-sidebar: #091322;
+  --bg-sidebar-hover: rgba(14, 165, 233, 0.15);
+  --bg-sidebar-active: linear-gradient(135deg, #0284c7 0%, #0ea5e9 60%, #06b6d4 100%);
 
   /* Typography */
-  --text-main: #0f172a;
-  --text-body: #334155;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --text-main: #0a1626;
+  --text-body: #1e293b;
+  --text-muted: #475569;
+  --text-light: #64748b;
   --text-white: #ffffff;
 
-  /* Borders & Shadows */
-  --border-color: #e2e8f0;
-  --border-subtle: rgba(99, 102, 241, 0.2);
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
-  --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
-  --shadow-xl: 0 20px 45px -8px rgba(15, 23, 42, 0.14);
-  --neu-inset: inset 1px 1px 3px rgba(15, 23, 42, 0.04);
+  /* Borders & Shadows: Metallic Frosted Tech Borders */
+  --border-color: rgba(148, 163, 184, 0.35);
+  --border-subtle: rgba(14, 165, 233, 0.28);
+  --shadow-sm: 0 1px 3px rgba(10, 22, 38, 0.08), 0 1px 2px rgba(10, 22, 38, 0.05);
+  --shadow-md: 0 4px 18px -2px rgba(10, 22, 38, 0.12), 0 2px 8px -1px rgba(10, 22, 38, 0.07);
+  --shadow-lg: 0 14px 30px -4px rgba(10, 22, 38, 0.15), 0 4px 12px -2px rgba(10, 22, 38, 0.08);
+  --shadow-xl: 0 22px 50px -8px rgba(10, 22, 38, 0.22);
+  --neu-inset: inset 1px 1px 3px rgba(10, 22, 38, 0.08);
 
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --sidebar-width: 260px;
@@ -168,47 +171,48 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. DARK THEME (Midnight Slate & Amethyst Violet)
+   2. DARK THEME (Quantum Void Obsidian & Neon Cyber Hologram)
    -------------------------------------------------------------------------- */
 [data-theme="dark"] {
-  /* Requested Color Theme Palette: Modern Amethyst & Slate-Indigo Dark */
-  --amethyst-indigo: #818cf8;
-  --amethyst-indigo-dark: #6366f1;
-  --amethyst-indigo-light: rgba(99, 102, 241, 0.18);
-  --amethyst-indigo-glow: 0 0 22px rgba(129, 140, 248, 0.45);
+  /* High-Tech Accent Palette: Neon Cyber Cyan, Hologram Teal & Laser Mint */
+  --amethyst-indigo: #00f2fe;
+  --amethyst-indigo-dark: #0284c7;
+  --amethyst-indigo-light: rgba(0, 242, 254, 0.16);
+  --amethyst-indigo-glow: 0 0 24px rgba(0, 242, 254, 0.45);
 
-  --cyan-blue: #818cf8;
-  --cyan-blue-dark: #6366f1;
-  --cyan-blue-light: rgba(99, 102, 241, 0.18);
-  --cyan-blue-glow: 0 0 22px rgba(129, 140, 248, 0.45);
+  --cyan-blue: #00f2fe;
+  --cyan-blue-dark: #0284c7;
+  --cyan-blue-light: rgba(0, 242, 254, 0.16);
+  --cyan-blue-glow: 0 0 24px rgba(0, 242, 254, 0.45);
 
-  --light-blue: #a5b4fc;
-  --light-blue-dark: #818cf8;
-  --light-blue-light: rgba(165, 180, 252, 0.16);
-  --light-blue-glow: 0 0 20px rgba(165, 180, 252, 0.4);
+  --light-blue: #38bdf8;
+  --light-blue-dark: #00f2fe;
+  --light-blue-light: rgba(56, 189, 248, 0.15);
+  --light-blue-glow: 0 0 22px rgba(56, 189, 248, 0.4);
 
   --dark-green: #064e3b;
   --dark-green-deep: #022c22;
   --dark-green-light: rgba(6, 95, 70, 0.25);
 
-  --cyber-green: #34d399;
-  --cyber-green-neon: #6ee7b7;
-  --cyber-green-dark: #10b981;
-  --cyber-green-light: rgba(52, 211, 153, 0.18);
-  --cyber-green-glow: 0 0 22px rgba(52, 211, 153, 0.45);
+  --cyber-green: #00f5a0;
+  --cyber-green-neon: #5eead4;
+  --cyber-green-dark: #059669;
+  --cyber-green-light: rgba(0, 245, 160, 0.16);
+  --cyber-green-glow: 0 0 24px rgba(0, 245, 160, 0.45);
 
   --dark-red: #881337;
   --dark-red-light: rgba(136, 19, 55, 0.25);
   --dark-red-glow: 0 0 20px rgba(136, 19, 55, 0.45);
 
-  --red-vine: #f43f5e;
-  --red-vine-light: rgba(244, 63, 94, 0.22);
+  --red-vine: #ff3366;
+  --red-vine-light: rgba(255, 51, 102, 0.22);
   --red-vine-dark: #fb7185;
-  --red-vine-glow: 0 0 22px rgba(244, 63, 94, 0.45);
+  --red-vine-glow: 0 0 22px rgba(255, 51, 102, 0.45);
 
-  --pure-black: #020617;
-  --slate-black: #090e1a;
-  --charcoal: #0f172a;
+  /* Deep High-Tech Quantum Obsidian (NO plain flat black) */
+  --pure-black: #050811;
+  --slate-black: #070c18;
+  --charcoal: #0d1527;
 
   --gray-50: #f8fafc;
   --gray-100: #f1f5f9;
@@ -224,68 +228,70 @@
   --pure-white: #ffffff;
   --off-white: #f8fafc;
 
-  /* Primary */
-  --primary: #6366f1;
-  --primary-neon: #818cf8;
-  --primary-light: rgba(99, 102, 241, 0.2);
-  --primary-dark: #4f46e5;
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
-  --primary-glow: 0 0 24px rgba(99, 102, 241, 0.42);
+  /* Primary: Neon Cyan into Holographic Laser Indigo */
+  --primary: #00f2fe;
+  --primary-neon: #38bdf8;
+  --primary-light: rgba(0, 242, 254, 0.2);
+  --primary-dark: #0284c7;
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #00f2fe 50%, #818cf8 100%);
+  --primary-glow: 0 0 26px rgba(0, 242, 254, 0.48);
 
   --secondary: #a855f7;
   --secondary-light: rgba(168, 85, 247, 0.2);
   --secondary-dark: #c084fc;
-  --secondary-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-  --secondary-glow: 0 0 20px rgba(168, 85, 247, 0.38);
+  --secondary-gradient: linear-gradient(135deg, #00f2fe 0%, #a855f7 100%);
+  --secondary-glow: 0 0 22px rgba(168, 85, 247, 0.4);
 
-  --cyber-green-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
-  --green-glow: 0 0 22px rgba(52, 211, 153, 0.45);
+  --cyber-green-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #00f5a0 100%);
+  --green-glow: 0 0 24px rgba(0, 245, 160, 0.45);
 
   --caramel: #fbbf24;
   --caramel-light: rgba(251, 191, 36, 0.18);
   --caramel-dark: #f59e0b;
   --caramel-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
 
-  --danger: #f43f5e;
-  --danger-light: rgba(244, 63, 94, 0.2);
+  --danger: #ff3366;
+  --danger-light: rgba(255, 51, 102, 0.2);
   --danger-dark: #fb7185;
-  --danger-gradient: linear-gradient(135deg, #be123c 0%, #e11d48 50%, #f43f5e 100%);
+  --danger-gradient: linear-gradient(135deg, #be123c 0%, #e11d48 50%, #ff3366 100%);
 
   --wine-red: #fb7185;
   --wine-red-light: rgba(251, 113, 133, 0.2);
   --wine-red-dark: #fda4af;
   --wine-red-gradient: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
 
-  --success: #34d399;
-  --success-light: rgba(52, 211, 153, 0.2);
+  --success: #00f5a0;
+  --success-light: rgba(0, 245, 160, 0.2);
   --success-dark: #10b981;
 
   --warning: #fbbf24;
   --warning-light: rgba(251, 191, 36, 0.18);
   --warning-dark: #f59e0b;
 
-  --bg-main: #0b0f19;
-  --bg-canvas: #070a12;
-  --bg-card: rgba(17, 24, 39, 0.96);
-  --bg-card-hover: rgba(26, 36, 56, 0.98);
-  --bg-input: #111827;
-  --bg-header: rgba(11, 15, 25, 0.94);
-  --bg-sidebar: #090d16;
-  --bg-sidebar-hover: rgba(99, 102, 241, 0.14);
-  --bg-sidebar-active: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #7c3aed 100%);
+  /* Surfaces & Canvas: Cyber Void Obsidian Matrix */
+  --bg-main: #070c18;
+  --bg-canvas: #050811;
+  --bg-card: rgba(13, 21, 39, 0.96);
+  --bg-card-hover: rgba(19, 31, 56, 0.98);
+  --bg-input: #0a1120;
+  --bg-header: rgba(7, 12, 24, 0.94);
+  --bg-sidebar: #050913;
+  --bg-sidebar-hover: rgba(0, 242, 254, 0.15);
+  --bg-sidebar-active: linear-gradient(135deg, #0284c7 0%, #00f2fe 60%, #818cf8 100%);
 
-  --text-main: #f8fafc;
-  --text-body: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-light: #64748b;
+  --text-main: #e2f1ff;
+  --text-body: #94a3b8;
+  --text-muted: #64748b;
+  --text-light: #475569;
 
-  --border-color: rgba(148, 163, 184, 0.15);
-  --border-subtle: rgba(99, 102, 241, 0.25);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
-  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.92);
-  --neu-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.55);
+  /* Neon-Infused Cyber Edge Borders */
+  --border-color: rgba(0, 242, 254, 0.18);
+  --border-subtle: rgba(0, 242, 254, 0.28);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(0, 242, 254, 0.1);
+  --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(0, 242, 254, 0.15);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+  --neu-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.65);
 }
 
 * {
@@ -454,20 +460,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 22px rgba(99, 102, 241, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 22px rgba(0, 242, 254, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  border: 1.5px solid rgba(129, 140, 248, 0.6);
-  background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #090d16 100%);
+  border: 1.5px solid rgba(0, 242, 254, 0.6);
+  background: radial-gradient(circle at 50% 30%, #0d1b2a 0%, #050811 100%);
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
 
 .brand-icon:hover {
   transform: scale(1.1) rotate(2deg);
-  box-shadow: 0 0 28px rgba(168, 85, 247, 0.65), 0 0 14px rgba(99, 102, 241, 0.8), inset 0 1px 4px rgba(255, 255, 255, 0.8);
-  border-color: #c084fc;
+  box-shadow: 0 0 28px rgba(0, 242, 254, 0.75), 0 0 14px rgba(0, 245, 160, 0.8), inset 0 1px 4px rgba(255, 255, 255, 0.8);
+  border-color: #00f2fe;
 }
 
 /* ==========================================================================
@@ -3088,11 +3094,11 @@ html {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 22px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 4px 22px rgba(0, 242, 254, 0.45);
   margin-bottom: 0.65rem;
   overflow: hidden;
-  border: 1.5px solid rgba(129, 140, 248, 0.6);
-  background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #090d16 100%);
+  border: 1.5px solid rgba(0, 242, 254, 0.6);
+  background: radial-gradient(circle at 50% 30%, #0d1b2a 0%, #050811 100%);
 }
 
 .login-brand-title {
