@@ -653,16 +653,40 @@ const app = {
       ...(options.headers || {})
     };
 
-    // Prevent hanging requests indefinitely by setting a 12s timeout
+    // Prevent hanging requests indefinitely by setting a 25s timeout (absorbed for cold starts & mobile connections)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs || 12000);
+    const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs || 25000);
 
     try {
-      const response = await fetch(`/api${endpoint}`, {
-        ...options,
-        signal: controller.signal,
-        headers
-      });
+      let response;
+      let attempt = 0;
+      const maxRetries = options.retries !== undefined ? options.retries : 2;
+
+      while (attempt <= maxRetries) {
+        try {
+          response = await fetch(`/api${endpoint}`, {
+            ...options,
+            signal: controller.signal,
+            headers
+          });
+
+          // If transient 429 or 503/504, retry with exponential delay
+          if ((response.status === 429 || response.status === 503 || response.status === 504) && attempt < maxRetries) {
+            attempt++;
+            await new Promise(r => setTimeout(r, attempt * 600));
+            continue;
+          }
+          break;
+        } catch (fetchErr) {
+          if (attempt < maxRetries && !controller.signal.aborted) {
+            attempt++;
+            await new Promise(r => setTimeout(r, attempt * 500));
+            continue;
+          }
+          throw fetchErr;
+        }
+      }
+
       clearTimeout(timeoutId);
 
       if (response.status === 401) {
